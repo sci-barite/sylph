@@ -17,14 +17,10 @@ chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     let AwakeSylph = {
         conditions: [
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in', schemes: ['https'] }, }),
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox', schemes: ['https'] }, }),
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants', schemes: ['https'] }, }),
-          new chrome.declarativeContent.PageStateMatcher({
-            pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers', schemes: ['https'] }, }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in' } }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox' } }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants' } }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers' } }),
         ],
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
