@@ -1,0 +1,19 @@
+{
+  "name": "sylph.ts",
+  "version": "1.5.6",
+  "description": "Sylph is a Chrome Extension that sifts data from a few popular websites, and sends it to a web app done in Google Apps Script, which in turn sends it to a Google Sheet.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "sci-barite",
+  "license": "ISC",
+  "dependencies": {
+    "@types/chrome": "0.0.197",
+    "types": "^0.1.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}

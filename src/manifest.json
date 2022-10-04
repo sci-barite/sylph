@@ -1,0 +1,44 @@
+{
+    "name": "Sylph",
+    "version": "1.5.6",
+    "description": "Sylph sifts data from famous websites, and sends it to a web app for processing.",
+    "manifest_version": 2,
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "page_action": {
+        "default_icon": "images/sylph32.png"
+    },
+    "icons": {
+        "32": "images/sylph32.png",
+        "128": "images/sylph128.png"
+    },
+    "content_scripts": [
+        {
+            "js": ["content.js"],
+            "run_at": "document_idle",
+            "matches": [
+                "https://*.linkedin.com/in*", "https://*.djinni.co/home/inbox*", "https://*.upwork.com/ab/applicants/*", "https://*.upwork.com/freelancers/*"
+            ]
+        },
+        {
+            "js": ["sift-linked.js"],
+            "run_at": "document_idle",
+            "matches": ["https://*.linkedin.com/in*"]
+        },
+        {
+            "js": ["sift-upwork.js"],
+            "run_at": "document_idle",
+            "matches": ["https://*.upwork.com/ab/applicants/*", "https://*.upwork.com/freelancers/*"]
+        },
+        {
+            "js": ["sift-djinni.js"],
+            "run_at": "document_idle",
+            "matches": ["https://djinni.co/home/inbox/*"]
+        }
+    ],
+    "permissions": [
+        "bookmarks", "storage", "tabs", "https://script.google.com/macros/s/"
+    ]
+}
