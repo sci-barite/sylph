@@ -2,12 +2,11 @@
     "name": "Sylph",
     "version": "1.5.7",
     "description": "Sylph sifts data from famous websites, and sends it to a web app for processing.",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "background": {
-        "scripts": ["background.js"],
-        "persistent": false
+        "service_worker": "background.js"
     },
-    "page_action": {
+    "action": {
         "default_icon": "images/sylph32.png"
     },
     "icons": {
@@ -39,6 +38,9 @@
         }
     ],
     "permissions": [
-        "bookmarks", "storage", "tabs", "https://script.google.com/macros/s/"
+        "bookmarks", "storage", "tabs"
+    ],
+    "host_permissions": [
+        "https://script.google.com/macros/s/"
     ]
 }
