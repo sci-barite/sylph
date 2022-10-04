@@ -1,6 +1,6 @@
 var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, MORE] = ['Angular', '', 'NA', '', 'NA', 'NA', '', ''];
 
-function SylphBack(response, status) {
+function SylphBack(response : string, status : number) {
     if (status == 200) {
         var STATUS = "✅ ";
         console.log(response);

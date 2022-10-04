@@ -1,6 +1,6 @@
 // It got much, much easier than the first version, but still a bit tricky sometimes.
 
-function SiftLinked(position) {
+function SiftLinked(position : string) {
     var Sifted: Array<string> = [];
     for (var i=0; i<3; i++) {
         Sifted.push(' '+

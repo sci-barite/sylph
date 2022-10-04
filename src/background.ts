@@ -1,6 +1,6 @@
 var CastingIndex = 1;
 var SylphCasting = false;
-var Tab;
+var Tab : number;
 
 function SylphCasts()
 {               
@@ -24,7 +24,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
         url.includes("djinni.co/home")) {
         chrome.bookmarks.get((bookmark.parentId as string), (folder) => {
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-                Tab = tabs[0].id
+                Tab = (tabs[0].id as number)
                 chrome.tabs.sendMessage(Tab, { name: 'Sylph', site: url, position: folder[0].title });
                 console.log("Bookmark created in '"+folder[0].title+"', Sylph is casting her spell...");
                 SylphCasting = true;

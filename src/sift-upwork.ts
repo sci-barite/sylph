@@ -1,6 +1,6 @@
 // The longest of the three, because it can do two different kinds of pages.
 
-function SiftUpwork(url) {
+function SiftUpwork(url : string) {
     LINK = url;
     var Sifted: Array<string> = [];
     var SubSkills: Array<string> = [];
