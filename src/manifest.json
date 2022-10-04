@@ -38,7 +38,7 @@
         }
     ],
     "permissions": [
-        "bookmarks", "storage", "tabs"
+        "bookmarks", "storage", "tabs", "declarativeContent"
     ],
     "host_permissions": [
         "https://script.google.com/macros/s/"

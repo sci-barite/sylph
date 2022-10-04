@@ -17,25 +17,19 @@ chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     let AwakeSylph = {
         conditions: [
-            new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in' } }),
-            new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox' } }),
-            new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants' } }),
-            new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers' } }),
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in', schemes: ['https'] }, }),
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox', schemes: ['https'] }, }),
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants', schemes: ['https'] }, }),
+          new chrome.declarativeContent.PageStateMatcher({
+            pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers', schemes: ['https'] }, }),
         ],
-        actions: [new chrome.declarativeContent.ShowAction()]
-    };
-    let BlinkSylph = {
-        conditions: [
-            new chrome.declarativeContent.PageStateMatcher({ isBookmarked: true, pageUrl: { pathPrefix: '/in' } }),
-            new chrome.declarativeContent.PageStateMatcher({ isBookmarked: true, pageUrl: { pathPrefix: '/home/inbox' } }),
-            new chrome.declarativeContent.PageStateMatcher({ isBookmarked: true, pageUrl: { pathPrefix: '/ab/applicants' } }),
-            new chrome.declarativeContent.PageStateMatcher({ isBookmarked: true, pageUrl: { pathPrefix: '/freelancers' } }),
-        ],
-        actions: [new chrome.declarativeContent.SetIcon({ path: "images/sylph-hurt.png"})]
+        actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
         chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]);
-        chrome.declarativeContent.onPageChanged.addRules([BlinkSylph]);
     });
 });
 
