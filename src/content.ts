@@ -23,9 +23,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             case "upwork": SiftUpwork(request.site); break; // The function should check if it's a profile or proposal page!
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
-        SKILLS = SKILLS.replace("++", "➕➕"); // Call it "escaping" the string...
-        SKILLS = SKILLS.replace("#"," Sharp");
-        POSITION = POSITION.replace("+", "➕");
+        let PARAM_STRING : string = 
+            'https://script.google.com/macros/s/AKfycbyZb43hadRmFpjDg1ynHnY31z6yIPT0tzaSbNMBNcBB76dfPWCssOXFTfwXRVGGzrZ0/exec?'+
+            'name='+NAME+'&pos='+POSITION // Now it can even be the bookmark's folder, as per the original idea!
+            +'&skills='+SKILLS+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
+        console.log('Unencoded URI string:\n'+PARAM_STRING);
+        PARAM_STRING = encodeURIComponent(PARAM_STRING);
+        POSITION = encodeURIComponent(POSITION);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
             if (XSnd.readyState === XMLHttpRequest.DONE) {
@@ -36,10 +40,6 @@ chrome.runtime.onMessage.addListener((request, sender) => {
                 }
             }
         }
-        let PARAM_STRING : string = 'https://script.google.com/macros/s/AKfycbyZb43hadRmFpjDg1ynHnY31z6yIPT0tzaSbNMBNcBB76dfPWCssOXFTfwXRVGGzrZ0/exec?'+
-        'name='+NAME+'&pos='+POSITION // Now it can even be the bookmark's folder, as per the original idea!
-        +'&skills='+SKILLS+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
-        console.log(PARAM_STRING);
         XSnd.open('GET', PARAM_STRING, true);
         XSnd.send();
     }
