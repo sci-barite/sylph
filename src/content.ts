@@ -24,6 +24,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
         SKILLS = SKILLS.replace("++", "➕➕"); // Call it "escaping" the string...
+        SKILLS = SKILLS.replace("#"," Sharp");
         POSITION = POSITION.replace("+", "➕");
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
@@ -34,12 +35,12 @@ chrome.runtime.onMessage.addListener((request, sender) => {
                     chrome.runtime.sendMessage({SpellSuccessful: false}); // Update icon to show something's wrong...
                 }
             }
-         }
-        XSnd.open('GET', // Probably better to replace it with POST at some point, but for now this works well.
-        'https://script.google.com/macros/s/AKfycbyZb43hadRmFpjDg1ynHnY31z6yIPT0tzaSbNMBNcBB76dfPWCssOXFTfwXRVGGzrZ0/exec?'+
+        }
+        let PARAM_STRING : string = 'https://script.google.com/macros/s/AKfycbyZb43hadRmFpjDg1ynHnY31z6yIPT0tzaSbNMBNcBB76dfPWCssOXFTfwXRVGGzrZ0/exec?'+
         'name='+NAME+'&pos='+POSITION // Now it can even be the bookmark's folder, as per the original idea!
-        +'&skills='+SKILLS+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE,
-        true);
+        +'&skills='+SKILLS+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
+        console.log(PARAM_STRING);
+        XSnd.open('GET', PARAM_STRING, true);
         XSnd.send();
     }
 });
