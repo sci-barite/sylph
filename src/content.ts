@@ -24,12 +24,10 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
         let PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbyZb43hadRmFpjDg1ynHnY31z6yIPT0tzaSbNMBNcBB76dfPWCssOXFTfwXRVGGzrZ0/exec?'+
-            'name='+NAME+'&pos='+POSITION // Now it can even be the bookmark's folder, as per the original idea!
-            +'&skills='+SKILLS+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
-        console.log('Unencoded URI string:\n'+PARAM_STRING);
-        PARAM_STRING = encodeURIComponent(PARAM_STRING);
-        POSITION = encodeURIComponent(POSITION);
+            'https://script.google.com/macros/s/AKfycbzQTfG3M3XIj78dv8CySXIxd5awdlUez2g9_ZV9jupaqu4KjnpoEBRp3EKZS0p1hiu2/exec?'+
+            'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can even be the bookmark's folder, as per the original idea!
+            +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
+        console.log('Partially encoded URI string:\n'+PARAM_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
             if (XSnd.readyState === XMLHttpRequest.DONE) {
