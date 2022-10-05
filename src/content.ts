@@ -15,7 +15,7 @@ function SylphBack(response : string, status : number) {
 }
 
 chrome.runtime.onMessage.addListener((request, sender) => {
-    console.log('🧚‍♀️ Sylph!', request);
+    console.log('🧚‍♀️ Sylph!', request, sender);
     if (request.name == 'Sylph') {
         switch (request.site.substring(12,18)) {
             case "linked": SiftLinked(request.position); break;
@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             'https://script.google.com/macros/s/AKfycbyv6UWvk67qXaflY2AFGVmzn9_NGGBktGxThQBmW3rYsx5xftdV4553fzu-qF_7NxpX/exec?'+
             'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can even be the bookmark's folder, as per the original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
-        console.log('Partially encoded URI string:\n'+PARAM_STRING);
+        console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
             if (XSnd.readyState === XMLHttpRequest.DONE) {
