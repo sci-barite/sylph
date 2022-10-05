@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
         let PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbyv6UWvk67qXaflY2AFGVmzn9_NGGBktGxThQBmW3rYsx5xftdV4553fzu-qF_7NxpX/exec?'+
+            'https://script.google.com/macros/s/AKfycbwnxLSGIhUkFLk61Ef7wn9g6gdIFAaeP7X9XsQzQ4UVyI-5wCR-js8WwDE-g2Gp8iqk/exec?'+
             'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can even be the bookmark's folder, as per the original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
