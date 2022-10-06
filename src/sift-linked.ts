@@ -25,4 +25,4 @@ function SiftLinked(position : string) {
     NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
     POSITION = position;
     LINK = document.URL;
-}  
+}
