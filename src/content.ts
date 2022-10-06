@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         switch (request.site.substring(12,18)) {
             case "linked": SiftLinked(request.position); break;
             case "ni.co/": SiftDjinni(request.position); break;
-            case "upwork": SiftUpwork(request.site); break; // The function should check if it's a profile or proposal page!
+            case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
         let PARAM_STRING : string = 

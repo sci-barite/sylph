@@ -1,6 +1,6 @@
 // The longest of the three, because it can do two different kinds of pages.
 
-function SiftUpwork(url : string) {
+function SiftUpwork(pos: string, url : string) {
     LINK = url;
     var Sifted: Array<string> = [];
     var SubSkills: Array<string> = [];
@@ -42,10 +42,12 @@ function SiftUpwork(url : string) {
         for (i=0; i<SubSkills.length; i++) if (!SubSkills[i].includes("Skills")) Sifted.push(' '+SubSkills[i]);
         SKILLS = Sifted.toString().substring(1);
 
+        POSITION = pos; // Keeping the old code, so later it can be activated via settings/options.
+        /**
         if (document.querySelectorAll(".up-card")[3].querySelector("em.break"))
             POSITION = (document.querySelectorAll(".up-card")[3].querySelector("em.break") as HTMLElement).innerText;
         else POSITION = (document.querySelectorAll("h2.mb-0")[1] as HTMLElement).innerText.trim();
-
+         */
         const lists = document.querySelectorAll(".list-unstyled");
         ENGLISH = (lists[1].querySelector("span.d-inline-block") as HTMLElement).innerText
     }
