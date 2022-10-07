@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         }
         if (COMPANY) {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbzlvodnWV4GjTP7rdyFalR2Hd4a_R2F-vlDpTY0P_NLkKtI-kER9NGbDXdVNzNNEpDj/exec?'+
+            'https://script.google.com/macros/s/AKfycbwoBFtu6rZOBBaY7jdYAwM1h-e3a2c856_o_4G9VQQ-01zS3-rN0PQ9fwO0p-oLrU-h/exec?'+
             'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE // Now for lead generation!
             +'&person='+PERSON+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE;
         }
