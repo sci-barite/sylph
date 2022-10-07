@@ -18,6 +18,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     let AwakeSylph = {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in' } }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/jobs' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers' } }),
@@ -32,6 +33,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
     if (url.includes("linkedin.com/in") || 
+        url.includes("linkedin.com/jobs") || 
         url.includes("upwork.com/ab/") || 
         url.includes("upwork.com/freelancers") || 
         url.includes("djinni.co/home")) {
