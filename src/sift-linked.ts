@@ -10,7 +10,7 @@ function SiftLinked(position : string, page: string) {
             PERSON_LINK = ((document.querySelector('.hirer-card__hirer-information')!.children[0] as HTMLElement)!.getAttribute('href') as string);
         COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
         COMPANY_LINK = document.URL.split('/jobs')[0]+document.querySelector('.jobs-unified-top-card__company-name')!.children[0].getAttribute('href');
-        COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0].split(' ')[0];
+        COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0];
         //let time_posted = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText
         //let today = new Date();
         //if (time_posted.includes('day')) DATE = new Date(today.getDate() - (parseInt(time_posted[0]))).toDateString()
