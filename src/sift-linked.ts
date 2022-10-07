@@ -12,6 +12,13 @@ function SiftLinked(position : string, page: string) {
         COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
         COMPANY_LINK = document.URL.split('/jobs')[0]+document.querySelector('.jobs-unified-top-card__company-name')!.children[0].getAttribute('href');
         COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0];
+        switch (COMPANY_SIZE.split('-')[0]) {
+            case '1': COMPANY_SIZE = '3'; break;
+            case '11': COMPANY_SIZE = '5'; break;
+            case '51': COMPANY_SIZE = '4'; break;
+            case '201': COMPANY_SIZE = '2'; break;
+            default: COMPANY_SIZE = '1'; break;
+        }
         let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1];
         let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[0]);
         let today = new Date();
