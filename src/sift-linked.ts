@@ -4,6 +4,7 @@ function SiftLinked(position : string, page: string) {
     if (page.includes("/jobs/")) {
         LINK = document.URL.split('?')[0];
         NAME = document.title.split(' | ')[0];
+        if (NAME.startsWith("(")) NAME = NAME.substring((4));
         if (document.querySelector('span.jobs-poster__name'))
             PERSON = (document.querySelector('span.jobs-poster__name') as HTMLElement).innerText.trim();
         if (document.querySelector('.hirer-card__hirer-information'))
@@ -11,10 +12,14 @@ function SiftLinked(position : string, page: string) {
         COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
         COMPANY_LINK = document.URL.split('/jobs')[0]+document.querySelector('.jobs-unified-top-card__company-name')!.children[0].getAttribute('href');
         COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0];
-        //let time_posted = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText
-        //let today = new Date();
-        //if (time_posted.includes('day')) DATE = new Date(today.getDate() - (parseInt(time_posted[0]))).toDateString()
-        DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText;
+        let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1];
+        let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[0]);
+        let today = new Date();
+        switch (time_frame.substring(0,3)) {
+            case 'day': DATE = new Date(today.getTime()-(time*86400000)).toDateString(); break;
+            case 'wee': DATE = new Date(today.getTime()-(time*604800000)).toDateString(); break;
+            default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText; break;
+        }
         let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement).innerText.split(',');
         LOCATION = location[location.length - 1].trim()
     }
