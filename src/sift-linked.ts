@@ -16,7 +16,8 @@ function SiftLinked(position : string, page: string) {
             case '1': COMPANY_SIZE = '3'; break;
             case '11': COMPANY_SIZE = '5'; break;
             case '51': COMPANY_SIZE = '4'; break;
-            case '201': COMPANY_SIZE = '2'; break;
+            case '201': COMPANY_SIZE = '3'; break;
+            case '501': COMPANY_SIZE = '2'; break;
             default: COMPANY_SIZE = '1'; break;
         }
         let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1];

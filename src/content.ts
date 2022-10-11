@@ -3,11 +3,11 @@ var [PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = ['NA', 'N
 
 function SylphBack(response : string, status : number) {
     if (status == 200) {
-        var STATUS = "✅ ";
+        //var STATUS = "✅ ";   Commenting out the alert code, now that output seems to be stable.
         console.log(response);
-        if (response.includes("DUPLICATE")) STATUS = "⚠️ DUPLICATE! "
-        if (COMPANY == 'NA') alert(STATUS+NAME+"\nPosition: "+POSITION+"\nSkills: "+SKILLS+"\nEnglish: "+ENGLISH)
-        else alert(STATUS+NAME+"\nCompany: "+COMPANY+"\nContact: "+PERSON+"\nDate: "+DATE)
+        //if (response.includes("DUPLICATE")) STATUS = "⚠️ DUPLICATE! "
+        //if (COMPANY == 'NA') alert(STATUS+NAME+"\nPosition: "+POSITION+"\nSkills: "+SKILLS+"\nEnglish: "+ENGLISH)
+        //else alert(STATUS+NAME+"\nCompany: "+COMPANY+"\nContact: "+PERSON+"\nDate: "+DATE)
         chrome.runtime.sendMessage({SpellSuccessful: true}); // Resets the extension icon to show the job is completed!
     }
     else {
@@ -27,13 +27,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         }
         if (COMPANY) {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbwoBFtu6rZOBBaY7jdYAwM1h-e3a2c856_o_4G9VQQ-01zS3-rN0PQ9fwO0p-oLrU-h/exec?'+
+            'https://script.google.com/macros/s/AKfycbwQNcEk8DC6CXxuDrsoKgOCGledQB3WcvsxUVCKh_Dij_XGNJdxGDm_nNNSEJQr5_Qx/exec?'+
             'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE // Now for lead generation!
             +'&person='+PERSON+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE;
         }
         else {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbwnxLSGIhUkFLk61Ef7wn9g6gdIFAaeP7X9XsQzQ4UVyI-5wCR-js8WwDE-g2Gp8iqk/exec?'+
+            'https://script.google.com/macros/s/AKfycbwQNcEk8DC6CXxuDrsoKgOCGledQB3WcvsxUVCKh_Dij_XGNJdxGDm_nNNSEJQr5_Qx/exec?'+
             'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can be the bookmark's folder, as per the original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
