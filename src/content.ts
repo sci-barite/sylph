@@ -1,5 +1,5 @@
 var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, MORE] = ['Angular', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
-var [PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
+var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 
 function SylphBack(response : string, status : number) {
     if (status == 200) {

@@ -30,6 +30,7 @@ function SiftLinked(position : string, page: string) {
         }
         let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement).innerText.split(',');
         LOCATION = location[location.length - 1].trim()
+        APPLICANTS = (document.querySelector(".jobs-unified-top-card__applicant-count") as HTMLElement).innerText.split(' ')[0];
     }
     else {
         var Sifted: Array<string> = [];
