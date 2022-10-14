@@ -27,13 +27,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         }
         if (COMPANY) {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbwZfiQj6qVjjoFptGIe__Oncn2e0Y3A85pJ3xJE4Pyw_kbaI8M-JxDaSfprWVIVYesr/exec?'+
+            'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
             'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&app='+APPLICANTS // Now for lead generation!
             +'&person='+PERSON+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE;
         }
         else {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbwZfiQj6qVjjoFptGIe__Oncn2e0Y3A85pJ3xJE4Pyw_kbaI8M-JxDaSfprWVIVYesr/exec?'+
+            'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
             'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can be the bookmark's folder, as per the original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
