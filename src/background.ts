@@ -65,7 +65,7 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
     else if (Sylph.LancerAnswer) {
         if (!Sylph.LancerAnswer.startsWith("Oh, no!")) {
             UniqueJobs = Sylph.LancerAnswer;
-            console.log('Sylph has summoned Lancer! He told her a secret: "'+UniqueJobs.substring(UniqueJobs.length - 5)+'"');
+            console.log('Sylph has summoned Lancer! He told her a magic number: "'+UniqueJobs.substring(UniqueJobs.length - 10)+'"');
             chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
                 var JobURL = (tabs[0]!.url as string);
                 let JobID = JobURL.split("view/")[1];
