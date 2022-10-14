@@ -55,19 +55,19 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 chrome.runtime.onMessage.addListener(function(Sylph) {
     if (Sylph.SpellSuccessful) {
         SylphCasting = false;
-        chrome.action.setIcon({tabId: Tab, path: "images/sylph32.png"}); // Stops animation, puts default icon.
+        chrome.action.setIcon({path: "images/sylph32.png"}); // Stops animation, puts default icon.
         console.log("Sylph has casted her spell successfully!");
     }
     else if (!Sylph.SpellSuccessful && !Sylph.LancerAnswer) {
         SylphCasting = false;
-        chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
+        chrome.action.setIcon({path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
     }
     else if (Sylph.LancerAnswer) {
-        if (!Sylph.LancerAnswer.startsWith("Oh, no!")) {
+        if (parseInt(Sylph.LancerAnswer.charAt(1))) {
             UniqueJobs = Sylph.LancerAnswer;
             console.log('Sylph has summoned Lancer! He told her a magic number: "'+UniqueJobs.substring(UniqueJobs.length - 10)+'"');
-            chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-                var JobURL = (tabs[0]!.url as string);
+            chrome.tabs.query({url: Sylph.URL}, tabs => {
+                var JobURL = Sylph.URL;
                 let JobID = JobURL.split("view/")[1];
                 let JobsArray = UniqueJobs.split(',');
                 let JobIndex = JobsArray.indexOf(JobID!.split('/')[0]);
@@ -76,9 +76,9 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                     console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+(parseInt(ExistingID)+2));
                     SylphCasting = true;
                     SylphCasts(80);
-                    setTimeout(() => { SylphCasting = false; chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); }, 4000);
+                    setTimeout(() => { SylphCasting = false; chrome.action.setIcon({path: "images/sylph-hurt.png"}); }, 3200);
                 }
-                else chrome.action.setIcon({tabId: tabs[0].id, path: "images/sylph32.png"});
+                else chrome.action.setIcon({path: "images/sylph32.png"});
             });
         }
         else console.log('Sylph missed Lancer! He left a note saying: "'+Sylph.LancerAnswer+'"');

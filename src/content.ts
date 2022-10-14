@@ -18,11 +18,11 @@ function SylphBack(response : string, status : number) {
     }
 }
 
-window.onload = (e) => {
+window.onload = () => {
     const XSnd = new XMLHttpRequest();
     XSnd.onreadystatechange = () => {
         if (XSnd.readyState === XMLHttpRequest.DONE) {
-            if (XSnd.status === 200) chrome.runtime.sendMessage({LancerAnswer: XSnd.responseText});
+            if (XSnd.status === 200) chrome.runtime.sendMessage({LancerAnswer: XSnd.responseText, URL: document.URL});
             else chrome.runtime.sendMessage({LancerAnswer: "Oh, no! "+XSnd.status});
         }
     }
