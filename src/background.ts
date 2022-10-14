@@ -46,6 +46,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
                 SylphCasts(150); // Starts the animation of the icon!
                 chrome.tabs.sendMessage(Tab, { name: 'Sylph', site: url, ex: ExistingID, position: folder[0].title });
                 console.log("Bookmark created in '"+folder[0].title+"', Sylph is casting her spell...");
+                ExistingID = '';
             });
         });
     }
@@ -75,7 +76,6 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                     console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+ExistingID);
                     SylphCasting = true;
                     SylphCasts(80);
-                    ExistingID = '';
                     setTimeout(() => { SylphCasting = false; chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); }, 4000);
                 }
                 else chrome.action.setIcon({tabId: tabs[0].id, path: "images/sylph32.png"});
