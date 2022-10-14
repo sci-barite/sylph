@@ -23,7 +23,7 @@ window.onload = (e) => {
     XSnd.onreadystatechange = () => {
         if (XSnd.readyState === XMLHttpRequest.DONE) {
             if (XSnd.status === 200) chrome.runtime.sendMessage({LancerAnswer: XSnd.responseText});
-            else chrome.runtime.sendMessage({LancerAnswer: "Oh no! "+XSnd.status});
+            else chrome.runtime.sendMessage({LancerAnswer: "Oh, no! "+XSnd.status});
         }
     }
     XSnd.open('GET', Lancer+"url=GetUniqueJobs", true);

@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
         chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
     }
     else if (Sylph.LancerAnswer) {
-        if (!Sylph.LancerAnswer.startsWith("Oh no!")) {
+        if (!Sylph.LancerAnswer.startsWith("Oh, no!")) {
             UniqueJobs = Sylph.LancerAnswer;
             console.log('Sylph has summoned Lancer! He told her a secret: "'+UniqueJobs.substring(UniqueJobs.length - 5)+'"');
             chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
@@ -75,6 +75,7 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                     console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+ExistingID);
                     SylphCasting = true;
                     SylphCasts(80);
+                    ExistingID = '';
                     setTimeout(() => { SylphCasting = false; chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); }, 4000);
                 }
                 else chrome.action.setIcon({tabId: tabs[0].id, path: "images/sylph32.png"});
