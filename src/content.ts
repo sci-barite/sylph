@@ -1,6 +1,8 @@
 var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, MORE] = ['Angular', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 
+const Lancer = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
+
 function SylphBack(response : string, status : number) {
     if (status == 200) {
         //var STATUS = "✅ ";   Commenting out the alert code, now that output seems to be stable.
@@ -16,6 +18,18 @@ function SylphBack(response : string, status : number) {
     }
 }
 
+window.onload = (e) => {
+    const XSnd = new XMLHttpRequest();
+    XSnd.onreadystatechange = () => {
+        if (XSnd.readyState === XMLHttpRequest.DONE) {
+            if (XSnd.status === 200) chrome.runtime.sendMessage({LancerAnswer: XSnd.responseText});
+            else chrome.runtime.sendMessage({LancerAnswer: "Oh no! "+XSnd.status});
+        }
+    }
+    XSnd.open('GET', Lancer+"url=GetUniqueJobs", true);
+    XSnd.send();
+}
+
 chrome.runtime.onMessage.addListener((request, sender) => {
     console.log('🧚‍♀️ Sylph!', request, sender);
     if (request.name == 'Sylph') {
@@ -27,14 +41,12 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         }
         if (COMPANY) {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
-            'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&app='+APPLICANTS // Now for lead generation!
+            Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&app='+APPLICANTS // Now for jobs!
             +'&person='+PERSON+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE;
         }
         else {
         var PARAM_STRING : string = 
-            'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
-            'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can be the bookmark's folder, as per the original idea!
+            Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can be the bookmark's folder, as per the original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
         console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);

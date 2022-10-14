@@ -1,6 +1,6 @@
 {
   "name": "sylph",
-  "version": "1.5.9",
+  "version": "1.6.0",
   "description": "Sylph is a Chrome Extension that sifts data from a few popular websites, and sends it to a web app done in Google Apps Script, which in turn sends it to a Google Sheet.",
   "main": "index.js",
   "scripts": {
