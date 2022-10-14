@@ -3,6 +3,7 @@ var CastingIndex = 1;
 var SylphCasting = false;
 
 var UniqueJobs = '';
+var ExistingID = '';
 
 function SylphCasts(speed : number)
 {               
@@ -43,7 +44,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
                 Tab = (tabs[0].id as number);
                 SylphCasting = true;
                 SylphCasts(150); // Starts the animation of the icon!
-                chrome.tabs.sendMessage(Tab, { name: 'Sylph', site: url, position: folder[0].title });
+                chrome.tabs.sendMessage(Tab, { name: 'Sylph', site: url, ex: ExistingID, position: folder[0].title });
                 console.log("Bookmark created in '"+folder[0].title+"', Sylph is casting her spell...");
             });
         });
@@ -69,7 +70,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                 let JobPage = tab.split("view/")[1];
                 if (UniqueJobs.includes(JobPage!.split('/')[0])) {
                     let JobsArray = UniqueJobs.split(',');
-                    console.log('Lancer has found a double! '+JobPage!.split('/')[0]+' at '+JobsArray.indexOf(JobPage!.split('/')[0]));
+                    ExistingID = JobsArray.indexOf(JobPage!.split('/')[0]).toString();
+                    console.log('Lancer has found a double! '+JobPage!.split('/')[0]+' at '+ExistingID);
                     SylphCasting = true;
                     SylphCasts(80);
                     setTimeout(() => { SylphCasting = false; chrome.action.setIcon({tabId: Tab, path: "images/sylph32.png"}); }, 4000);

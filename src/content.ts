@@ -39,17 +39,16 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
-        if (COMPANY) {
-        var PARAM_STRING : string = 
-            Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&app='+APPLICANTS // Now for jobs!
-            +'&person='+PERSON+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE;
+        if (COMPANY) {  // Must identify jobs differently when wanting to export companies!
+            var PARAM_STRING : string = Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
+            '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+'&ex='+request.ex;
         }
         else {
-        var PARAM_STRING : string = 
-            Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Now it can be the bookmark's folder, as per the original idea!
+            var PARAM_STRING : string = Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Also bookmark's folder like my original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
-        console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
+        if (request.ex) console.log('🧚‍♀️ Lancer found a double at '+request.ex+'!\nPartially encoded URI string:\n'+PARAM_STRING);
+        else console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
             if (XSnd.readyState === XMLHttpRequest.DONE) {
