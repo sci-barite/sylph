@@ -70,7 +70,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                 let JobPage = tab.split("view/")[1];
                 if (UniqueJobs.includes(JobPage!.split('/')[0])) {
                     let JobsArray = UniqueJobs.split(',');
-                    ExistingID = JobsArray.indexOf(JobPage!.split('/')[0]).toString();
+                    let JobIndex = JobsArray.indexOf(JobPage!.split('/')[0]);
+                    ExistingID = JobIndex != -1 ? JobIndex.toString() : ''; 
                     console.log('Lancer has found a double! '+JobPage!.split('/')[0]+' at '+ExistingID);
                     SylphCasting = true;
                     SylphCasts(80);
