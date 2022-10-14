@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             var PARAM_STRING : string = Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) // Also bookmark's folder like my original idea!
             +'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
-        if (request.ex) console.log('🧜‍♂️ Lancer found a double at '+(request.ex+2)+'!\nPartially encoded URI string:\n'+PARAM_STRING);
+        if (request.ex) console.log('🧜‍♂️ Lancer found a double at '+(parseInt(request.ex)+2)+'!\nPartially encoded URI string:\n'+PARAM_STRING);
         else console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
