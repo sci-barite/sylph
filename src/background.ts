@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                 let JobIndex = JobsArray.indexOf(JobID!.split('/')[0]);
                 if (JobIndex != -1) { 
                     ExistingID = JobIndex.toString();
-                    console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+ExistingID);
+                    console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+(parseInt(ExistingID)+2));
                     SylphCasting = true;
                     SylphCasts(80);
                     setTimeout(() => { SylphCasting = false; chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); }, 4000);
