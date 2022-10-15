@@ -23,8 +23,8 @@ window.onload = () => {
 }
 
 chrome.runtime.onMessage.addListener((request, sender) => {
-    console.log('🧚‍♀️ Sylph!', request, sender);
     if (request.name == 'Sylph') {
+        console.log('🧚‍♀️ Sylph!', request, sender);
         switch (request.site.substring(12,18)) {
             case "linked": SiftLinked(request.position, request.site); break; // Will add job catching as well.
             case "ni.co/": SiftDjinni(request.position); break;
