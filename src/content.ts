@@ -10,11 +10,11 @@ function SylphBack(response : string, status : number) {
         //if (response.includes("DUPLICATE")) STATUS = "⚠️ DUPLICATE! "
         //if (COMPANY == 'NA') alert(STATUS+NAME+"\nPosition: "+POSITION+"\nSkills: "+SKILLS+"\nEnglish: "+ENGLISH)
         //else alert(STATUS+NAME+"\nCompany: "+COMPANY+"\nContact: "+PERSON+"\nDate: "+DATE)
-        chrome.runtime.sendMessage({SpellSuccessful: true}); // Resets the extension icon to show the job is completed!
+        chrome.runtime.sendMessage({SpellSuccessful: true, LancerResponse: response}); // Resets the extension icon to show the job is completed!
     }
     else {
         alert("⛔ ERROR!\nStatus: "+status+"\nSylph didn't find her way home!");
-        chrome.runtime.sendMessage({SpellSuccessful: false}); // Update icon to show something's wrong...
+        chrome.runtime.sendMessage({SpellSuccessful: false, LancerResponse: response}); // Update icon to show something's wrong...
     }
 }
 
