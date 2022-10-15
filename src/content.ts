@@ -19,15 +19,7 @@ function SylphBack(response : string, status : number) {
 }
 
 window.onload = () => {
-    const XSnd = new XMLHttpRequest();
-    XSnd.onreadystatechange = () => {
-        if (XSnd.readyState === XMLHttpRequest.DONE) {
-            if (XSnd.status === 200) chrome.runtime.sendMessage({LancerAnswer: XSnd.responseText, URL: document.URL});
-            else chrome.runtime.sendMessage({LancerAnswer: "Oh, no! "+XSnd.status});
-        }
-    }
-    XSnd.open('GET', Lancer+"url=GetUniqueJobs", true);
-    XSnd.send();
+    if (document.URL.includes("linkedin.com/jobs")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
 }
 
 chrome.runtime.onMessage.addListener((request, sender) => {

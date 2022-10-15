@@ -15,7 +15,7 @@ function SylphCasts(speed : number)
 }
 
 chrome.runtime.onInstalled.addListener(()=> {
-    console.log('Sylph awaits your orders!');
+    console.log('🧚‍♀️ Sylph awaits your orders!');
     chrome.action.disable();
     let AwakeSylph = {
         conditions: [
@@ -34,19 +34,15 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
-    if (url.includes("linkedin.com/in") || 
-        url.includes("linkedin.com/jobs") || 
-        url.includes("upwork.com/ab/") || 
-        url.includes("upwork.com/freelancers") || 
-        url.includes("djinni.co/home")) {
+    if (url.includes("in.com/in") || url.includes("in.com/jobs") || 
+        url.includes("rk.com/ab/") || url.includes("rk.com/free") || url.includes("nni.co/home")) {
         chrome.bookmarks.get((bookmark.parentId as string), (folder) => {
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 Tab = (tabs[0].id as number);
                 SylphCasting = true;
                 SylphCasts(150); // Starts the animation of the icon!
                 chrome.tabs.sendMessage(Tab, { name: 'Sylph', site: url, ex: ExistingID, position: folder[0].title });
-                console.log("Bookmark created in '"+folder[0].title+"', Sylph is casting her spell...");
-                ExistingID = '';
+                console.log("🧚‍♀️ Bookmark created in '"+folder[0].title+"', Sylph is casting her spell...");
             });
         });
     }
@@ -56,31 +52,39 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
     if (Sylph.SpellSuccessful) {
         SylphCasting = false;
         chrome.action.setIcon({path: "images/sylph32.png"}); // Stops animation, puts default icon.
-        console.log("Sylph has casted her spell successfully!");
+        console.log("🧚‍♀️ Sylph has casted her spell successfully!");
     }
-    else if (!Sylph.SpellSuccessful && !Sylph.LancerAnswer) {
+    else if (!Sylph.SpellSuccessful && !Sylph.Lancer) {
         SylphCasting = false;
         chrome.action.setIcon({path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
+        console.log("🧚‍♀️ Sylph has miscasted!");
     }
-    else if (Sylph.LancerAnswer) {
-        if (parseInt(Sylph.LancerAnswer.charAt(1))) {
-            UniqueJobs = Sylph.LancerAnswer;
-            console.log('Sylph has summoned Lancer! He told her a magic number: "'+UniqueJobs.substring(UniqueJobs.length - 10)+'"');
-            chrome.tabs.query({url: Sylph.URL}, tabs => {
-                var JobURL = Sylph.URL;
-                let JobID = JobURL.split("view/")[1];
-                let JobsArray = UniqueJobs.split(',');
-                let JobIndex = JobsArray.indexOf(JobID!.split('/')[0]);
-                if (JobIndex != -1) { 
-                    ExistingID = JobIndex.toString();
-                    console.log('Lancer has found a double! '+JobID!.split('/')[0]+' at '+(parseInt(ExistingID)+2));
-                    SylphCasting = true;
-                    SylphCasts(80);
-                    setTimeout(() => { SylphCasting = false; chrome.action.setIcon({path: "images/sylph-hurt.png"}); }, 3200);
-                }
-                else chrome.action.setIcon({path: "images/sylph32.png"});
-            });
-        }
-        else console.log('Sylph missed Lancer! He left a note saying: "'+Sylph.LancerAnswer+'"');
+    else if (Sylph.Lancer) {
+        SylphCasting = true;
+        SylphCasts(60);
+        console.log('🧚‍♀️ Sylph is summoning Lancer...');
+        fetch(
+         "https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?url=GetUniqueJobs"
+        )
+         .then((response) => response.text())
+         .then((data) => {
+            let UniqueJobs = data;
+            let JobURL = Sylph.Place;
+            let JobID = JobURL.split("view/")[1];
+            let JobsArray = UniqueJobs.split(',');
+            let JobIndex = JobsArray.indexOf(JobID!.split('/')[0]);
+            if (JobIndex != -1) {
+                ExistingID = JobIndex.toString();
+                console.log("🧜‍♂️ Lancer knows this place! He recorded it as "+JobID!.split('/')[0]+' in row number '+(parseInt(ExistingID)+2));
+                SylphCasting = false; 
+                chrome.action.setIcon({path: "images/sylph-hurt.png"});
+            }
+            else {
+                ExistingID = '';
+                SylphCasting = false;
+                chrome.action.setIcon({path: "images/sylph32.png"});
+                console.log("🧜‍♂️ Lancer doesn't know this place. The last he recorded was "+UniqueJobs.substring(UniqueJobs.length - 10));
+            }
+        });
     }
 });
