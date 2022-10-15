@@ -78,7 +78,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                 let JobURL = Sylph.Place;
                 let JobID = JobURL.split("view/")[1];
                 let JobsArray = UniqueJobs.split(',');
-                let JobIndex = JobsArray.indexOf(JobID!.split('/')[0]);
+                let JobIndex;
+                JobsArray.indexOf(JobID!.split('/')[0]) ? JobIndex = JobsArray.indexOf(JobID!.split('/')[0]) : JobIndex = JobsArray.indexOf(JobID);
                 if (JobIndex != -1) {
                     ExistingID = JobIndex.toString();
                     SylphCasting = false; 
