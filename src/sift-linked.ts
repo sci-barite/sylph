@@ -55,6 +55,7 @@ function SiftLinked(position : string, page: string) {
 
         SKILLS = Sifted.toString().substring(1);
         NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
+        if (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) STATUS = "2.Sent 1st message";
         POSITION = position;
         LINK = document.URL;
     }
