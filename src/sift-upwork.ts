@@ -21,7 +21,8 @@ function SiftUpwork(pos: string, url : string) {
         }
         else if (Container?.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1]) {
             SubSkills = 
-            (Container.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1] as HTMLElement).innerText.split("\n")
+            (Container.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1] as HTMLElement)
+                .innerText.split("\n")
             for (i=0; i<SubSkills.length; i++) 
                 if (!SubSkills[i].includes("Skills") && !SubSkills[i].includes("Development") && !SubSkills[i].includes("Business"))
                     Sifted.push(' '+SubSkills[i]);
@@ -31,7 +32,7 @@ function SiftUpwork(pos: string, url : string) {
         
         POSITION = (Container?.querySelectorAll(".break")[0] as HTMLElement).innerText.trim();
         ENGLISH = (Container?.querySelectorAll("div[data-test='language'")[0] as HTMLElement).innerText.split(":")[1].trim()
-        MORE = (Container?.querySelector("a.d-block") as HTMLElement).toString().substring(12) // Keeping it shorter to avoid GET limits...
+        MORE = (Container?.querySelector("a.d-block") as HTMLElement).toString().substring(12) // Trying to avoid GET limits...
     }
     else {
         NAME = (document.querySelectorAll(".d-inline")[0] as HTMLElement).innerText.trim();
