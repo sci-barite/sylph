@@ -14,6 +14,10 @@ function SylphCasts(speed : number)
     }
 }
 
+chrome.tabs.onRemoved.addListener((tabID) => {
+    if (tabID == Tab && SylphCasting == true) SylphCasting = false;
+})
+
 chrome.runtime.onInstalled.addListener(()=> {
     console.log('🧚‍♀️ Sylph awaits your orders!');
     chrome.action.disable();
