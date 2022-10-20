@@ -21,7 +21,7 @@ function SylphBack(response : string, status : number) {
 }
 
 window.onload = () => {
-    if (document.URL.includes("linkedin.com/jobs")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
+    if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
 }
 
 chrome.runtime.onMessage.addListener((request, sender) => {
