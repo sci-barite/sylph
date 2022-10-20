@@ -38,7 +38,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
-    if (url.includes("in.com/in") || url.includes("in.com/jobs") || // We're into the whole brevity thing...
+    if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || // We're into the whole brevity thing...
         url.includes("rk.com/ab/") || url.includes("rk.com/free") || url.includes("nni.co/home")) {
         chrome.bookmarks.get((bookmark.parentId as string), (folder) => {
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
