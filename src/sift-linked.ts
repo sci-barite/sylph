@@ -41,28 +41,30 @@ function SiftLinked(position : string, page: string) {
             .innerText.split(' ')[0];
     }
     else {
-        var Sifted: Array<string> = [];
-        for (var i=0; i<3; i++) {
-            Sifted.push(' '+
-            (document.querySelectorAll("a[data-field='skill_card_skill_topic']")[i] as HTMLElement)
-                .innerText.split("\n")[0]);
-        }
+        if (document.querySelectorAll("a[data-field='skill_card_skill_topic']").length) {
+            var Sifted: Array<string> = [];
+            for (var i=0; i<3; i++) {
+                Sifted.push(' '+
+                (document.querySelectorAll("a[data-field='skill_card_skill_topic']")[i] as HTMLElement)
+                    .innerText.split("\n")[0]);
+            }
 
-        const Hidden = document.querySelectorAll(".visually-hidden");
-        var Collated = " · ";
-        for (i=0; i < Hidden.length; i++) {
-            let String: string = (Hidden[i] as HTMLElement).innerText;
-            if (String.includes("Skills:") && String.includes("·")) 
-                Collated = Collated+String.substring(8)+" · ";
-            else if (String === "English") ENGLISH = (Hidden[i+1] as HTMLElement).innerText;
-        }
+            const Hidden = document.querySelectorAll(".visually-hidden");
+            var Collated = " · ";
+            for (i=0; i < Hidden.length; i++) {
+                let String: string = (Hidden[i] as HTMLElement).innerText;
+                if (String.includes("Skills:") && String.includes("·")) 
+                    Collated = Collated+String.substring(8)+" · ";
+                else if (String === "English") ENGLISH = (Hidden[i+1] as HTMLElement).innerText;
+            }
 
-        var SubSkills = Collated.split(" · ");
-        for (i=0; i<SubSkills.length; i++) {
-            if (Sifted.indexOf(' '+SubSkills[i]) == -1 && Sifted[i] != '') Sifted.push(' '+SubSkills[i]);
-        }
+            var SubSkills = Collated.split(" · ");
+            for (i=0; i<SubSkills.length; i++) {
+                if (Sifted.indexOf(' '+SubSkills[i]) == -1 && Sifted[i] != '') Sifted.push(' '+SubSkills[i]);
+            }
 
-        SKILLS = Sifted.toString().substring(1);
+            SKILLS = Sifted.toString().substring(1);
+        }
         NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
         if (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) 
             STATUS = "2.Sent 1st message";
