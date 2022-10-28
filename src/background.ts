@@ -28,6 +28,7 @@ chrome.runtime.onInstalled.addListener(()=> {
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers' } }),
+          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.apollo.io', pathPrefix: '/' } }),
         ],
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
@@ -38,7 +39,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
-    if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || // We're into the whole brevity thing...
+    if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
         url.includes("rk.com/ab/applicants") || url.includes("rk.com/free") || url.includes("nni.co/home/inbox")) {
         chrome.bookmarks.get((bookmark.parentId as string), (folder) => {
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -74,7 +75,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
             fetch(
-            "https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?url=GetUniqueJobs"
+            "https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?"+
+            "url=GetUniqueJobs"
             )
             .then((response) => response.text())
             .then((data) => {
@@ -83,7 +85,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                 let JobID = JobURL.split("view/")[1];
                 let JobsArray = UniqueJobs.split(',');
                 let JobIndex;
-                JobsArray.indexOf(JobID!.split('/')[0]) ? JobIndex = JobsArray.indexOf(JobID!.split('/')[0]) : JobIndex = JobsArray.indexOf(JobID);
+                JobsArray.indexOf(JobID!.split('/')[0]) ? 
+                    JobIndex = JobsArray.indexOf(JobID!.split('/')[0]) : JobIndex = JobsArray.indexOf(JobID);
                 if (JobIndex != -1) {
                     ExistingID = JobIndex.toString();
                     SylphCasting = false; 
@@ -99,8 +102,8 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
                     chrome.action.setIcon({tabId: Tab, path: "images/sylph32.png"});
                     console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+UniqueJobs.substring(UniqueJobs.length - 10));
                     chrome.action.setTitle({tabId: Tab, 
-                        title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+UniqueJobs.substring(UniqueJobs.length - 10)+'\n'
-                                +"Click on the ⭐ to add this!\n"})
+                        title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+UniqueJobs.substring(UniqueJobs.length - 10)
+                                +'\n'+"Click on the ⭐ to add this!\n"})
                 }
             });
         }

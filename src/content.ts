@@ -30,22 +30,23 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         switch (request.site.substring(12,18)) {
             case "linked": SiftLinked(request.position, request.site); break; // Will add job catching as well.
             case "ni.co/": SiftDjinni(request.position); break;
+            case "apollo": SiftApollo(request.site); break;
             case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
-        if (request.site.includes("jobs")) {  // Must identify jobs differently when wanting to export companies!
+        if (request.site.includes("jobs") || request.site.includes("SearchAlertPeople")) {  // Jobs or Apollo contacts.
             var PARAM_STRING : string = 
             Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+
             '&ex='+request.ex;
         }
         else {                                              // Position can be the bookmark's folder name, as per original idea!
-            var PARAM_STRING : string = Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) 
-            +'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)+'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+
-            '&more='+MORE;
+            var PARAM_STRING : string = 
+            Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) +'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
+            +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }
         if (request.ex) 
-            console.log('🧜‍♂️ Lancer found a double at '+(parseInt(request.ex)+2)+'!\nPartially encoded URI string:\n'+PARAM_STRING);
+            console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(request.ex)+2)+'!\nPartially encoded URI string:\n'+PARAM_STRING);
         else console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
