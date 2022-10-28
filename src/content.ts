@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
-        if (request.site.includes("jobs") || request.site.includes("SearchAlertPeople")) {  // Jobs or Apollo contacts.
+        if (request.site.includes("jobs") || request.site.includes("apollo")) {  // Jobs or Apollo contacts.
             var PARAM_STRING : string = 
             Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+
