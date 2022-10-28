@@ -1,5 +1,5 @@
 var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, STATUS, MORE] = 
-    ['Angular', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', 'NA'];
+    ['Angular', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
 var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = 
     ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             var PARAM_STRING : string = 
             Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+
-            '&ex='+request.ex;
+            '&more='+MORE+'&ex='+request.ex;
         }
         else {                                              // Position can be the bookmark's folder name, as per original idea!
             var PARAM_STRING : string = 

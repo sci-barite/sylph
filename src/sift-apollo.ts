@@ -21,8 +21,10 @@ function SiftApollo(page: string) {
     let JobsCount = 0;
     document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1")
         .forEach((elem) => {
-            if ((elem as HTMLElement).innerText.includes("ngineer") || (elem as HTMLElement).innerText.includes("eveloper")) 
+            if ((elem as HTMLElement).innerText.includes("ngineer") || (elem as HTMLElement).innerText.includes("eveloper")) {
                 JobsCount++
+                MORE = MORE + (elem as HTMLElement).innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---';
+            }
         });
     DATE = JobsCount.toString(); // Comments
     NAME = document.title.split(" - Apollo")[0];
