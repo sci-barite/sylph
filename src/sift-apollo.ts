@@ -1,12 +1,12 @@
 function SiftApollo(page: string) {
-    (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children[2] as HTMLElement)!.click(); // Display jobs!
+    (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children[2] as HTMLElement)!.click(); // Click to display jobs!
 
     const links = document.querySelector(".zp_33Rq5")!.childNodes;
     COMPANY_LINK = (links[0] as HTMLElement).attributes[1].value;
     COMPANY = (links[1] as HTMLElement).attributes[1].value;
     PERSON_LINK = document.querySelector(".zp-button.zp_1TrB3.zp_Dxi_A.zp_3M2dC.zp_2tqsg")!
                     .parentElement!.parentElement!.attributes[1].value
-    if (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-")) {
+    if (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-")) {   // Credit has been used if this is here.
         PERSON = (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-") as HTMLElement).innerText; // Email
         if (document.querySelector("a.zp-link.zp_3_fnL.zp_1AaQP"))
             APPLICANTS = (document.querySelector("a.zp-link.zp_3_fnL.zp_1AaQP") as HTMLElement).innerText; //Phone
@@ -22,7 +22,7 @@ function SiftApollo(page: string) {
     document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1")
         .forEach((elem) => {
             if ((elem as HTMLElement).innerText.includes("ngineer") || (elem as HTMLElement).innerText.includes("eveloper")) {
-                JobsCount++
+                JobsCount++ // Eventually these should go as jobs, need to update Lancer to deal with these.
                 MORE = MORE + (elem as HTMLElement).innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---';
             }
         });
