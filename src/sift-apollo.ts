@@ -6,7 +6,8 @@ function SiftApollo(page: string) {
 
     const links = document.querySelector(".zp_33Rq5")!.childNodes;
     COMPANY_LINK = (links[0] as HTMLElement).attributes[1].value;
-    COMPANY = (links[1] as HTMLElement).attributes[1].value;
+    if (links[1]) COMPANY = (links[1] as HTMLElement).attributes[1].value;
+    else COMPANY = COMPANY_LINK;
     PERSON_LINK = document.querySelector(".zp-button.zp_1TrB3.zp_Dxi_A.zp_3M2dC.zp_2tqsg")!
                     .parentElement!.parentElement!.attributes[1].value
     if (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-")) {   // Credit has been used if this is here.
