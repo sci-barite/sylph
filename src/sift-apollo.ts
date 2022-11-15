@@ -34,5 +34,8 @@ function SiftApollo(page: string) {
         });
     DATE = JobsCount.toString(); // Comments
     NAME = document.title.split(" - Apollo")[0];
-    LINK = "apollo/people/"+document.URL.substring(document.URL.length -24);
+    if (document.URL.includes('people'))
+        LINK = "apollo/people/"+document.URL.substring(document.URL.length -24);
+    else if (document.URL.includes('contacts'))
+        LINK = "apollo/contacts/"+document.URL.substring(document.URL.length -24);
 }

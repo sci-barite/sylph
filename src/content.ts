@@ -1,5 +1,5 @@
 var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, STATUS, MORE] = 
-    ['Angular', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
+    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
 var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = 
     ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 
@@ -18,6 +18,13 @@ function SylphBack(response : string, status : number) {
         alert("⛔ ERROR!\nStatus: "+status+"\nSylph didn't find her way home!");
         chrome.runtime.sendMessage({SpellSuccessful: false, LancerResponse: response}); // Update icon to show something's wrong...
     }
+}
+
+function resetVars() {
+    [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, STATUS, MORE] = 
+    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
+    [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = 
+    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 }
 
 window.onload = () => {
@@ -60,6 +67,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         }
         XSnd.open('GET', PARAM_STRING, true);
         XSnd.send();
+        resetVars();
     }
 });
 
