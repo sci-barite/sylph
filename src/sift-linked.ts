@@ -16,9 +16,9 @@ function SiftLinked(position : string, page: string) {
         COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement)
             .innerText.split(' · ')[0];
         switch (COMPANY_SIZE.split('-')[0]) {
-            case '1': COMPANY_SIZE = '3'; break;
-            case '11': COMPANY_SIZE = '5'; break;
-            case '51': COMPANY_SIZE = '4'; break;
+            case '1': COMPANY_SIZE = '2'; break;
+            case '11': COMPANY_SIZE = '4'; break;
+            case '51': COMPANY_SIZE = '5'; break;
             case '201': COMPANY_SIZE = '3'; break;
             case '501': COMPANY_SIZE = '2'; break;
             default: COMPANY_SIZE = '1'; break;
