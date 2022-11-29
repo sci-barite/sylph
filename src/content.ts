@@ -27,6 +27,7 @@ function resetVars() {
     ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
 }
 
+// This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
 window.onload = () => {
     if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
 }
@@ -41,14 +42,15 @@ chrome.runtime.onMessage.addListener((request, sender) => {
             case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
+        let PARAM_STRING : string;
         if (request.site.includes("jobs") || request.site.includes("apollo")) {  // Jobs or Apollo contacts.
-            var PARAM_STRING : string = 
+            PARAM_STRING = 
             Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+
             '&more='+MORE+'&ex='+request.ex;
         }
         else {                                              // Position can be the bookmark's folder name, as per original idea!
-            var PARAM_STRING : string = 
+            PARAM_STRING = 
             Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) +'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
             +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
         }

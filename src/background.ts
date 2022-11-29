@@ -73,7 +73,10 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
             SylphCasting = true;
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
-            fetch(Lancer+"url=GetUniqueJobs")
+            fetch(
+                'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
+                'url=GetUniqueJobs'
+            )
             .then((response) => response.text())
             .then((data) => {
                 let UniqueJobs = data;
