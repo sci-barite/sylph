@@ -20,7 +20,7 @@ chrome.tabs.onRemoved.addListener(tabID => {
 chrome.runtime.onInstalled.addListener(()=> {
     console.log('🧚‍♀️ Sylph awaits your orders!');
     chrome.action.disable();
-    let AwakeSylph = {
+    const AwakeSylph = {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in' } }),
           new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/jobs/view' } }),
