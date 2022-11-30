@@ -73,10 +73,9 @@ chrome.runtime.onMessage.addListener(Sylph => {
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
             fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
                     'url=GetUniqueJobs')
-                .then((response) => response.text())
-                .then((data) => {
+             .then((response) => response.text())
+             .then((data) => {
                 const LancerIDs = data.split(',');    // It overwrites the data everytime, to react to indexing changes on the sheet. Needed?
-                const UniqueIDs = LancerIDs.length
                 const JobID = Sylph.Place.split("view/")[1].replace('/', '');
                 const JobIndex = LancerIDs.indexOf(JobID);
                 if (JobIndex != -1) {
@@ -91,9 +90,9 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 else {
                     delete SylphSpells[tabID];
                     chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
-                    console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[UniqueIDs - 1]);
+                    console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
                     chrome.action.setTitle({tabId: tabID, 
-                        title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[UniqueIDs - 1]
+                        title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
                                 +'\n'+"Click on the ⭐ to add this!\n"})
                 }
             });
