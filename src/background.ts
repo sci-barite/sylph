@@ -1,7 +1,7 @@
 var Tab : number;
 var CastingIndex = 1;
 var SylphCasting = false;
-
+// Should find a way to get rid of these globals. Maybe encapsulating SylphCasts wihin a wrapper function, with recursion only within it.
 var ExistingID = '';
 
 function SylphCasts(speed : number)
