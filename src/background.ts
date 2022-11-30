@@ -41,7 +41,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 const tabID = tabs[0].id!;
-                SylphSpells[tabID] = 1;
+                SylphSpells[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 150); // Starts the animation of the icon!
                 const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
                 chrome.tabs.sendMessage(tabID, { name: 'Sylph', tab: tabID, site: url, ex: knownID, position: folder[0].title });
@@ -54,13 +54,13 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Sylph => {
     if (Sylph.SpellSuccessful) {    // Success!
-        delete SylphSpells[Sylph.Tab];
-        chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph32.png"}); // Stops animation, puts default icon.
+        delete SylphSpells[Sylph.Tab];  // This stops the animation!
+        chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph32.png"}); // Change back to default icon.
         console.log("🧚‍♀️ Sylph has casted her spell successfully!");
         chrome.action.setTitle({tabId: Sylph.Tab, title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
     }
     else if (!Sylph.SpellSuccessful && !Sylph.Lancer) { // This is an error.
-        delete SylphSpells[Sylph.Tab];
+        delete SylphSpells[Sylph.Tab];  // This stops the animation!
         chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
         console.log("🧚‍♀️ Sylph has miscasted!");
         chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
@@ -68,8 +68,8 @@ chrome.runtime.onMessage.addListener(Sylph => {
     else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab here: the content script can't.
             const tabID = tabs[0].id!;
-            SylphSpells[tabID] = 1;
-            SylphCasts(tabID, 60);
+            SylphSpells[tabID] = 1; // Setup the animation for this tab only!
+            SylphCasts(tabID, 60);  // Starts the animation of the icon!
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
             fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
                     'url=GetUniqueJobs')
