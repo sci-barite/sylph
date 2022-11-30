@@ -10,8 +10,11 @@ function SylphCasts(tabID: number, speed: number) {
     }
 }
 
-// If we don't do this, it will continue to try to animate the icon in that tab forever. How to manage this without globals?
-chrome.tabs.onRemoved.addListener(tabID => { if (SylphSpells[tabID]) delete SylphSpells[tabID]; })
+// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there is a way to do this without globals?
+chrome.tabs.onRemoved.addListener(tabID => { 
+    if (SylphSpells[tabID]) delete SylphSpells[tabID];
+    if (LancerNumbers[tabID]) delete LancerNumbers[tabID];
+})
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
