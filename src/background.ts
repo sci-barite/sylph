@@ -1,6 +1,6 @@
 const SylphState = {Casting : false, Tab : 999, Spell : 1};
 const LancerState = {ExistingID : '', UniqueIDs: ['']};
-// I wonder if this is a better way to handle things than using vars, or the same thing.
+// I wonder if this is a better way to handle things than using vars, or the same. Ideally I should have one state per tab..?
 
 function SylphCasts(speed : number) {               
     if (SylphState.Casting) {
