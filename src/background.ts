@@ -79,8 +79,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
              .then((data) => {
                 LancerState.UniqueIDs = data.split(',');    // It overwrites the data everytime, to react to indexing changes on the sheet. Needed?
                 const UniqueIDs = LancerState.UniqueIDs.length
-                const JobURL = Sylph.Place;
-                const JobID = JobURL.split("view/")[1];
+                const JobID = Sylph.Place.split("view/")[1];
                 const JobIndex = LancerState.UniqueIDs.indexOf(JobID!.split('/')[0]) ? 
                     LancerState.UniqueIDs.indexOf(JobID!.split('/')[0]) : LancerState.UniqueIDs.indexOf(JobID);
                 if (JobIndex != -1) {
