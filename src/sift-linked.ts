@@ -35,7 +35,7 @@ function SiftLinked(position : string, page: string) {
                     .innerText; break;
             }
         }
-        else DATE = 'CLOSED';
+        else DATE = 'Closed';
         let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement)
             .innerText.split(',');
         LOCATION = location[location.length - 1].trim()
