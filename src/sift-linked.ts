@@ -23,17 +23,19 @@ function SiftLinked(position : string, page: string) {
             case '501': COMPANY_SIZE = '2'; break;
             default: COMPANY_SIZE = '1'; break;
         }
-        let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement)
-            .innerText.split(' ')[1];
-        let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement)
-            .innerText.split(' ')[0]);
-        let today = new Date();
-        switch (time_frame.substring(0,3)) {
-            case 'day': DATE = new Date(today.getTime()-(time*86400000)).toDateString(); break;
-            case 'wee': DATE = new Date(today.getTime()-(time*604800000)).toDateString(); break;
-            default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement)
-                .innerText; break;
+        let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement) ? 
+            (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1] : null;
+        if (time_frame) {
+            let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[0]);
+            let today = new Date();
+            switch (time_frame.substring(0,3)) {
+                case 'day': DATE = new Date(today.getTime()-(time*86400000)).toDateString(); break;
+                case 'wee': DATE = new Date(today.getTime()-(time*604800000)).toDateString(); break;
+                default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement)
+                    .innerText; break;
+            }
         }
+        else DATE = 'CLOSED';
         let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement)
             .innerText.split(',');
         LOCATION = location[location.length - 1].trim()
