@@ -79,16 +79,15 @@ chrome.runtime.onMessage.addListener(Sylph => {
              .then((data) => {
                 LancerState.UniqueIDs = data.split(',');    // It overwrites the data everytime, to react to indexing changes on the sheet. Needed?
                 const UniqueIDs = LancerState.UniqueIDs.length
-                const JobID = Sylph.Place.split("view/")[1];
-                const JobIndex = LancerState.UniqueIDs.indexOf(JobID!.split('/')[0]) ? 
-                    LancerState.UniqueIDs.indexOf(JobID!.split('/')[0]) : LancerState.UniqueIDs.indexOf(JobID);
+                const JobID = Sylph.Place.split("view/")[1].replace('/', '');
+                const JobIndex = LancerState.UniqueIDs.indexOf(JobID);
                 if (JobIndex != -1) {
                     LancerState.ExistingID = JobIndex.toString();
                     SylphState.Casting = false; 
                     chrome.action.setIcon({tabId: SylphState.Tab, path: "images/sylph-hurt.png"});
-                    console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID!.split('/')[0]+' in row '+(parseInt(LancerState.ExistingID)+2));
+                    console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(parseInt(LancerState.ExistingID)+2));
                     chrome.action.setTitle({tabId: SylphState.Tab, 
-                        title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID!.split('/')[0]+' in row '+(parseInt(LancerState.ExistingID)+2)+'\n'
+                        title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(parseInt(LancerState.ExistingID)+2)+'\n'
                                 +"Click on the ⭐ to update it.\n"})
                 }
                 else {
