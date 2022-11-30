@@ -5,14 +5,14 @@ var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE]
 
 const Lancer = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
 
-function SylphBack(response: string, status: number, tab: number) {
+function SylphBack(response: string, status: number, tabId: number) {
     if (status == 200) {
         //var STATUS = "✅ ";   Commenting out the alert code, now that output seems to be stable.
         console.log(response);
         //if (response.includes("DUPLICATE")) STATUS = "⚠️ DUPLICATE! "
         //if (COMPANY == 'NA') alert(STATUS+NAME+"\nPosition: "+POSITION+"\nSkills: "+SKILLS+"\nEnglish: "+ENGLISH)
         //else alert(STATUS+NAME+"\nCompany: "+COMPANY+"\nContact: "+PERSON+"\nDate: "+DATE)
-        chrome.runtime.sendMessage({SpellSuccessful: true, LancerResponse: response, Tab: tab}); // Resets the icon to show the job is completed!
+        chrome.runtime.sendMessage({SpellSuccessful: true, LancerResponse: response, Tab: tabId}); // Resets the icon to show the job is completed!
     }
     else {
         alert("⛔ ERROR!\nStatus: "+status+"\nSylph didn't find her way home!");
