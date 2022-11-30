@@ -39,6 +39,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     });
 });
 
+// This is the main way the extension works: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
     if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
