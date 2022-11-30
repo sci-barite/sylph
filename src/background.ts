@@ -59,21 +59,21 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 chrome.runtime.onMessage.addListener(Sylph => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         Tab = (tabs[0].id as number);
-        if (Sylph.SpellSuccessful) {
+        if (Sylph.SpellSuccessful) {    // Success!
             SylphCasting = false;
             chrome.action.setIcon({tabId: Tab, path: "images/sylph32.png"}); // Stops animation, puts default icon.
             console.log("🧚‍♀️ Sylph has casted her spell successfully!");
             chrome.action.setTitle({tabId: Tab, 
                 title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
-        else if (!Sylph.SpellSuccessful && !Sylph.Lancer) {
+        else if (!Sylph.SpellSuccessful && !Sylph.Lancer) { // This is an error.
             SylphCasting = false;
             chrome.action.setIcon({tabId: Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
             console.log("🧚‍♀️ Sylph has miscasted!");
             chrome.action.setTitle({tabId: Tab, 
                 title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
-        else if (Sylph.Lancer) {    // THis happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
+        else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             SylphCasting = true;
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
