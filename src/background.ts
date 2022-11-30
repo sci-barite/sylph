@@ -15,7 +15,7 @@ function SylphCasts(speed : number)
 
 // If we don't do this, it will continue to try to animate the icon in that tab forever. How to manage this without globals?
 // Do we need a new function just to check if a tab is "casting" or not?
-chrome.tabs.onRemoved.addListener((tabID) => {
+chrome.tabs.onRemoved.addListener(tabID => {
     if (tabID == Tab && SylphCasting == true) SylphCasting = false;
 })
 
@@ -44,7 +44,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     var url = bookmark.url as string;
     if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
         url.includes("rk.com/ab/applicants") || url.includes("rk.com/free") || url.includes("nni.co/home/inbox") || url.includes('o.io/#')) {
-        chrome.bookmarks.get((bookmark.parentId as string), (folder) => {
+        chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 Tab = (tabs[0].id as number);
                 SylphCasting = true;
@@ -56,7 +56,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     }
 });
 
-chrome.runtime.onMessage.addListener(function(Sylph) {
+chrome.runtime.onMessage.addListener(Sylph => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         Tab = (tabs[0].id as number);
         if (Sylph.SpellSuccessful) {
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(function(Sylph) {
             chrome.action.setTitle({tabId: Tab, 
                 title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
-        else if (Sylph.Lancer) {
+        else if (Sylph.Lancer) {    // THis happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             SylphCasting = true;
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
