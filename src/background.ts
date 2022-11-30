@@ -61,26 +61,22 @@ chrome.runtime.onMessage.addListener(Sylph => {
             SylphState.Casting = false;
             chrome.action.setIcon({tabId: SylphState.Tab, path: "images/sylph32.png"}); // Stops animation, puts default icon.
             console.log("🧚‍♀️ Sylph has casted her spell successfully!");
-            chrome.action.setTitle({tabId: SylphState.Tab, 
-                title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
+            chrome.action.setTitle({tabId: SylphState.Tab, title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
         else if (!Sylph.SpellSuccessful && !Sylph.Lancer) { // This is an error.
             SylphState.Casting = false;
             chrome.action.setIcon({tabId: SylphState.Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
             console.log("🧚‍♀️ Sylph has miscasted!");
-            chrome.action.setTitle({tabId: SylphState.Tab, 
-                title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
+            chrome.action.setTitle({tabId: SylphState.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
         else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             SylphState.Casting = true;
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
-            fetch(
-                'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
-                'url=GetUniqueJobs'
-            )
-            .then((response) => response.text())
-            .then((data) => {
+            fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
+                    'url=GetUniqueJobs')
+             .then((response) => response.text())
+             .then((data) => {
                 LancerState.UniqueIDs = data.split(',');    // It overwrites the data everytime, to react to indexing changes on the sheet. Needed?
                 const UniqueIDs = LancerState.UniqueIDs.length
                 const JobURL = Sylph.Place;
