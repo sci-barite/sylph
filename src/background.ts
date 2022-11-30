@@ -13,10 +13,13 @@ function SylphCasts(speed : number)
     }
 }
 
+// If we don't do this, it will continue to try to animate the icon in that tab forever. How to manage this without globals?
+// Do we need a new function just to check if a tab is "casting" or not?
 chrome.tabs.onRemoved.addListener((tabID) => {
     if (tabID == Tab && SylphCasting == true) SylphCasting = false;
 })
 
+// This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
     console.log('🧚‍♀️ Sylph awaits your orders!');
     chrome.action.disable();
