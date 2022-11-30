@@ -53,6 +53,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     }
 });
 
+// This reacts to the content script's actions, which are themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Sylph => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
         SylphState.Tab = (tabs[0].id as number);
