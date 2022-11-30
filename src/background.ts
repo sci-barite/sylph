@@ -11,10 +11,7 @@ function SylphCasts(speed : number) {
 }
 
 // If we don't do this, it will continue to try to animate the icon in that tab forever. How to manage this without globals?
-// Do we need a new function just to check if a tab is "casting" or not?
-chrome.tabs.onRemoved.addListener(tabID => {
-    if (tabID == SylphState.Tab && SylphState.Casting == true) SylphState.Casting = false;
-})
+chrome.tabs.onRemoved.addListener(tabID => { if (tabID === SylphState.Tab) SylphState.Casting = false; })
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -31,19 +28,17 @@ chrome.runtime.onInstalled.addListener(()=> {
         ],
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
-    chrome.declarativeContent.onPageChanged.removeRules(undefined, function () {
-        chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]);
-    });
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, function () { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
 });
 
 // This is the main way the extension works: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
-    const url = bookmark.url as string;
+    const url = bookmark.url!;  // Due to the fact the bookmark function works independently from the extension, we have to check again the website.
     if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
         url.includes("rk.com/ab/applicants") || url.includes("rk.com/free") || url.includes("nni.co/home/inbox") || url.includes('o.io/#')) {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-                SylphState.Tab = (tabs[0].id as number);
+                SylphState.Tab = tabs[0].id!;
                 SylphState.Casting = true;
                 SylphCasts(150); // Starts the animation of the icon!
                 chrome.tabs.sendMessage(SylphState.Tab, { name: 'Sylph', site: url, ex: LancerState.ExistingID, position: folder[0].title });
@@ -56,7 +51,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 // This reacts to the content script's actions, which are themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Sylph => {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        SylphState.Tab = (tabs[0].id as number);
+        //SylphState.Tab = tabs[0].id!;
         if (Sylph.SpellSuccessful) {    // Success!
             SylphState.Casting = false;
             chrome.action.setIcon({tabId: SylphState.Tab, path: "images/sylph32.png"}); // Stops animation, puts default icon.
@@ -70,6 +65,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
             chrome.action.setTitle({tabId: SylphState.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
         }
         else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
+            SylphState.Tab = tabs[0].id!;
             SylphState.Casting = true;
             SylphCasts(60);
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
