@@ -1,5 +1,4 @@
-// The longest of the three, because it can do two different kinds of pages.
-
+// Longer than it should be, because there are two different kinds of pages I want to be able to sift through.
 function SiftUpwork(pos: string, url : string) {
     const LINK = url;
     let Sifted: Array<string> = [];

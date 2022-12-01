@@ -1,5 +1,4 @@
 // The most straightforward of the three.
-
 function SiftDjinni(position : string) : string {
     const NAME = (document.querySelector("#candidate_name") as HTMLElement).innerText;
     const English = (document.querySelector(".inbox-thread-candidate-info") as HTMLElement).innerText;

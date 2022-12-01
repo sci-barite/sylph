@@ -1,5 +1,4 @@
-// It got much, much easier than the first version, but still a bit tricky sometimes.
-
+// It got much, much easier than the first version, but still a bit tricky sometimes. It also manages both jobs and people, so it's long.
 function SiftLinked(position : string, page: string) : string {
     if (page.includes("/jobs/")) {
         const LINK = document.URL.split('?')[0];
