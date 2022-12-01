@@ -1,5 +1,3 @@
-const LancerWebApp = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
-
 // This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
 window.onload = () => { if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Says: 'LancerSummon', Place: document.URL}); }
 

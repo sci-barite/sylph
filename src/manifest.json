@@ -15,7 +15,7 @@
     },
     "content_scripts": [
         {
-            "js": ["content.js"],
+            "js": ["content.js", "lancer.js"],
             "run_at": "document_idle",
             "matches": [
                 "https://*.linkedin.com/in*", 
