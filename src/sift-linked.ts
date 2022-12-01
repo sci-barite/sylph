@@ -1,20 +1,17 @@
 // It got much, much easier than the first version, but still a bit tricky sometimes.
 
-function SiftLinked(position : string, page: string) {
+function SiftLinked(position : string, page: string) : string {
     if (page.includes("/jobs/")) {
-        LINK = document.URL.split('?')[0];
-        NAME = document.title.split(' | ')[0];
-        if (NAME.startsWith("(")) NAME = NAME.substring((4));
-        if (document.querySelector('span.jobs-poster__name'))
-            PERSON = (document.querySelector('span.jobs-poster__name') as HTMLElement).innerText.trim();
-        if (document.querySelector('.hirer-card__hirer-information'))
-            PERSON_LINK = ((document.querySelector('.hirer-card__hirer-information')!
-                .children[0] as HTMLElement)!.getAttribute('href') as string);
-        COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
-        COMPANY_LINK = document.URL.split('/jobs')[0]+
+        const LINK = document.URL.split('?')[0];
+        const NAME = document.title.split(' | ')[0].startsWith("(") ? document.title.split(' | ')[0].substring(4) : document.title.split(' | ')[0];
+        const PERSON = document.querySelector('span.jobs-poster__name') ? 
+            (document.querySelector('span.jobs-poster__name') as HTMLElement).innerText.trim() : 'NA';
+        const PERSON_LINK = document.querySelector('.hirer-card__hirer-information') ?
+            ((document.querySelector('.hirer-card__hirer-information')!.children[0] as HTMLElement)!.getAttribute('href') as string) : 'NA';
+        const COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
+        const COMPANY_LINK = document.URL.split('/jobs')[0]+
             document.querySelector('.jobs-unified-top-card__company-name')!.children[0].getAttribute('href');
-        COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement)
-            .innerText.split(' · ')[0];
+        let COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0];
         switch (COMPANY_SIZE.split('-')[0]) {
             case '1': COMPANY_SIZE = '2'; break;
             case '11': COMPANY_SIZE = '4'; break;
@@ -23,30 +20,35 @@ function SiftLinked(position : string, page: string) {
             case '501': COMPANY_SIZE = '2'; break;
             default: COMPANY_SIZE = '1'; break;
         }
-        let time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement) ? 
+        const time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement) ? 
             (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1] : null;
+        let DATE = 'Closed';
         if (time_frame) {
             let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[0]);
             let today = new Date();
             switch (time_frame.substring(0,3)) {
                 case 'day': DATE = new Date(today.getTime()-(time*86400000)).toDateString(); break;
                 case 'wee': DATE = new Date(today.getTime()-(time*604800000)).toDateString(); break;
-                default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement)
-                    .innerText; break;
+                default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText; break;
             }
         }
-        else DATE = 'Closed';
-        let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement)
-            .innerText.split(',');
-        LOCATION = location[location.length - 1].trim()
+        let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement).innerText.split(',');
+        const LOCATION = location[location.length - 1].trim();
+        let APPLICANTS = 'NA';
         if (document.querySelector(".jobs-unified-top-card__applicant-count"))
             APPLICANTS = (document.querySelector(".jobs-unified-top-card__applicant-count") as HTMLElement).innerText.split(' ')[0];
         else if (document.querySelectorAll(".jobs-unified-top-card__bullet")[1]) {
             let applicants = (document.querySelectorAll(".jobs-unified-top-card__bullet")[1] as HTMLElement).innerText.split(' ');
             applicants.forEach((word) => { if (!isNaN(parseInt(word))) APPLICANTS = word });
         }
+        const PARAM_STRING = 
+            'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
+            '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE
+        return PARAM_STRING;  
     }
     else {
+        let SKILLS = 'NA';
+        let ENGLISH = 'NA';
         if (document.querySelectorAll("a[data-field='skill_card_skill_topic']").length) {
             var Sifted: Array<string> = [];
             for (var i=0; i<3; i++) {
@@ -71,10 +73,14 @@ function SiftLinked(position : string, page: string) {
 
             SKILLS = Sifted.toString().substring(1);
         }
-        NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
-        if (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) 
-            STATUS = "2.Sent 1st message";
-        POSITION = position;
-        LINK = document.URL;
+        const NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
+        const STATUS = (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) ? 
+            "2.Sent 1st message" : '0.New';
+        const POSITION = position;
+        const LINK = document.URL;
+
+        const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
+        +'&eng='+ENGLISH+'&rate=NA&loc=NA&url='+LINK+'&more=';
+        return PARAM_STRING;
     }
 }

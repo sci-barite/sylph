@@ -1,8 +1,3 @@
-var [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, STATUS, MORE] = 
-    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
-var [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = 
-    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
-
 const Lancer = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
 
 function SylphBack(response: string, status: number, tabId: number) {
@@ -20,13 +15,6 @@ function SylphBack(response: string, status: number, tabId: number) {
     }
 }
 
-function resetVars() {
-    [POSITION, LINK, NAME, RATE, SKILLS, ENGLISH, LOCATION, STATUS, MORE] = 
-    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', '0.New', ''];
-    [APPLICANTS, PERSON, PERSON_LINK, COMPANY, COMPANY_LINK, COMPANY_SIZE, DATE] = 
-    ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA'];
-}
-
 // This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
 window.onload = () => {
     if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
@@ -35,41 +23,27 @@ window.onload = () => {
 chrome.runtime.onMessage.addListener(request => {
     if (request.name == 'Sylph') {
         console.log('🧚‍♀️ Sylph!', request);
+        let PARAM_STRING : string;
         switch (request.site.substring(12,18)) {
-            case "linked": SiftLinked(request.position, request.site); break; // Will add job catching as well.
-            case "ni.co/": SiftDjinni(request.position); break;
-            case "apollo": SiftApollo(request.site); break;
-            case "upwork": SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
+            case "linked": PARAM_STRING = SiftLinked(request.position, request.site); break; // The function checks if it's a profile or job.
+            case "ni.co/": PARAM_STRING = SiftDjinni(request.position); break;
+            case "apollo": PARAM_STRING = SiftApollo(request.site); break;
+            case "upwork": PARAM_STRING = SiftUpwork(request.position, request.site); break; // The function checks if it's a profile or proposal.
             default: alert(request.site.substring(12,18)+": Can't read website name!"); return;
         }
-        let PARAM_STRING : string;
-        if (request.site.includes("jobs") || request.site.includes("apollo")) {  // Jobs or Apollo contacts.
-            PARAM_STRING = 
-            Lancer+'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
-            '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+
-            '&more='+MORE+'&ex='+request.ex;
-        }
-        else {                                              // Position can be the bookmark's folder name, as per original idea!
-            PARAM_STRING = 
-            Lancer+'name='+NAME+'&pos='+encodeURIComponent(POSITION) +'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
-            +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
-        }
+        const URI_STRING = Lancer + PARAM_STRING + '&ex='+request.ex;
         if (request.ex) 
-            console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(request.ex)+2)+'!\nPartially encoded URI string:\n'+PARAM_STRING);
-        else console.log('🧚‍♀️ Partially encoded URI string:\n'+PARAM_STRING);
+            console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(request.ex)+2)+'!\nPartially encoded URI string:\n'+URI_STRING);
+        else console.log('🧚‍♀️ Partially encoded URI string:\n'+URI_STRING);
         const XSnd = new XMLHttpRequest();
         XSnd.onreadystatechange = () => {
             if (XSnd.readyState === XMLHttpRequest.DONE) {
                 if (XSnd.status === 0 || (XSnd.status >= 200 && XSnd.status < 400)) SylphBack(XSnd.response, XSnd.status, request.tab);
-                else {
-                    alert("⛔ ERROR!\nStatus: "+XSnd.status+"\nSylph didn't find her way home!");
-                    chrome.runtime.sendMessage({SpellSuccessful: false}); // Update icon to show something's wrong...
-                }
+                else chrome.runtime.sendMessage({SpellSuccessful: false}); // Update icon to show something's wrong...
             }
         }
-        XSnd.open('GET', PARAM_STRING, true);
+        XSnd.open('GET', URI_STRING, true);
         XSnd.send();
-        resetVars();
     }
 });
 

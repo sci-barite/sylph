@@ -66,7 +66,9 @@ chrome.runtime.onMessage.addListener(Sylph => {
         delete SylphSpells[Sylph.Tab];  // This stops the animation!
         chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
         console.log("🧚‍♀️ Sylph has miscasted!");
-        chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
+        if (Sylph.LancerResponse)
+            chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
+        else chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\nDidn't even reach Lancer!\n"});
     }
     else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab here: the content script can't.
