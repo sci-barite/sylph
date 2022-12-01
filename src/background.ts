@@ -72,38 +72,38 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
             else chrome.action.setTitle({tabId: Sylph.Tab, title: "🧚‍♀️ Sylph has miscasted!\nLancer could not be summoned!\n"});
             break;
-    case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
-        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab here: the content script can't.
-            const tabID = tabs[0].id!;
-            SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
-            SylphCasts(tabID, 60);  // Starts the animation of the icon!
-            console.log('🧚‍♀️ Sylph is summoning Lancer...');
-            fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
-                    'url=GetUniqueJobs')
-             .then((response) => response.text())
-             .then((data) => {
-                const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
-                const JobID = Sylph.Place.split("view/")[1].replace('/', '');
-                const JobIndex = LancerIDs.indexOf(JobID);
-                if (JobIndex != -1) {
-                    LancerNumbers[tabID] = JobIndex;
-                    delete SylphAnimation[tabID];
-                    chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});
-                    console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
-                    chrome.action.setTitle({tabId: tabID, 
-                        title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
-                                +"Click on the ⭐ to update it.\n"})
-                }
-                else {
-                    delete SylphAnimation[tabID];
-                    chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
-                    console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
-                    chrome.action.setTitle({tabId: tabID, 
-                        title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
-                                +'\n'+"Click on the ⭐ to add this!\n"})
-                }
+        case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
+            chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab here: the content script can't.
+                const tabID = tabs[0].id!;
+                SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
+                SylphCasts(tabID, 60);  // Starts the animation of the icon!
+                console.log('🧚‍♀️ Sylph is summoning Lancer...');
+                fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
+                        'url=GetUniqueJobs')
+                .then((response) => response.text())
+                .then((data) => {
+                    const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
+                    const JobID = Sylph.Place.split("view/")[1].replace('/', '');
+                    const JobIndex = LancerIDs.indexOf(JobID);
+                    if (JobIndex != -1) {
+                        LancerNumbers[tabID] = JobIndex;
+                        delete SylphAnimation[tabID];
+                        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});
+                        console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
+                        chrome.action.setTitle({tabId: tabID, 
+                            title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
+                                    +"Click on the ⭐ to update it.\n"})
+                    }
+                    else {
+                        delete SylphAnimation[tabID];
+                        chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
+                        console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
+                        chrome.action.setTitle({tabId: tabID, 
+                            title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
+                                    +'\n'+"Click on the ⭐ to add this!\n"})
+                    }
+                });
             });
-        });
-        break;
+            break;
     }
 });
