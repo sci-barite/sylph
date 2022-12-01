@@ -1,5 +1,5 @@
 // This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
-window.onload = () => { if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Says: 'LancerSummon', Place: document.URL}); }
+window.onload = () => { if (document.URL.includes("in.com/jobs/view")) chrome.runtime.sendMessage({Says: 'LancerSummon', Place: document.URL}); }
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Sylph => {
