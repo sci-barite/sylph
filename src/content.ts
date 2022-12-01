@@ -2,23 +2,17 @@ const Lancer = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q
 
 function SylphBack(response: string, status: number, tabId: number) {
     if (status == 200) {
-        //var STATUS = "✅ ";   Commenting out the alert code, now that output seems to be stable.
         console.log(response);
-        //if (response.includes("DUPLICATE")) STATUS = "⚠️ DUPLICATE! "
-        //if (COMPANY == 'NA') alert(STATUS+NAME+"\nPosition: "+POSITION+"\nSkills: "+SKILLS+"\nEnglish: "+ENGLISH)
-        //else alert(STATUS+NAME+"\nCompany: "+COMPANY+"\nContact: "+PERSON+"\nDate: "+DATE)
         chrome.runtime.sendMessage({SpellSuccessful: true, LancerResponse: response, Tab: tabId}); // Resets the icon to show the job is completed!
     }
     else {
-        alert("⛔ ERROR!\nStatus: "+status+"\nSylph didn't find her way home!");
-        chrome.runtime.sendMessage({SpellSuccessful: false, LancerResponse: response}); // Update icon to show something's wrong...
+        console.log(response);
+        chrome.runtime.sendMessage({SpellSuccessful: false, LancerResponse: response, Tab: tabId}); // Update icon to show something's wrong...
     }
 }
 
 // This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
-window.onload = () => {
-    if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL});
-}
+window.onload = () => { if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Lancer: "Go", Place: document.URL}); }
 
 chrome.runtime.onMessage.addListener(request => {
     if (request.name == 'Sylph') {
