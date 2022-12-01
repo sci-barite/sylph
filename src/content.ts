@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
     if (Sylph.Says == 'SiftSpell') {
         console.log('🧚‍♀️ Sylph Sifts!', Sylph);
         let PARAM_STRING : string;
-        switch (Sylph.site.substring(12,18)) {
+        switch (Sylph.Place.substring(12,18)) {
             case "linked": PARAM_STRING = SiftLinked(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or job.
             case "ni.co/": PARAM_STRING = SiftDjinni(Sylph.Folder); break;
             case "apollo": PARAM_STRING = SiftApollo(Sylph.Place); break;
