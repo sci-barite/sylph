@@ -1,18 +1,18 @@
 // Global objects I couldn't eliminate yet... LancerNumbers could be replaced by localStorage, but can't find an alternative for the animation.
 const LancerNumbers : {[key: string]: number} = {};
-const SylphSpells : {[key: string]: number} = {};
+const SylphAnimation : {[key: string]: number} = {};
 
 function SylphCasts(tabID: number, speed: number) {        
-    if (SylphSpells[tabID]) {
-        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphSpells[tabID]+'.png'});
-        SylphSpells[tabID] = (SylphSpells[tabID] + 1) % 11 || 1; // We avoid a zero so that we can keep a truthy value for the if statement!
+    if (SylphAnimation[tabID]) {
+        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
+        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero so that we can keep a truthy value for the if statement!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
 }
 
 // Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there is a way to do this without globals?
 chrome.tabs.onRemoved.addListener(tabID => { 
-    if (SylphSpells[tabID]) delete SylphSpells[tabID];
+    if (SylphAnimation[tabID]) delete SylphAnimation[tabID];
     if (LancerNumbers[tabID]) delete LancerNumbers[tabID];
 })
 
@@ -44,7 +44,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 const tabID = tabs[0].id!;
-                SylphSpells[tabID] = 1; // Setup the animation for this tab only!
+                SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 150); // Starts the animation of the icon!
                 const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
                 chrome.tabs.sendMessage(tabID, { name: 'Sylph', tab: tabID, site: url, ex: knownID, position: folder[0].title });
@@ -57,13 +57,13 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Sylph => {
     if (Sylph.SpellSuccessful) {    // Success!
-        delete SylphSpells[Sylph.Tab];  // This stops the animation!
+        delete SylphAnimation[Sylph.Tab];  // This stops the animation!
         chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph32.png"}); // Change back to default icon.
         console.log("🧚‍♀️ Sylph has casted her spell successfully!");
         chrome.action.setTitle({tabId: Sylph.Tab, title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph.LancerResponse+'\n'});
     }
     else if (!Sylph.SpellSuccessful && !Sylph.Lancer) { // This is an error.
-        delete SylphSpells[Sylph.Tab];  // This stops the animation!
+        delete SylphAnimation[Sylph.Tab];  // This stops the animation!
         chrome.action.setIcon({tabId: Sylph.Tab, path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
         console.log("🧚‍♀️ Sylph has miscasted!");
         if (Sylph.LancerResponse)
@@ -73,7 +73,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
     else if (Sylph.Lancer) {    // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab here: the content script can't.
             const tabID = tabs[0].id!;
-            SylphSpells[tabID] = 1; // Setup the animation for this tab only!
+            SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
             SylphCasts(tabID, 60);  // Starts the animation of the icon!
             console.log('🧚‍♀️ Sylph is summoning Lancer...');
             fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
@@ -85,7 +85,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 const JobIndex = LancerIDs.indexOf(JobID);
                 if (JobIndex != -1) {
                     LancerNumbers[tabID] = JobIndex;
-                    delete SylphSpells[tabID];
+                    delete SylphAnimation[tabID];
                     chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});
                     console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
                     chrome.action.setTitle({tabId: tabID, 
@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
                                 +"Click on the ⭐ to update it.\n"})
                 }
                 else {
-                    delete SylphSpells[tabID];
+                    delete SylphAnimation[tabID];
                     chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
                     console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
                     chrome.action.setTitle({tabId: tabID, 
