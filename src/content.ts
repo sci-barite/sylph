@@ -1,4 +1,4 @@
-const Lancer = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
+const LancerWebApp = 'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?';
 
 // This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
 window.onload = () => { if (document.URL.includes("linkedin.com/jobs/view")) chrome.runtime.sendMessage({Says: 'LancerSummon', Place: document.URL}); }
@@ -7,29 +7,29 @@ window.onload = () => { if (document.URL.includes("linkedin.com/jobs/view")) chr
 chrome.runtime.onMessage.addListener(Sylph => {
     if (Sylph.Says == 'SiftSpell') {
         console.log('🧚‍♀️ Sylph Sifts!', Sylph);
-        let PARAM_STRING : string;
+        let SiftedParams : string;
         switch (Sylph.Place.substring(12,18)) {
-            case "linked": PARAM_STRING = SiftLinked(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or job.
-            case "ni.co/": PARAM_STRING = SiftDjinni(Sylph.Folder); break;
-            case "apollo": PARAM_STRING = SiftApollo(Sylph.Place); break;
-            case "upwork": PARAM_STRING = SiftUpwork(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or proposal.
+            case "linked": SiftedParams = SiftLinked(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or job.
+            case "ni.co/": SiftedParams = SiftDjinni(Sylph.Folder); break;              // This one uses the folder only on one condition.
+            case "apollo": SiftedParams = SiftApollo(Sylph.Place); break;               // This had two different modes depending on the URL.
+            case "upwork": SiftedParams = SiftUpwork(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or proposal.
             default: alert(Sylph.Place.substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
-        const URI_STRING = Lancer + PARAM_STRING + '&ex='+Sylph.Ex;
-        if (Sylph.Ex) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Sylph.Ex)+2)+'!\nSylph sends this to Lancer:\n'+URI_STRING);
-        else console.log('🧚‍♀️ Sylph sends this to Lancer:\n'+URI_STRING);
-        const XSnd = new XMLHttpRequest();
-        XSnd.onreadystatechange = () => {
-            if (XSnd.readyState === XMLHttpRequest.DONE) {
-                console.log(XSnd.response);
-                if (XSnd.status === 200) chrome.runtime.sendMessage({Says: 'SpellSuccessful', LancerResponse: XSnd.response, Tab: Sylph.Tab});
-                if (XSnd.status === 0 || (XSnd.status > 200 && XSnd.status < 400)) 
-                    chrome.runtime.sendMessage({Says: 'SpellFailed', LancerResponse: XSnd.response, Tab: Sylph.Tab});   
+        const LancerURI = LancerWebApp + SiftedParams + '&ex='+Sylph.Ex;
+        if (Sylph.Ex) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Sylph.Ex)+2)+'!\nSylph sends this to Lancer:\n'+LancerURI);
+        else console.log('🧚‍♀️ Sylph sends this to Lancer:\n'+LancerURI);
+        const Lancer = new XMLHttpRequest();
+        Lancer.onreadystatechange = () => {
+            if (Lancer.readyState === XMLHttpRequest.DONE) {
+                console.log(Lancer.response);
+                if (Lancer.status === 200) chrome.runtime.sendMessage({Says: 'SpellSuccessful', LancerResponse: Lancer.response, Tab: Sylph.Tab});
+                if (Lancer.status === 0 || (Lancer.status > 200 && Lancer.status < 400)) 
+                    chrome.runtime.sendMessage({Says: 'SpellFailed', LancerResponse: Lancer.response, Tab: Sylph.Tab});   
                 else chrome.runtime.sendMessage({Says: 'SpellFailed', Tab: Sylph.Tab}); // In this case, Lancer must not have been reached.
             }
         }
-        XSnd.open('GET', URI_STRING, true);
-        XSnd.send();
+        Lancer.open('GET', LancerURI, true);
+        Lancer.send();
     }
 });
 
