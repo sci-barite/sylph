@@ -2,7 +2,6 @@
 window.onload = () => {
     if (document.URL.includes("in.com/jobs/view")) chrome.runtime.sendMessage({'🧚‍♀️': 'LancerSummon', '🧜‍♂️': LancerWebApp, '🌍': document.URL});
 }
-
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Sylph => {
     if (Sylph['🧚‍♀️'] == 'SiftSpell') {
@@ -16,8 +15,8 @@ chrome.runtime.onMessage.addListener(Sylph => {
             default: alert(Sylph.Place.substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
         const LancerURI = LancerWebApp + SiftedParams + '&ex='+Sylph['💌'];
-        if (Sylph['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Sylph['💌'])+2)+'!\n🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
-        else console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
+        if (Sylph['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Sylph['💌'])+2)+'!');
+        console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
         const Lancer = new XMLHttpRequest();
         Lancer.onreadystatechange = () => {
             if (Lancer.readyState === XMLHttpRequest.DONE) {
