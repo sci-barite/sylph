@@ -14,8 +14,8 @@ chrome.runtime.onMessage.addListener(Msg => {
             case "upwork": SiftedParams = SiftUpwork(Msg['📁'], Msg['🌍']); break; // The function checks if it's a profile or proposal.
             default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
-        const LancerURI = LancerWebApp + SiftedParams + '&ex='+Msg['💌'];
-        if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌'])+2)+'!');
+        const LancerURI = LancerWebApp + SiftedParams + '&ex='+ Msg['💌'];
+        if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌']) + 2)+'!');
         console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
         const Lancer = new XMLHttpRequest();
         Lancer.onreadystatechange = () => {
