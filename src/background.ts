@@ -48,7 +48,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
                 SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 150); // Starts the animation of the icon!
                 const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
-                chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗂': tabID, '🌍': url, '💌': knownID, '📁': folder[0].title });
+                chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': url, '💌': knownID, '📁': folder[0].title });
                 console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
             });
         });
@@ -56,21 +56,21 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
 });
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
-chrome.runtime.onMessage.addListener(Sylph => {
-    switch(Sylph['🧚‍♀️']) {
+chrome.runtime.onMessage.addListener(Msg => {
+    switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
-            delete SylphAnimation[Sylph['🗂']];  // This stops the animation!
-            chrome.action.setIcon({tabId: Sylph['🗂'], path: "images/sylph32.png"}); // Change back to default icon.
+            delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph32.png"}); // Change back to default icon.
             console.log("🧚‍♀️ Sylph has casted her spell successfully!");
-            chrome.action.setTitle({tabId: Sylph['🗂'], title: "🧜‍♂️ Lancer's response was:\n\n"+Sylph['🧜‍♂️']+'\n'});
+            chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
             break;
         case 'SpellFailed': // This is an error.
-            delete SylphAnimation[Sylph['🗂']];  // This stops the animation!
-            chrome.action.setIcon({tabId: Sylph['🗂'], path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
+            delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
             console.log("🧚‍♀️ Sylph has miscasted!");
-            if (Sylph['🧜‍♂️'])
-                chrome.action.setTitle({tabId: Sylph['🗂'], title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Sylph['🧜‍♂️']+'\n'});
-            else chrome.action.setTitle({tabId: Sylph['🗂'], title: "🧚‍♀️ Sylph has miscasted!\nLancer could not be summoned!\n"});
+            if (Msg['🧜‍♂️'])
+                chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
+            else chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧚‍♀️ Sylph has miscasted!\nLancer could not be summoned!\n"});
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
@@ -78,9 +78,9 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 60);  // Starts the animation of the icon!
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-                fetch(Sylph['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => {
+                fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => {
                     const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
-                    const JobID = Sylph['🌍'].split("view/")[1].replace('/', '');
+                    const JobID = Msg['🌍'].split("view/")[1].replace('/', '');
                     const JobIndex = LancerIDs.indexOf(JobID);
                     delete SylphAnimation[tabID];
                     if (JobIndex != -1) {
