@@ -65,17 +65,14 @@ function checkID(data: string, url: string, tabID: number) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
         console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
-        chrome.action.setTitle({tabId: tabID, 
-            title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
-                    +"Click on the ⭐ to update it.\n"})
+        chrome.action.setTitle({tabId: tabID, title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
+            +"Click on the ⭐ to update it.\n"})
+        return;
     }
-    else {
-        chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
-        console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
-        chrome.action.setTitle({tabId: tabID, 
-            title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
-                    +'\n'+"Click on the ⭐ to add this!\n"})
-    }
+    chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
+    console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
+    chrome.action.setTitle({tabId: tabID, title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
+        +'\n'+"Click on the ⭐ to add this!\n"})
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
