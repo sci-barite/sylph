@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener(Sylph => {
                     const JobIndex = LancerIDs.indexOf(JobID);
                     delete SylphAnimation[tabID];
                     if (JobIndex != -1) {
-                        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});
+                        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
                         console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
                         chrome.action.setTitle({tabId: tabID, 
                             title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
