@@ -8,10 +8,10 @@ chrome.runtime.onMessage.addListener(Sylph => {
         console.log('🧚‍♀️ Sylph Sifts!', Sylph);
         let SiftedParams : string;
         switch (Sylph['🌍'].substring(12,18)) {
-            case "linked": SiftedParams = SiftLinked(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or job.
-            case "ni.co/": SiftedParams = SiftDjinni(Sylph.Folder); break;              // This one uses the folder only on one condition.
-            case "apollo": SiftedParams = SiftApollo(Sylph.Place); break;               // This had two different modes depending on the URL.
-            case "upwork": SiftedParams = SiftUpwork(Sylph.Folder, Sylph.Place); break; // The function checks if it's a profile or proposal.
+            case "linked": SiftedParams = SiftLinked(Sylph['🗂'], Sylph['🌍']); break; // The function checks if it's a profile or job.
+            case "ni.co/": SiftedParams = SiftDjinni(Sylph['🗂']); break;              // This one uses the folder only on one condition.
+            case "apollo": SiftedParams = SiftApollo(Sylph['🌍']); break;               // This had two different modes depending on the URL.
+            case "upwork": SiftedParams = SiftUpwork(Sylph['🗂'], Sylph['🌍']); break; // The function checks if it's a profile or proposal.
             default: alert(Sylph.Place.substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
         const LancerURI = LancerWebApp + SiftedParams + '&ex='+Sylph['💌'];
