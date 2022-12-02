@@ -1,17 +1,17 @@
-// Global objects I couldn't eliminate yet... LancerNumbers could be replaced by localStorage, but can't find an alternative for the animation.
+// Global objects I couldn't eliminate yet. LancerNumbers can be replaced by localStorage, but can't find an alternative for the animation.
 const LancerNumbers : {[key: string]: number} = {};
 const SylphAnimation : {[key: string]: number} = {};
 
-// Quite a neat and simple animation function, although using a global object for state. I don't see why it's a problem: I guess I don't know enough.
+// Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
     if (SylphAnimation[tabID]) {
         chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
-        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero so that we can keep a truthy value for the if statement!
+        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
 }
 
-// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there is a way to do this without globals?
+// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there's a way to do this without globals?
 chrome.tabs.onRemoved.addListener(tabID => { 
     if (SylphAnimation[tabID]) delete SylphAnimation[tabID];
     if (LancerNumbers[tabID]) delete LancerNumbers[tabID];
@@ -37,11 +37,11 @@ chrome.runtime.onInstalled.addListener(()=> {
     });
 });
 
-// This is the main way the extension works: when a bookmark is created, we send a message to the content script, which will process the page.
+// This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     const url = bookmark.url!;  // Bookmarking works independently from the extension, so we have to check again the website.
     if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
-        url.includes("rk.com/ab/applicants") || url.includes("rk.com/free") || url.includes("nni.co/home/inbox") || url.includes('o.io/#')) {
+        url.includes("rk.com/ab/applicant") || url.includes("rk.com/free") || url.includes("ni.co/home/inbox") || url.includes('o.io/#')) {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 const tabID = tabs[0].id!;

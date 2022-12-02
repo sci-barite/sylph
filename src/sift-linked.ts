@@ -2,7 +2,8 @@
 function SiftLinked(position : string, page: string) : string {
     if (page.includes("/jobs/")) {
         const LINK = document.URL.split('?')[0];
-        const NAME = document.title.split(' | ')[0].startsWith("(") ? document.title.split(' | ')[0].substring(4) : document.title.split(' | ')[0];
+        const NAME = document.title.split(' | ')[0].startsWith("(") ? 
+            document.title.split(' | ')[0].substring(4) : document.title.split(' | ')[0];
         const PERSON = document.querySelector('span.jobs-poster__name') ? 
             (document.querySelector('span.jobs-poster__name') as HTMLElement).innerText.trim() : 'NA';
         const PERSON_LINK = document.querySelector('.hirer-card__hirer-information') ?

@@ -8,7 +8,8 @@ function SiftApollo(page: string) : string {
     const links = document.querySelector(".zp_33Rq5")!.childNodes;
     const COMPANY_LINK = (links[0] as HTMLElement).attributes[1].value;
     const COMPANY = links[1] ? (links[1] as HTMLElement).attributes[1].value : COMPANY_LINK;
-    const PERSON_LINK = document.querySelector(".zp-button.zp_1TrB3.zp_Dxi_A.zp_3M2dC.zp_2tqsg")!.parentElement!.parentElement!.attributes[1].value;
+    const PERSON_LINK = document.querySelector(".zp-button.zp_1TrB3.zp_Dxi_A.zp_3M2dC.zp_2tqsg")!
+        .parentElement!.parentElement!.attributes[1].value;
     const PERSON = document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-")? 
         (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-") as HTMLElement).innerText :  // Credit used override: Email
         (document.querySelector(".zp_1lj4H") as HTMLElement).innerText.split("\n")[0];  // Fallback (new contact): Company name
@@ -16,7 +17,8 @@ function SiftApollo(page: string) : string {
         (document.querySelector("a.zp-link.zp_3_fnL.zp_1AaQP") as HTMLElement).innerText : // Credit used override: Phone
         (document.querySelector(".zp_1lj4H") as HTMLElement).innerText.split("\n")[1]; // Fallback (new contact): Position
     const LOCATION = document.querySelector(".zp_dfI-D")? (document.querySelector(".zp_dfI-D") as HTMLElement).innerText : 'NA';
-    const COMPANY_SIZE = document.querySelector(".zp_2HUTp.zp_28q-l")? (document.querySelector(".zp_2HUTp.zp_28q-l") as HTMLElement).innerText : 'NA';
+    const COMPANY_SIZE = document.querySelector(".zp_2HUTp.zp_28q-l")? 
+        (document.querySelector(".zp_2HUTp.zp_28q-l") as HTMLElement).innerText : 'NA';
     let [JobsCount, MORE] = [0,''];
     document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1").forEach((elem) => {
         if ((elem as HTMLElement).innerText.includes('ngineer') || 
