@@ -78,23 +78,20 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 60);  // Starts the animation of the icon!
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-                fetch(Sylph['🧜‍♂️']+'url=GetUniqueJobs')
-                .then((response) => response.text())
-                .then((data) => {
+                fetch(Sylph['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => {
                     const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
                     const JobID = Sylph['🌍'].split("view/")[1].replace('/', '');
                     const JobIndex = LancerIDs.indexOf(JobID);
+                    delete SylphAnimation[tabID];
                     if (JobIndex != -1) {
-                        LancerNumbers[tabID] = JobIndex;
-                        delete SylphAnimation[tabID];
                         chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});
                         console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
                         chrome.action.setTitle({tabId: tabID, 
                             title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
                                     +"Click on the ⭐ to update it.\n"})
+                        LancerNumbers[tabID] = JobIndex;
                     }
                     else {
-                        delete SylphAnimation[tabID];
                         chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
                         console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
                         chrome.action.setTitle({tabId: tabID, 
