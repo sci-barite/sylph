@@ -77,9 +77,8 @@ chrome.runtime.onMessage.addListener(Sylph => {
                 const tabID = tabs[0].id!;
                 SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 60);  // Starts the animation of the icon!
-                console.log('🧚‍♀️ Sylph is summoning Lancer...');
-                fetch(  'https://script.google.com/macros/s/AKfycbxMDCxoSFoZREabwctL86r1q8Hf5_iylcUxlZtL_4Y_dQrjwL9onaJ6G1SshfgCHqLq/exec?'+
-                        'url=GetUniqueJobs')
+                console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
+                fetch(Sylph['🧜‍♂️']+'url=GetUniqueJobs')
                 .then((response) => response.text())
                 .then((data) => {
                     const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
