@@ -101,9 +101,7 @@ chrome.runtime.onMessage.addListener(Msg => {
                 SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 SylphCasts(tabID, 60);  // Starts the animation of the icon!
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-                fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => {
-                    checkID(data, Msg['🌍'], tabID);
-                });
+                fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;
     }
