@@ -31,4 +31,3 @@ chrome.runtime.onMessage.addListener(Sylph => {
         Lancer.send();
     }
 });
-
