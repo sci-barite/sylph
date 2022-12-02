@@ -59,4 +59,4 @@ function SiftUpwork(pos: string, url : string) {
         +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more=';
         return PARAM_STRING;
     }
-} 
+}
