@@ -101,5 +101,6 @@ chrome.runtime.onMessage.addListener(Msg => {
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;
+        default: console.log(Msg); break;
     }
 });
