@@ -41,7 +41,8 @@ chrome.runtime.onInstalled.addListener(()=> {
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     const url = bookmark.url!;  // Bookmarking works independently from the extension, so we have to check again the website.
     if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
-        url.includes("rk.com/ab/applicant") || url.includes("rk.com/free") || url.includes("ni.co/home/inbox") || url.includes('o.io/#')) {
+        url.includes("rk.com/ab/appli") || url.includes("rk.com/free") || url.includes("ni.co/home/inbox") || 
+        url.includes('cio#/con') ||  url.includes('o/#/peo') ||  url.includes('cio#/peo') || url.includes('o/#/con')) {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 const tabID = tabs[0].id!;
