@@ -55,6 +55,29 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
     }
 });
 
+// This used to be inside the listener below, but caused too much indentation to be comfortable.
+function checkID(data: string, url: string, tabID: number) {
+    const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
+    const JobID = url.split("view/")[1].replace('/', '');
+    const JobIndex = LancerIDs.indexOf(JobID);
+    delete SylphAnimation[tabID];   // Stops the animation
+    if (JobIndex != -1) {
+        LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
+        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
+        console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
+        chrome.action.setTitle({tabId: tabID, 
+            title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
+                    +"Click on the ⭐ to update it.\n"})
+    }
+    else {
+        chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
+        console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
+        chrome.action.setTitle({tabId: tabID, 
+            title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
+                    +'\n'+"Click on the ⭐ to add this!\n"})
+    }
+}
+
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
@@ -79,25 +102,7 @@ chrome.runtime.onMessage.addListener(Msg => {
                 SylphCasts(tabID, 60);  // Starts the animation of the icon!
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => {
-                    const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
-                    const JobID = Msg['🌍'].split("view/")[1].replace('/', '');
-                    const JobIndex = LancerIDs.indexOf(JobID);
-                    delete SylphAnimation[tabID];
-                    if (JobIndex != -1) {
-                        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
-                        console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
-                        chrome.action.setTitle({tabId: tabID, 
-                            title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
-                                    +"Click on the ⭐ to update it.\n"})
-                        LancerNumbers[tabID] = JobIndex;
-                    }
-                    else {
-                        chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
-                        console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
-                        chrome.action.setTitle({tabId: tabID, 
-                            title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
-                                    +'\n'+"Click on the ⭐ to add this!\n"})
-                    }
+                    checkID(data, Msg['🌍'], tabID);
                 });
             });
             break;
