@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(Msg => {
         let SiftedParams : string;
         switch (Msg['🌍'].substring(12,18)) {
             case "linked": SiftedParams = SiftLinked(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or job.
-            case "upwork": SiftedParams = SiftUpwork(Msg['📁'], Msg['🌍']); break; // The function checks if it's a profile or proposal.
+            case "upwork": SiftedParams = SiftUpwork(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or proposal.
             case "ni.co/": SiftedParams = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
             case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
             default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
