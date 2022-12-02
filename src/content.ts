@@ -1,4 +1,4 @@
-// This is to check for existing entries of the job. The 'Go' assigned to Lancer doesn't matter, we check for presence of the key.
+// This is to check for existing entries of the job. The work is done by the service worker, not slow down the page itself.
 window.onload = () => {
     if (document.URL.includes("in.com/jobs/view")) chrome.runtime.sendMessage({'🧚‍♀️': 'LancerSummon', '🧜‍♂️': LancerWebApp, '🌍': document.URL});
 }
@@ -31,3 +31,4 @@ chrome.runtime.onMessage.addListener(Msg => {
         Lancer.send();
     }
 });
+
