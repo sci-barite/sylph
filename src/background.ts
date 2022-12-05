@@ -23,7 +23,7 @@ const SylphAnimatio : {[key: string]: number} = {};
 function SylphCasts(tabID: number, speed: number) {        
     if (SylphAnimatio[tabID]) {
         chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimatio[tabID]+'.png'});
-        SylphAnimatio[tabID] = (SylphAnimatio[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
+        SylphAnimatio[tabID] = (SylphAnimatio[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
 }
