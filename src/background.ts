@@ -5,7 +5,7 @@ const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity
     'djinni.co'     : ['/home/inbox'],  
     '.apollo.io'    : ['/']
 };
-const MagicLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix));
+const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
@@ -41,7 +41,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
-    if (!MagicLands.some(site => bookmark.url!.includes(site))) return;
+    if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;
     chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
