@@ -1,35 +1,34 @@
 // Global objects I couldn't eliminate yet. LancerNumbers can be replaced by localStorage, but can't find an alternative for the animation.
 const LancerNumbers : {[key: string]: number} = {};
-const SylphAnimation : {[key: string]: number} = {};
 
-const SylphAnime : { TabRegistry: {[key: number]: number}, Start: Function, Stop: Function, Animate: Function} = {
-    TabRegistry : {},
+const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
+    Tabs : {},
     Start : function(tabID: number, speed: number) {
-        this.TabRegistry[tabID] = 1;
-        this.Animate(tabID, speed);
-    },
-    Stop : function (tabID: number) { delete this.TabRegistry[tabID]; },
-    Animate : function(tabID: number, speed: number) {
-        if (this.TabRegistry[tabID]) {
-            chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
-            this.TabRegistry[tabID] = (this.TabRegistry[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if!
-            setTimeout(() => this.Animate(tabID, speed), speed); // Sylph spell-casting animation for the win!!
+        this.Tabs[tabID] = 1;
+        const Animate = (tabID: number, speed: number) => {
+            if (this.Tabs[tabID]) {
+                chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
+                this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
+                setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
+            }
         }
-    }
+        Animate(tabID, speed);
+    },
+    Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 }
 
-// Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
+/** Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
     if (SylphAnimation[tabID]) {
         chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
         SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
-}
+} */
 
 // Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there's a way to do this without globals?
 chrome.tabs.onRemoved.addListener(tabID => { 
-    if (SylphAnimation[tabID]) delete SylphAnimation[tabID];
+    if (SylphAnimation.Tabs[tabID]) SylphAnimation.Stop(tabID);
     if (LancerNumbers[tabID]) delete LancerNumbers[tabID];
 })
 
@@ -64,7 +63,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
                 const tabID = tabs[0].id!;
                 //SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
                 //SylphCasts(tabID, 150); // Starts the animation of the icon!
-                SylphAnime.Start(tabID, 150);
+                SylphAnimation.Start(tabID, 150);
                 const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
                 chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': url, '💌': knownID, '📁': folder[0].title });
                 console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
@@ -78,7 +77,8 @@ function checkID(data: string, url: string, tabID: number) {
     const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
     const JobID = url.split("view/")[1].replace('/', '');
     const JobIndex = LancerIDs.indexOf(JobID);
-    delete SylphAnimation[tabID];   // Stops the animation
+    //delete SylphAnimation[tabID];   // Stops the animation
+    SylphAnimation.Stop(tabID);
     if (JobIndex != -1) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
@@ -98,13 +98,14 @@ chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
             //delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
-            SylphAnime.Stop(Msg['🗃️']);
+            SylphAnimation.Stop(Msg['🗃️']);
             chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph32.png"}); // Change back to default icon.
             console.log("🧚‍♀️ Sylph has casted her spell successfully!");
             chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
             break;
         case 'SpellFailed': // This is an error.
-            delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            //delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            SylphAnimation.Stop(Msg['🗃️']);
             chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
             console.log("🧚‍♀️ Sylph has miscasted!");
             if (Msg['🧜‍♂️'])
@@ -114,8 +115,9 @@ chrome.runtime.onMessage.addListener(Msg => {
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
                 const tabID = tabs[0].id!;
-                SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
-                SylphCasts(tabID, 60);  // Starts the animation of the icon!
+                //SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
+                //SylphCasts(tabID, 60);  // Starts the animation of the icon!
+                SylphAnimation.Start(tabID, 60);
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
