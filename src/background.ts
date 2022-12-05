@@ -1,5 +1,5 @@
 const LancerNumbers : {[key: string]: number} = {}; // LancerNumbers can be replaced by localStorage.
-const GoodSites : string[] =                        // We are "into the whole brevity thing".
+const GoodSites : string[] =                        // We are "into the whole brevity thing". This is to avoid cluttering the bookmark listener.
     ['in.com/in', 'in.com/jobs/vie', 'o.io/?utm','rk.com/ab/appl', 'rk.com/fre', 'ni.co/home/inbo', 'cio#/con', 'o/#/peo', 'cio#/peo', 'o/#/con'];
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
