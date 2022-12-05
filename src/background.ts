@@ -1,6 +1,9 @@
 const LancerNumbers : {[key: string]: number} = {}; // LancerNumbers can be replaced by localStorage.
-const GoodSites : string[] =                        // We are "into the whole brevity thing". This is to avoid cluttering the bookmark listener.
-    ['in.com/in', 'in.com/jobs/vie', 'o.io/?utm','rk.com/ab/appl', 'rk.com/fre', 'ni.co/home/inbo', 'cio#/con', 'o/#/peo', 'cio#/peo', 'o/#/con'];
+const HostPrefixes: {[key: string]: string[]} = {   // We are "into the whole brevity thing". The above avoid cluttering of the bookmark listener.
+    '.linkedin.com': ['/in', '/jobs/view'], 'djinni.co': ['/home/inbox'], '.upwork.com': ['/ab/applicants','/freelancers'], '.apollo.io': ['/']
+}
+const [Hosts, Prefixes] = [Object.keys(HostPrefixes), Object.values(HostPrefixes)]; // These are used twice, so we better keep them handy.
+const MagicLands : string[] = Prefixes.flatMap((lands, i) => lands.map(prefix => Hosts[i]+prefix));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
@@ -24,27 +27,19 @@ chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
-    console.log('🧚‍♀️ Sylph awaits your orders!');
     chrome.action.disable();
-    const AwakeSylph = {
-        conditions: [
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/in' } }),
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.linkedin.com', pathPrefix: '/jobs/view' } }),
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: 'djinni.co', pathPrefix: '/home/inbox' } }),
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/ab/applicants' } }),
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.upwork.com', pathPrefix: '/freelancers' } }),
-          new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: '.apollo.io', pathPrefix: '/' } }),
-        ],
-        actions: [ new chrome.declarativeContent.ShowAction() ]
+    const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
+        conditions: Prefixes.flatMap((values, i) => values.map(prefix =>    // Now this is some coding here...
+                    new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: Hosts[i], pathPrefix: prefix } }))), 
+        actions:  [ new chrome.declarativeContent.ShowAction() ]
     };
-    chrome.declarativeContent.onPageChanged.removeRules(undefined, function () { 
-        chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); 
-    });
+    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
-chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
-    if (GoodSites.some(site => !bookmark.url!.includes(site))) return; // Bookmarking works independently, so we have to check again the website.
+chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
+    if (!MagicLands.some(site => bookmark.url!.includes(site))) return;
     chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
