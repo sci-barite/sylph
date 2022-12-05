@@ -21,9 +21,8 @@ function SiftApollo(page: string) : string {
         (document.querySelector(".zp_2HUTp.zp_28q-l") as HTMLElement).innerText : 'NA';
     let [JobsCount, MORE] = [0,''];
     document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1").forEach((elem) => {
-        if ((elem as HTMLElement).innerText.includes('ngineer') || 
-            (elem as HTMLElement).innerText.includes('eveloper') || 
-            (elem as HTMLElement).innerText.includes('esigner')) {
+        if ((elem as HTMLElement).innerText.includes('ngineer') || (elem as HTMLElement).innerText.includes('eveloper') || 
+            (elem as HTMLElement).innerText.includes('esigner') || (elem as HTMLElement).innerText.includes('ester  ')) {
             JobsCount++ // Eventually these should go as jobs, need to update Lancer to deal with these.
             MORE += (elem as HTMLElement).innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---';
         }
