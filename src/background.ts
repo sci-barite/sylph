@@ -1,11 +1,12 @@
 // Global objects I couldn't eliminate yet. LancerNumbers can be replaced by localStorage, but can't find an alternative for the animation.
 const LancerNumbers : {[key: string]: number} = {};
 
+// A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
     Tabs : {},
     Start : function(tabID: number, speed: number) {
         this.Tabs[tabID] = 1;
-        const Animate = (tabID: number, speed: number) => {
+        const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to use 'this', to access Tabs.
             if (this.Tabs[tabID]) {
                 chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
                 this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
