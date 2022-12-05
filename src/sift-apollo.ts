@@ -4,7 +4,7 @@ function SiftApollo(page: string) : string {
         (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children[2] as HTMLElement)!.click(); // Click to display jobs!
     else if (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children.length == 6)
         (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children[3] as HTMLElement)!.click(); // Click to display jobs!
-
+    if (!document.querySelector('#location_detail_card')) return 'ERROR: Not a profile page.'; // Apollo's earch pages look like profiles...
     const links = document.querySelector(".zp_33Rq5")!.childNodes;
     const COMPANY_LINK = (links[0] as HTMLElement).attributes[1].value;
     const COMPANY = links[1] ? (links[1] as HTMLElement).attributes[1].value : COMPANY_LINK;

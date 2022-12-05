@@ -1,5 +1,5 @@
 const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
-const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". The above avoid cluttering of the bookmark listener.
+const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
     '.linkedin.com' : ['/in', '/jobs/view'],
     '.upwork.com'   : ['/ab/applicants','/freelancers'],
     'djinni.co'     : ['/home/inbox'],  
