@@ -55,29 +55,30 @@ function SiftLinkedPerson(position: string) : string {
     let SKILLS = 'NA';
     let ENGLISH = 'NA';
     if (document.querySelectorAll("a[data-field='skill_card_skill_topic']").length) {
-        var Sifted: Array<string> = [];
-        for (var i=0; i<3; i++) {
+        let Sifted: string[] = [];
+        for (let i=0; i<3; i++) {
             Sifted.push(' '+
             (document.querySelectorAll("a[data-field='skill_card_skill_topic']")[i] as HTMLElement)
                 .innerText.split("\n")[0]);
         }
 
         const Hidden = document.querySelectorAll(".visually-hidden");
-        var Collated = " · ";
-        for (i=0; i < Hidden.length; i++) {
+        let Collated = " · ";
+        for (let i=0; i < Hidden.length; i++) {
             let String: string = (Hidden[i] as HTMLElement).innerText;
             if (String.includes("Skills:") && String.includes("·")) 
                 Collated = Collated+String.substring(8)+" · ";
             else if (String === "English") ENGLISH = (Hidden[i+1] as HTMLElement).innerText;
         }
 
-        var SubSkills = Collated.split(" · ");
-        for (i=0; i<SubSkills.length; i++) {
+        let SubSkills = Collated.split(" · ");
+        for (let i=0; i<SubSkills.length; i++) {
             if (Sifted.indexOf(' '+SubSkills[i]) == -1 && Sifted[i] != '') Sifted.push(' '+SubSkills[i]);
         }
 
         SKILLS = Sifted.toString().substring(1);
     }
+
     const NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
     const STATUS = (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) ? 
         "2.Sent 1st message" : '0.New';
