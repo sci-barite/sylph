@@ -2,6 +2,22 @@
 const LancerNumbers : {[key: string]: number} = {};
 const SylphAnimation : {[key: string]: number} = {};
 
+const SylphAnime : { TabRegistry: {[key: number]: number}, Start: Function, Stop: Function, Animate: Function} = {
+    TabRegistry : {},
+    Start : function(tabID: number, speed: number) {
+        this.TabRegistry[tabID] = 1;
+        this.Animate(tabID, speed);
+    },
+    Stop : function (tabID: number) { delete this.TabRegistry[tabID]; },
+    Animate : function(tabID: number, speed: number) {
+        if (this.TabRegistry[tabID]) {
+            chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
+            this.TabRegistry[tabID] = (this.TabRegistry[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if!
+            setTimeout(() => this.Animate(tabID, speed), speed); // Sylph spell-casting animation for the win!!
+        }
+    }
+}
+
 // Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
     if (SylphAnimation[tabID]) {
@@ -46,8 +62,9 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
         chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
                 const tabID = tabs[0].id!;
-                SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
-                SylphCasts(tabID, 150); // Starts the animation of the icon!
+                //SylphAnimation[tabID] = 1; // Setup the animation for this tab only!
+                //SylphCasts(tabID, 150); // Starts the animation of the icon!
+                SylphAnime.Start(tabID, 150);
                 const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
                 chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': url, '💌': knownID, '📁': folder[0].title });
                 console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
@@ -80,7 +97,8 @@ function checkID(data: string, url: string, tabID: number) {
 chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
-            delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            //delete SylphAnimation[Msg['🗃️']];  // This stops the animation!
+            SylphAnime.Stop(Msg['🗃️']);
             chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph32.png"}); // Change back to default icon.
             console.log("🧚‍♀️ Sylph has casted her spell successfully!");
             chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
