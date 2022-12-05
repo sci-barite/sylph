@@ -1,7 +1,7 @@
-const LancerNumbers : {[key: string]: number} = {}; // LancerNumbers can be replaced by localStorage.
+const LancerNumbers : {[key: string]: number} = {}; // LancerNumbers could be replaced by localStorage.
 const HostPrefixes: {[key: string]: string[]} = {   // We are "into the whole brevity thing". The above avoid cluttering of the bookmark listener.
     '.linkedin.com': ['/in', '/jobs/view'], 'djinni.co': ['/home/inbox'], '.upwork.com': ['/ab/applicants','/freelancers'], '.apollo.io': ['/']
-}
+};
 const [Hosts, Prefixes] = [Object.keys(HostPrefixes), Object.values(HostPrefixes)]; // These are used twice, so we better keep them handy.
 const MagicLands : string[] = Prefixes.flatMap((lands, i) => lands.map(prefix => Hosts[i]+prefix));
 
@@ -20,7 +20,7 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
         Animate(tabID, speed);
     },
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
-}
+};
 
 // Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever.
 chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
