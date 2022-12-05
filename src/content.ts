@@ -20,11 +20,9 @@ chrome.runtime.onMessage.addListener(Msg => {
         const Lancer = new XMLHttpRequest();
         Lancer.onreadystatechange = () => {
             if (Lancer.readyState === XMLHttpRequest.DONE) {
-                console.log(Lancer.response);
+                console.log(Lancer.status, Lancer.response);
                 if (Lancer.status === 200) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellSuccessful', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
-                else if (Lancer.status === 0 || (Lancer.status > 200 && Lancer.status < 400)) 
-                    chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});   
-                else chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🗃️': Msg['🗃️']}); // In this case, Lancer must not have been reached.
+                else chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
             }
         }
         Lancer.open('GET', LancerURI, true);
