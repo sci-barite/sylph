@@ -1,8 +1,9 @@
 // Global objects I couldn't eliminate yet. LancerNumbers can be replaced by localStorage, but can't find an alternative for the animation.
 const LancerNumbers : {[key: string]: number} = {};
+const SylphAnimatio : {[key: string]: number} = {};
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
-const SylphAnimatio : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
+const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
     Tabs : {},
     Start : function(tabID: number, speed: number) {
         this.Tabs[tabID] = 1;
@@ -18,12 +19,11 @@ const SylphAnimatio : {Tabs: {[key: number]: number}, Start: (tabID: number, spe
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 }
 
-const SylphAnimation : {[key: string]: number} = {};
-
+// Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
-    if (SylphAnimation[tabID]) {
-        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
-        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value!
+    if (SylphAnimatio[tabID]) {
+        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimatio[tabID]+'.png'});
+        SylphAnimatio[tabID] = (SylphAnimatio[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
 }
