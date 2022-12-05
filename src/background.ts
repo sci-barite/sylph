@@ -1,9 +1,8 @@
-const LancerNumbers : {[key: string]: number} = {}; // LancerNumbers could be replaced by localStorage.
-const HostPrefixes: {[key: string]: string[]} = {   // We are "into the whole brevity thing". The above avoid cluttering of the bookmark listener.
+const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
+const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". The above avoid cluttering of the bookmark listener.
     '.linkedin.com': ['/in', '/jobs/view'], 'djinni.co': ['/home/inbox'], '.upwork.com': ['/ab/applicants','/freelancers'], '.apollo.io': ['/']
 };
-const [Hosts, Prefixes] = [Object.keys(HostPrefixes), Object.values(HostPrefixes)]; // These are used twice, so we better keep them handy.
-const MagicLands : string[] = Prefixes.flatMap((lands, i) => lands.map(prefix => Hosts[i]+prefix));
+const MagicLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
@@ -29,8 +28,8 @@ chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
 chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
-        conditions: Prefixes.flatMap((values, i) => values.map(prefix =>    // Now this is some coding here...
-                    new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: Hosts[i], pathPrefix: prefix } }))), 
+        conditions: Object.values(LandMap).flatMap((values, i) => values.map(prefix =>    // Now this is some coding here...
+                    new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: Object.keys(LandMap)[i], pathPrefix: prefix } }))), 
         actions:  [ new chrome.declarativeContent.ShowAction() ]
     };
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
@@ -96,6 +95,5 @@ chrome.runtime.onMessage.addListener(Msg => {
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;
-        default: console.log(Msg); return;
     }
 });
