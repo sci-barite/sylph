@@ -18,14 +18,16 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 }
 
-/** Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
+const SylphAnimatio : {[key: string]: number} = {};
+
+// Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
-    if (SylphAnimation[tabID]) {
-        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
-        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
+    if (SylphAnimatio[tabID]) {
+        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimatio[tabID]+'.png'});
+        SylphAnimatio[tabID] = (SylphAnimatio[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value for the if statement!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
-} */
+}
 
 // Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there's a way to do this without globals?
 chrome.tabs.onRemoved.addListener(tabID => { 
