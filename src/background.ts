@@ -2,7 +2,7 @@
 const LancerNumbers : {[key: string]: number} = {};
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
-const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
+const SylphAnimatio : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
     Tabs : {},
     Start : function(tabID: number, speed: number) {
         this.Tabs[tabID] = 1;
@@ -18,12 +18,12 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 }
 
-const SylphAnimatio : {[key: string]: number} = {};
+const SylphAnimation : {[key: string]: number} = {};
 
 function SylphCasts(tabID: number, speed: number) {        
-    if (SylphAnimatio[tabID]) {
-        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimatio[tabID]+'.png'});
-        SylphAnimatio[tabID] = (SylphAnimatio[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value!
+    if (SylphAnimation[tabID]) {
+        chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimation[tabID]+'.png'});
+        SylphAnimation[tabID] = (SylphAnimation[tabID] + 1) % 11 || 1; // We avoid a zero to keep a truthy value!
         setTimeout(() => SylphCasts(tabID, speed), speed); // Sylph spell-casting animation for the win!!
     }
 }
