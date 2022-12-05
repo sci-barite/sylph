@@ -1,5 +1,9 @@
-// Global objects I couldn't eliminate yet. LancerNumbers can be replaced by localStorage, but can't find an alternative for the animation.
+// LancerNumbers can be replaced by localStorage.
 const LancerNumbers : {[key: string]: number} = {};
+// We are "into the whole brevity thing".
+const GoodSites : string[] = [
+    'in.com/in', 'in.com/jobs/vie', 'o.io/?utm','rk.com/ab/appl', 'rk.com/fre', 'ni.co/home/inbo', 'cio#/con', 'o/#/peo', 'cio#/peo', 'o/#/con'
+];
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
@@ -12,17 +16,14 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
                 this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
                 setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
             }
-        }
+        };
         Animate(tabID, speed);
     },
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 }
 
-// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever. Maybe there's a way to do this without globals?
-chrome.tabs.onRemoved.addListener(tabID => { 
-    if (SylphAnimation.Tabs[tabID]) SylphAnimation.Stop(tabID);
-    if (LancerNumbers[tabID]) delete LancerNumbers[tabID];
-})
+// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever.
+chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -46,20 +47,16 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {
-    const url = bookmark.url!;  // Bookmarking works independently from the extension, so we have to check again the website.
-    if (url.includes("in.com/in") || url.includes("in.com/jobs/view") || url.includes('o.io/?utm') || // We're into the whole brevity thing.
-        url.includes("rk.com/ab/appli") || url.includes("rk.com/free") || url.includes("ni.co/home/inbox") || 
-        url.includes('cio#/con') ||  url.includes('o/#/peo') ||  url.includes('cio#/peo') || url.includes('o/#/con')) {
-        chrome.bookmarks.get((bookmark.parentId!), folder => {   // chrome.bookmarks.get is async: we need to act in its callback.
-            chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-                const tabID = tabs[0].id!;
-                SylphAnimation.Start(tabID, 150);
-                const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
-                chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': url, '💌': knownID, '📁': folder[0].title });
-                console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
-            });
+    if (GoodSites.some(site => !bookmark.url!.includes(site))) return; // Bookmarking works independently, so we have to check again the website.
+    chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
+        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+            const tabID = tabs[0].id!;
+            SylphAnimation.Start(tabID, 150);
+            const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
+            chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': bookmark.url, '💌': knownID, '📁': folder[0].title });
+            console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
         });
-    }
+    });
 });
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
@@ -107,6 +104,6 @@ chrome.runtime.onMessage.addListener(Msg => {
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;
-        default: console.log(Msg); break;
+        default: console.log(Msg); return;
     }
 });
