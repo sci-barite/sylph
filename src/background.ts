@@ -20,7 +20,6 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
 
 const SylphAnimatio : {[key: string]: number} = {};
 
-// Quite a neat and simple animation function, although using a global object for state. I'd like to understand why it's a problem.
 function SylphCasts(tabID: number, speed: number) {        
     if (SylphAnimatio[tabID]) {
         chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+SylphAnimatio[tabID]+'.png'});
