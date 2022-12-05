@@ -15,9 +15,10 @@ chrome.runtime.onMessage.addListener(Msg => {
             default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
         if (SiftedParams.startsWith('ERR')) { console.log('🧚‍♀️ Sylph shouts: "'+SiftedParams+'"'); return; }
+
+        if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌']) + 2)+'!');
         const LancerURI = LancerWebApp + SiftedParams + '&ex='+ Msg['💌'];
         console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
-        if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌']) + 2)+'!');
         const Lancer = new XMLHttpRequest();
         Lancer.onreadystatechange = () => {
             if (Lancer.readyState === XMLHttpRequest.DONE) {

@@ -1,9 +1,6 @@
 const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
-    '.linkedin.com' : ['/in', '/jobs/view'],
-    '.upwork.com'   : ['/ab/applicants','/freelancers'],
-    'djinni.co'     : ['/home/inbox'],  
-    '.apollo.io'    : ['/']
+    '.linkedin.com': ['/in', '/jobs/view'], '.upwork.com': ['/ab/applicants','/freelancers'], 'djinni.co': ['/home/inbox'], '.apollo.io': ['/']
 };
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix));
 
