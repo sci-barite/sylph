@@ -1,4 +1,4 @@
-const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
+const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, maybe retrieved only onInstalled.
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
     '.linkedin.com' : ['/in', '/jobs/view'], 
     '.upwork.com'   : ['/ab/applicants','/freelancers'], 
@@ -8,9 +8,9 @@ const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Some code!
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
-const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
+const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '◼️': (tabID: number) => void} = {
     Tabs : {},
-    Start : function(tabID: number, speed: number) {
+    '▶️' : function(tabID: number, speed: number) {
         this.Tabs[tabID] = 1;
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to use 'this', to access Tabs.
             if (this.Tabs[tabID]) {
@@ -21,11 +21,11 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
         };
         Animate(tabID, speed);
     },
-    Stop : function (tabID: number) { delete this.Tabs[tabID]; },
+    '◼️' : function (tabID: number) { delete this.Tabs[tabID]; },
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
-chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
+chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['◼️'](tabID); });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -36,8 +36,8 @@ chrome.runtime.onInstalled.addListener(()=> {
         })),
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
-    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
+    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
@@ -46,7 +46,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
     chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
-            SylphAnimation.Start(tabID, 150);
+            SylphAnimation['▶️'](tabID, 150);
             const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
             chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': bookmark.url, '💌': knownID, '📁': folder[0].title });
             console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
@@ -66,7 +66,7 @@ function checkID(data: string, url: string, tabID: number) {
     const DB = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
     const JobID = url.split("view/")[1].replace('/', '');
     const JobIndex = DB.indexOf(JobID);
-    SylphAnimation.Stop(tabID);
+    SylphAnimation['◼️'](tabID);
     if (JobIndex != -1) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         Status(true, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
@@ -79,17 +79,17 @@ function checkID(data: string, url: string, tabID: number) {
 chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
-            SylphAnimation.Stop(Msg['🗃️']);
+            SylphAnimation['◼️'](Msg['🗃️']);
             Status(true, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
             break;
         case 'SpellFailed': // This is an error.
-            SylphAnimation.Stop(Msg['🗃️']);
+            SylphAnimation['◼️'](Msg['🗃️']);
             Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
                 const tabID = tabs[0].id!;
-                SylphAnimation.Start(tabID, 60);
+                SylphAnimation['▶️'](tabID, 60);
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
