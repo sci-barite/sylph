@@ -1,6 +1,9 @@
 const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
-    '.linkedin.com': ['/in', '/jobs/view'], '.upwork.com': ['/ab/applicants','/freelancers'], 'djinni.co': ['/home/inbox'], '.apollo.io': ['/']
+    '.linkedin.com': ['/in', '/jobs/view'], 
+    '.upwork.com': ['/ab/applicants','/freelancers'], 
+    'djinni.co': ['/home/inbox'], 
+    '.apollo.io': ['/']
 };
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Some code!
 
@@ -52,10 +55,10 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 });
 
 // I found myself repeating this pattern, so I made a utility function. The emojis might well be too many...
-function Broadcast(args: {'🧚‍♀️': boolean, '🗃️': number, '✉️': string, '➕'?: string}) {
-    chrome.action.setIcon({tabId: args['🗃️'], path: (args['🧚‍♀️'] ? "images/sylph32.png" : "images/sylph-hurt.png")});
-    console.log(args['✉️']);
-    chrome.action.setTitle({tabId: args['🗃️'], title: args['✉️']+(args['➕'] ? args['➕'] : '\n')});
+function Status(success: boolean, tabID: number, message: string, additional?: string) {
+    chrome.action.setIcon({tabId: tabID, path: (success ? "images/sylph32.png" : "images/sylph-hurt.png")});
+    console.log(message);
+    chrome.action.setTitle({tabId: tabID, title: message + (additional ? additional : '\n')});
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
@@ -66,12 +69,11 @@ function checkID(data: string, url: string, tabID: number) {
     SylphAnimation.Stop(tabID);
     if (JobIndex != -1) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
-        Broadcast({'🧚‍♀️': true, '🗃️': tabID, '✉️': "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), 
-                    '➕': "\nClick on the ⭐ to update it.\n"});
+        Status(true, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
         return;
     }
-    Broadcast({ '🧚‍♀️': false, '🗃️': tabID, '✉️': "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1], 
-                '➕': "\nClick on the ⭐ to add this!\n"});
+    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1], 
+        "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -79,13 +81,11 @@ chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
             SylphAnimation.Stop(Msg['🗃️']);
-            Broadcast({ '🧚‍♀️': true, '🗃️': Msg['🗃️'], '✉️': "🧚‍♀️ Sylph has casted her spell successfully!", 
-                '➕': "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n"});
+            Status(true, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
             break;
         case 'SpellFailed': // This is an error.
             SylphAnimation.Stop(Msg['🗃️']);
-            Broadcast({ '🧚‍♀️': false, '🗃️': Msg['🗃️'], '✉️': "🧚‍♀️ Sylph has miscasted!", 
-                '➕': "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n"});
+            Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
