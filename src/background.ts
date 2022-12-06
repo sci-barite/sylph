@@ -69,10 +69,10 @@ function checkID(data: string | string[], url: string, tabID: number) {
     SylphAnimation['◼️'](tabID);
     if (JobIndex != -1) {
         LancerCache[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
-        Status(true, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
+        Status(false, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
         return;
     }
-    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
+    Status(true, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
