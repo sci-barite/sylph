@@ -4,6 +4,7 @@ function SiftUpwork(pos: string, url : string) {
     else return SiftUpworkProfile(pos, url);
 }
 
+// The proposal version ists inside an overlay container.
 function SiftUpworkProposal(url: string) : string {
     const Container = document.querySelector(".up-slider");
 

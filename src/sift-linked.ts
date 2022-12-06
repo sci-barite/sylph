@@ -45,6 +45,7 @@ function SiftLinkedJob() : string {
         let applicants = (document.querySelectorAll(".jobs-unified-top-card__bullet")[1] as HTMLElement).innerText.split(' ');
         applicants.forEach((word) => { if (!isNaN(parseInt(word))) APPLICANTS = word });
     }
+    
     const PARAM_STRING = 
         'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
         '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE
@@ -61,7 +62,6 @@ function SiftLinkedPerson(position: string) : string {
             (document.querySelectorAll("a[data-field='skill_card_skill_topic']")[i] as HTMLElement)
                 .innerText.split("\n")[0]);
         }
-
         const Hidden = document.querySelectorAll(".visually-hidden");
         let Collated = " · ";
         for (let i=0; i < Hidden.length; i++) {
@@ -70,12 +70,10 @@ function SiftLinkedPerson(position: string) : string {
                 Collated = Collated+String.substring(8)+" · ";
             else if (String === "English") ENGLISH = (Hidden[i+1] as HTMLElement).innerText;
         }
-
         let SubSkills = Collated.split(" · ");
         for (let i=0; i<SubSkills.length; i++) {
             if (Sifted.indexOf(' '+SubSkills[i]) == -1 && Sifted[i] != '') Sifted.push(' '+SubSkills[i]);
         }
-
         SKILLS = Sifted.toString().substring(1);
     }
 

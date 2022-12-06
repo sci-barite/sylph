@@ -2,7 +2,7 @@ const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage in
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
     '.linkedin.com': ['/in', '/jobs/view'], '.upwork.com': ['/ab/applicants','/freelancers'], 'djinni.co': ['/home/inbox'], '.apollo.io': ['/']
 };
-const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix));
+const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Some code!
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, speed: number) => void, Stop: (tabID: number) => void} = {
@@ -21,16 +21,17 @@ const SylphAnimation : {Tabs: {[key: number]: number}, Start: (tabID: number, sp
     Stop : function (tabID: number) { delete this.Tabs[tabID]; },
 };
 
-// Needed for SylphSpells, or it will keep trying to animate the icon in the tab forever.
+// Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
 chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation.Stop(tabID); });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
-        conditions: Object.values(LandMap).flatMap((values, i) => values.map(prefix =>    // Now this is some coding here...
-                    new chrome.declarativeContent.PageStateMatcher({ pageUrl: { hostSuffix: Object.keys(LandMap)[i], pathPrefix: prefix } }))), 
-        actions:  [ new chrome.declarativeContent.ShowAction() ]
+        conditions: MagicalLands.map(land => new chrome.declarativeContent.PageStateMatcher({ 
+            pageUrl: { hostSuffix: land.substring(0,land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) } 
+        })),
+        actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
@@ -50,6 +51,13 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
     });
 });
 
+// I found myself repeating this pattern, so I made a utility function. The emojis might well be too many...
+function Broadcast(args: {'🧚‍♀️': boolean, '🗃️': number, '✉️': string, '➕'?: string}) {
+    chrome.action.setIcon({tabId: args['🗃️'], path: (args['🧚‍♀️'] ? "images/sylph32.png" : "images/sylph-hurt.png")});
+    console.log(args['✉️']);
+    chrome.action.setTitle({tabId: args['🗃️'], title: args['✉️']+(args['➕'] ? args['➕'] : '\n')});
+}
+
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string, url: string, tabID: number) {
     const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
@@ -58,16 +66,12 @@ function checkID(data: string, url: string, tabID: number) {
     SylphAnimation.Stop(tabID);
     if (JobIndex != -1) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
-        chrome.action.setIcon({tabId: tabID, path: "images/sylph-hurt.png"});   // Would need a better icon for this!
-        console.log("🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+' in row '+(JobIndex+2));
-        chrome.action.setTitle({tabId: tabID, title: "🧜‍♂️ Lancer knows this place!\nHe wrote it as "+JobID+' in row '+(JobIndex+2)+'\n'
-            +"Click on the ⭐ to update it.\n"})
+        Broadcast({'🧚‍♀️': true, '🗃️': tabID, '✉️': "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), 
+                    '➕': "\nClick on the ⭐ to update it.\n"});
         return;
     }
-    chrome.action.setIcon({tabId: tabID, path: "images/sylph32.png"});
-    console.log("🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1]);
-    chrome.action.setTitle({tabId: tabID, title: "🧜‍♂️ Lancer doesn't know this place.\nThe last he wrote was "+LancerIDs[LancerIDs.length - 1]
-        +'\n'+"Click on the ⭐ to add this!\n"})
+    Broadcast({ '🧚‍♀️': false, '🗃️': tabID, '✉️': "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1], 
+                '➕': "\nClick on the ⭐ to add this!\n"});
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -75,15 +79,13 @@ chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
             SylphAnimation.Stop(Msg['🗃️']);
-            chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph32.png"}); // Change back to default icon.
-            console.log("🧚‍♀️ Sylph has casted her spell successfully!");
-            chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
+            Broadcast({ '🧚‍♀️': true, '🗃️': Msg['🗃️'], '✉️': "🧚‍♀️ Sylph has casted her spell successfully!", 
+                '➕': "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n"});
             break;
         case 'SpellFailed': // This is an error.
             SylphAnimation.Stop(Msg['🗃️']);
-            chrome.action.setIcon({tabId: Msg['🗃️'], path: "images/sylph-hurt.png"}); // Stops animation, puts hurt icon.
-            console.log("🧚‍♀️ Sylph has miscasted!");
-            chrome.action.setTitle({tabId: Msg['🗃️'], title: "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+'\n'});
+            Broadcast({ '🧚‍♀️': false, '🗃️': Msg['🗃️'], '✉️': "🧚‍♀️ Sylph has miscasted!", 
+                '➕': "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n"});
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
