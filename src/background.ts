@@ -8,7 +8,7 @@ const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Whoa!
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
-const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '◼️': (tabID: number) => void} = {
+const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Tabs : {},
     '▶️' : function(tabID: number, speed: number) {
         this.Tabs[tabID] = 1;
@@ -21,11 +21,11 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
         };
         Animate(tabID, speed);
     },
-    '◼️' : function (tabID: number) { delete this.Tabs[tabID]; },
+    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; },
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
-chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['◼️'](tabID); delete LancerCache[tabID]; });
+chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['⏹️'](tabID); delete LancerCache[tabID]; });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -66,7 +66,7 @@ function checkID(data: string | string[], url: string, tabID: number) {
     if (!Array.isArray(data)) [LancerCache.Data, LancerCache.Ready] = [data.split(','), '✅'];
     const JobID = url.split("view/")[1].replace('/', '');
     const [JobIndex, LastJob] = [LancerCache.Data.indexOf(JobID), LancerCache.Data[LancerCache.Data.length - 1]];
-    SylphAnimation['◼️'](tabID);
+    SylphAnimation['⏹️'](tabID);
     if (JobIndex != -1) {
         LancerCache[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         Status(false, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
@@ -79,11 +79,11 @@ function checkID(data: string | string[], url: string, tabID: number) {
 chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
-            SylphAnimation['◼️'](Msg['🗃️']);
+            SylphAnimation['⏹️'](Msg['🗃️']);
             Status(true, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
             break;
         case 'SpellFailed': // This is an error.
-            SylphAnimation['◼️'](Msg['🗃️']);
+            SylphAnimation['⏹️'](Msg['🗃️']);
             Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
