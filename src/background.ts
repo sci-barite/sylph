@@ -1,9 +1,9 @@
 const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, but only for uniqueIDs. Row numbers change too often.
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
-    '.linkedin.com': ['/in', '/jobs/view'], 
-    '.upwork.com': ['/ab/applicants','/freelancers'], 
-    'djinni.co': ['/home/inbox'], 
-    '.apollo.io': ['/']
+    '.linkedin.com' : ['/in', '/jobs/view'], 
+    '.upwork.com'   : ['/ab/applicants','/freelancers'], 
+    'djinni.co'     : ['/home/inbox'], 
+    '.apollo.io'    : ['/']
 };
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Some code!
 
@@ -63,17 +63,16 @@ function Status(success: boolean, tabID: number, message: string, additional?: s
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string, url: string, tabID: number) {
-    const LancerIDs = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
+    const DB = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
     const JobID = url.split("view/")[1].replace('/', '');
-    const JobIndex = LancerIDs.indexOf(JobID);
+    const JobIndex = DB.indexOf(JobID);
     SylphAnimation.Stop(tabID);
     if (JobIndex != -1) {
         LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         Status(true, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
         return;
     }
-    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LancerIDs[LancerIDs.length - 1], 
-        "\nClick on the ⭐ to add this!\n");
+    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+DB[DB.length - 1], "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
