@@ -57,7 +57,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 // I found myself repeating this pattern, so I made a utility function. The emojis might well be too many...
 function Status(success: boolean, tabID: number, message: string, additional?: string) {
     chrome.action.setIcon({tabId: tabID, path: (success ? "images/sylph32.png" : "images/sylph-hurt.png")});
-    console.log(message);
+    success ? console.log(message) : console.warn(message);
     chrome.action.setTitle({tabId: tabID, title: message + (additional ? additional : '\n')});
 }
 
