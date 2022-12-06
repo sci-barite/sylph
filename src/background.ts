@@ -1,11 +1,11 @@
-const LancerNumbers : {[key: number]: number} = {}; // Could use LocalStorage instead, maybe retrieved only onInstalled.
+const LancerCache : {Ready: string, Data: string[], [key: number]: number} = {Ready: '🚫', Data: []}; // Could use SessionStorage?
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
     '.linkedin.com' : ['/in', '/jobs/view'], 
     '.upwork.com'   : ['/ab/applicants','/freelancers'], 
     'djinni.co'     : ['/home/inbox'], 
     '.apollo.io'    : ['/']
 };
-const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Some code!
+const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Whoa!
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '◼️': (tabID: number) => void} = {
@@ -25,7 +25,7 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
-chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['◼️'](tabID); });
+chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['◼️'](tabID); delete LancerCache[tabID]; });
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -47,7 +47,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
             SylphAnimation['▶️'](tabID, 150);
-            const knownID = (LancerNumbers[tabID]) ? LancerNumbers[tabID] : '';
+            const knownID = (LancerCache[tabID]) ? LancerCache[tabID] : '';
             chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': bookmark.url, '💌': knownID, '📁': folder[0].title });
             console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
         });
@@ -62,17 +62,17 @@ function Status(success: boolean, tabID: number, message: string, additional?: s
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
-function checkID(data: string, url: string, tabID: number) {
-    const DB = data.split(',');    // Might be better to cache this in localStorage, but for now I want live changes.
+function checkID(data: string | string[], url: string, tabID: number) {
+    if (!Array.isArray(data)) [LancerCache.Data, LancerCache.Ready] = [data.split(','), '✅'];
     const JobID = url.split("view/")[1].replace('/', '');
-    const JobIndex = DB.indexOf(JobID);
+    const [JobIndex, LastJob] = [LancerCache.Data.indexOf(JobID), LancerCache.Data[LancerCache.Data.length - 1]];
     SylphAnimation['◼️'](tabID);
     if (JobIndex != -1) {
-        LancerNumbers[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
+        LancerCache[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
         Status(true, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
         return;
     }
-    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+DB[DB.length - 1], "\nClick on the ⭐ to add this!\n");
+    Status(false, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -91,6 +91,7 @@ chrome.runtime.onMessage.addListener(Msg => {
                 const tabID = tabs[0].id!;
                 SylphAnimation['▶️'](tabID, 60);
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
+                if (LancerCache.Ready === '✅') { checkID(LancerCache.Data, Msg['🌍'], tabID); return; }    // Implementing some caching!
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;
