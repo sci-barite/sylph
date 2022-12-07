@@ -10,7 +10,7 @@ const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lan
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Tabs : {},
-    '▶️' : function(tabID: number, speed: number) {
+    '▶️' : function(tabID: number, speed: number) {                    // Play emoji to play the animation!
         this.Tabs[tabID] = 1;
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to use 'this', to access Tabs.
             if (this.Tabs[tabID]) {
@@ -21,7 +21,7 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
         };
         Animate(tabID, speed);
     },
-    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; },
+    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji for stopping the animation!
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
@@ -32,7 +32,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
         conditions: MagicalLands.map(land => new chrome.declarativeContent.PageStateMatcher({ 
-            pageUrl: { hostSuffix: land.substring(0,land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) } 
+            pageUrl: { hostSuffix: land.substring(0,land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) }
         })),
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
@@ -42,7 +42,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
-    if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;
+    if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
     chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
