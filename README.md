@@ -8,7 +8,7 @@ This is my first project, so the code will be considered very dirty for sure, bu
 ## Instructions
 
 
-Please note that if you "try this at home" as it is, it won't work, because it referes to a deployed version of my web app Lancer (https://github.com/sci-barite/lancer), the URL of which I kept in a lancer.ts file not uploaded on the repo.
+Please note that if you "try this at home" as it is, it won't work, because it referes to a deployed version of my [Lancer](https://github.com/sci-barite/lancer) web app, the URL of which I obviously keep secret, in a file excluded via .gitignore.
 
 To make it work, you should deploy your own version of Lancer, and put the URL of the deployment in a LancerWebApp string, declared in a lancer.ts file.
 
