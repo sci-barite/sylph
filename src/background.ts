@@ -84,7 +84,7 @@ chrome.runtime.onMessage.addListener(Msg => {
             break;
         case 'SpellFailed': // This is an error.
             SylphAnimation['⏹️'](Msg['🗃️']);
-            if (Msg['⛔']) Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n❌ There's no human in this place!");
+            if (Msg['❌']) Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n❌ There's no human in this place!");
             else Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
