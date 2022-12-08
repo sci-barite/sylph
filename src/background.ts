@@ -63,7 +63,8 @@ function Status(success: boolean, tabID: number, message: string, additional?: s
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], url: string, tabID: number) {
-    if (!Array.isArray(data)) [LancerCache.Data, LancerCache.Ready] = [data.split(','), '✅'];
+    if (!Array.isArray(data)) 
+        [LancerCache.Data, LancerCache.Ready] = [JSON.parse(data), '✅'];
     const JobID = url.split("view/")[1].replace('/', '');
     const [JobIndex, LastJob] = [LancerCache.Data.indexOf(JobID), LancerCache.Data[LancerCache.Data.length - 1]];
     SylphAnimation['⏹️'](tabID);
