@@ -13,11 +13,10 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
     '▶️' : function(tabID: number, speed: number) {                    // Play emoji to play the animation!
         this.Tabs[tabID] = 1;
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to use 'this', to access Tabs.
-            if (this.Tabs[tabID]) {
-                chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
-                this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
-                setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
-            }
+            if (!this.Tabs[tabID]) return;
+            chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
+            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
+            setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
         };
         Animate(tabID, speed);
     },
