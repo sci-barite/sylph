@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener(Msg => {
             case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
             default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
-        if (SiftedParams.startsWith('⛔')) { console.warn('🧚‍♀️ Sylph shouts: "'+SiftedParams+'"'); return; }
+        if (SiftedParams.startsWith('❌')) { chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': 'Not a profile!', '🗃️': Msg['🗃️']}); return; }
         // This might be unnecessary: both tooltip and service worker log this.
         if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌']) + 2)+'!');
         const LancerURI = LancerWebApp + SiftedParams + '&ex='+ Msg['💌'];
