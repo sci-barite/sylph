@@ -54,17 +54,17 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(success: number, tabID: number, message: string, additional?: string) {
-    chrome.action.setIcon({tabId: tabID, path: ((success) ? "images/sylph32.png" : "images/sylph-hurt.png")});
     (success) ? console.log(message) : console.warn(message);
     chrome.action.setTitle({tabId: tabID, title: message + (additional ? additional : '\n')});
+    setTimeout(() => SylphAnimation['⏹️'](tabID), 1200); //  Delayed to make it visible when Stash values are retrieved too quickly.
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, path: ((success) ? "images/sylph32.png" : "images/sylph-hurt.png")}), 1200);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], url: string, tabID: number) {
     if (!Array.isArray(data)) [Stash.Data, Stash.Ready] = [JSON.parse(data), '✅']; // Better coordination with Lancer later?
-    const JobID = url.split("view/")[1].replace('/', '');
+    const JobID = (url.split("view/")[1].split('/')[0]) ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
     const [JobIndex, LastJob] = [Stash.Data.indexOf(JobID), Stash.Data[Stash.Data.length - 1]];
-    SylphAnimation['⏹️'](tabID); // Stops the animation before the result is found.
     (JobIndex != -1) ?              
         Shout(0, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n") :
         Shout(1, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
@@ -73,23 +73,17 @@ function checkID(data: string | string[], url: string, tabID: number) {
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    switch(Msg['🧚‍♀️']) {
-        case 'SpellSuccessful':    // Success!
-            SylphAnimation['⏹️'](Msg['🗃️']);
-            Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
-            break;
-        case 'SpellFailed': // This is an error.
-            SylphAnimation['⏹️'](Msg['🗃️']);
-            if (Msg['❌']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
-            else Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
-            break;
-        case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
-            chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
-                const tabID = tabs[0].id!;
-                SylphAnimation['▶️'](tabID, 60);
-                console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-                (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
-                fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
-            });
-    }
+    if (Msg['🧚‍♀️']) {
+        if (Msg['❌']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
+        else if (Msg['🧚‍♀️'] == 'LancerLost' ) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ Lancer's distant cry was:\n\n"+Msg['🧜‍♂️']);
+        else Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
+        return;
+    }   // Dropped part of the message for the Summon, so we can return after the previous, and don't need to indent again.
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
+        const tabID = tabs[0].id!;
+        SylphAnimation['▶️'](tabID, 60);
+        console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
+        (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
+        fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
+    });
 });
