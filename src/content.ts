@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
     if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': Sift.String, '🗃️': Msg['🗃️']}); 
     if (Sift.Failed) return; 
-    const LancerURI = LancerWebApp + Sift.String + '&ex='+ (Msg['💌'] || '');  // We now send a 0 if unknown, and reconvert to '' if 0.
+    const LancerURI = LancerWebApp + Sift.String + '&ex='+ (Msg['💌'] || '');  // We receive a 0 if unknown, so we convert to '' if falsey.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
     const Lancer = new XMLHttpRequest();
     Lancer.onreadystatechange = () => {
