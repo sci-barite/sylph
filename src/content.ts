@@ -7,16 +7,15 @@ window.onload = () => {
 chrome.runtime.onMessage.addListener(Msg => {
     if (Msg['🧚‍♀️'] == 'SiftSpell') {
         console.log('🧚‍♀️ Sylph Sifts!', Msg);
-        let SiftedParams : string;
+        let SiftedParams = "❌ She can't use her magic in here!";
         switch (Msg['🌍'].substring(12,18)) {
             case "linked": SiftedParams = SiftLinked(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or job.
             case "upwork": SiftedParams = SiftUpwork(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or proposal.
             case "ni.co/": SiftedParams = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
             case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
-            default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
         if (SiftedParams.startsWith('❌')) { 
-            chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': 'Not a profile!', '🗃️': Msg['🗃️']}); 
+            chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': SiftedParams, '🗃️': Msg['🗃️']}); 
             return; 
         }
         const LancerURI = LancerWebApp + SiftedParams + '&ex='+ (Msg['💌'] || '');  // We now send a 0 if unknown, and reconvert to '' if 0.
