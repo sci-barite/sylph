@@ -13,11 +13,10 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
     '▶️' : function(tabID: number, speed: number) {                    // Play emoji to play the animation!
         this.Tabs[tabID] = 1;
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to use 'this', to access Tabs.
-            if (this.Tabs[tabID]) {
-                chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
-                this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
-                setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
-            }
+            if (!this.Tabs[tabID]) return;
+            chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
+            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;    // We avoid a zero to keep a truthy value for the if!
+            setTimeout(() => Animate(tabID, speed), speed);         // Sylph spell-casting animation for the win!!
         };
         Animate(tabID, speed);
     },
@@ -63,8 +62,7 @@ function Shout(success: boolean, tabID: number, message: string, additional?: st
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], url: string, tabID: number) {
-    if (!Array.isArray(data)) 
-        [LancerCache.Data, LancerCache.Ready] = [JSON.parse(data), '✅'];
+    if (!Array.isArray(data)) [LancerCache.Data, LancerCache.Ready] = [JSON.parse(data), '✅'];
     const JobID = url.split("view/")[1].replace('/', '');
     const [JobIndex, LastJob] = [LancerCache.Data.indexOf(JobID), LancerCache.Data[LancerCache.Data.length - 1]];
     SylphAnimation['⏹️'](tabID);
