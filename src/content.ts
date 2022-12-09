@@ -14,6 +14,7 @@ chrome.runtime.onMessage.addListener(Msg => {
         case "ni.co/": SiftedParams = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
         case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
     }
+    // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
     if (SiftedParams.startsWith('❌')) { 
         chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': SiftedParams, '🗃️': Msg['🗃️']}); 
         return; 
