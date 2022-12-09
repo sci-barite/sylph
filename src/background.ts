@@ -54,8 +54,8 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(success: number, tabID: number, message: string, additional?: string) {
-    chrome.action.setIcon({tabId: tabID, path: (success ? "images/sylph32.png" : "images/sylph-hurt.png")});
-    success ? console.log(message) : console.warn(message);
+    chrome.action.setIcon({tabId: tabID, path: ((success) ? "images/sylph32.png" : "images/sylph-hurt.png")});
+    (success) ? console.log(message) : console.warn(message);
     chrome.action.setTitle({tabId: tabID, title: message + (additional ? additional : '\n')});
 }
 
