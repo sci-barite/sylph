@@ -88,7 +88,7 @@ chrome.runtime.onMessage.addListener(Msg => {
                 const tabID = tabs[0].id!;
                 SylphAnimation['▶️'](tabID, 60);
                 console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-                (Stash.Ready === '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
+                (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
             break;

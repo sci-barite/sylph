@@ -5,7 +5,7 @@ window.onload = () => {
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Msg => {
-    if (Msg['🧚‍♀️'] !== 'SiftSpell') return;  // Not very useful, since it's the only message that can arrive...
+    if (Msg['🧚‍♀️'] != 'SiftSpell') return;  // Not very useful, since it's the only message that can arrive...
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
     let SiftedParams = "❌ She can't use her magic in here!";
     switch (Msg['🌍'].substring(12,18)) {
@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     Lancer.onreadystatechange = () => {
         if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
         console.log(Lancer.status, Lancer.response);
-        if (Lancer.status === 200) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellSuccessful', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
+        if (Lancer.status == 200) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellSuccessful', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
         else chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
     }
     Lancer.open('GET', LancerURI, true);
