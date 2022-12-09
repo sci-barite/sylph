@@ -1,6 +1,6 @@
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
-function SiftApollo(page: string) : string {
-    if (!document.querySelector('#location_detail_card')) return '❌ She sees no human here!'; // Apollo's search pages look like profiles...
+function SiftApollo(page: string) : {Failed:boolean, String:string} {
+    if (!document.querySelector('#location_detail_card')) return {Failed: true, String: '❌ She sees no human here!'};
     
     if (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children.length == 5)
         (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children[2] as HTMLElement)!.click(); // Click to display jobs!
@@ -35,5 +35,5 @@ function SiftApollo(page: string) : string {
 
     const PARAM_STRING = 'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+'&more='+MORE;
-    return PARAM_STRING;  
+    return {Failed: false, String: PARAM_STRING};  
 }

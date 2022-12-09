@@ -7,19 +7,17 @@ window.onload = () => {
 chrome.runtime.onMessage.addListener(Msg => {
     if (Msg['🧚‍♀️'] != 'SiftSpell') return;  // Not very useful, since it's the only message that can arrive...
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
-    let SiftedParams = "❌ She can't use her magic in here!";
+    let Sift = {Failed: true, String: "❌ She can't use her magic in here!"};
     switch (Msg['🌍'].substring(12,18)) {
-        case "linked": SiftedParams = SiftLinked(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or job.
-        case "upwork": SiftedParams = SiftUpwork(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or proposal.
-        case "ni.co/": SiftedParams = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
-        case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
+        case "linked": Sift = SiftLinked(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or job.
+        case "upwork": Sift = SiftUpwork(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or proposal.
+        case "ni.co/": Sift = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
+        case "apollo": Sift = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
     }
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
-    if (SiftedParams.startsWith('❌')) { 
-        chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': SiftedParams, '🗃️': Msg['🗃️']}); 
-        return; 
-    }
-    const LancerURI = LancerWebApp + SiftedParams + '&ex='+ (Msg['💌'] || '');  // We now send a 0 if unknown, and reconvert to '' if 0.
+    if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': Sift.String, '🗃️': Msg['🗃️']}); 
+    if (Sift.Failed) return; 
+    const LancerURI = LancerWebApp + Sift.String + '&ex='+ (Msg['💌'] || '');  // We now send a 0 if unknown, and reconvert to '' if 0.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
     const Lancer = new XMLHttpRequest();
     Lancer.onreadystatechange = () => {

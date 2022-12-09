@@ -1,5 +1,5 @@
 // The most straightforward of the three.
-function SiftDjinni(position : string) : string {
+function SiftDjinni(position : string) : {Failed: boolean, String: string} {
     const NAME = (document.querySelector("#candidate_name") as HTMLElement).innerText;
     const English = (document.querySelector(".inbox-thread-candidate-info") as HTMLElement).innerText;
     const Skills = (document.querySelector(".inbox-candidate-details--title") as HTMLElement).innerText;
@@ -13,5 +13,5 @@ function SiftDjinni(position : string) : string {
 
     const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status=0.New&skills='+encodeURIComponent(SKILLS)
         +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more=';
-    return PARAM_STRING;
+    return {Failed: false, String: PARAM_STRING};
 }

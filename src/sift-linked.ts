@@ -1,10 +1,10 @@
 // It got much, much easier than the first version, but still a bit tricky sometimes. It also manages both jobs and people, so it's long.
-function SiftLinked(position : string, page: string) : string {
+function SiftLinked(position : string, page: string) : {Failed: boolean, String: string} {
     if (page.includes("/jobs/")) return SiftLinkedJob();
     else return SiftLinkedPerson(position);
 }
 
-function SiftLinkedJob() : string {
+function SiftLinkedJob() : {Failed: boolean, String: string} {
     const LINK = document.URL.split('?')[0];
     const NAME = document.title.split(' | ')[0].startsWith("(") ? 
         document.title.split(' | ')[0].substring(4) : document.title.split(' | ')[0];
@@ -49,10 +49,10 @@ function SiftLinkedJob() : string {
     const PARAM_STRING = 
         'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
         '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE
-    return PARAM_STRING;
+    return {Failed: false, String: PARAM_STRING};
 }
 
-function SiftLinkedPerson(position: string) : string {
+function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} {
     let SKILLS = 'NA';
     let ENGLISH = 'NA';
     if (document.querySelectorAll("a[data-field='skill_card_skill_topic']").length) {
@@ -85,5 +85,5 @@ function SiftLinkedPerson(position: string) : string {
 
     const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
     +'&eng='+ENGLISH+'&rate=NA&loc=NA&url='+LINK+'&more=';
-    return PARAM_STRING;
+    return {Failed: false, String: PARAM_STRING};
 }

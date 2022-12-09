@@ -1,11 +1,11 @@
 // Longer than it should be, because there are two different kinds of pages I want to be able to sift through.
-function SiftUpwork(pos: string, url : string) {
+function SiftUpwork(pos: string, url : string) : {Failed: boolean, String: string} {
     if (url.includes("proposal")) return SiftUpworkProposal(url);
     else return SiftUpworkProfile(pos, url);
 }
 
 // The proposal version ists inside an overlay container.
-function SiftUpworkProposal(url: string) : string {
+function SiftUpworkProposal(url: string) : {Failed: boolean, String: string} {
     const Container = document.querySelector(".up-slider");
 
     const NAME = (Container?.querySelectorAll(".d-inline")[0] as HTMLElement).innerText.trim();
@@ -37,10 +37,10 @@ function SiftUpworkProposal(url: string) : string {
 
     const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status=0.New&skills='+encodeURIComponent(SKILLS)
     +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more='+MORE;
-    return PARAM_STRING;
+    return {Failed: false, String: PARAM_STRING};
 }
 
-function SiftUpworkProfile(pos: string, url: string) : string {
+function SiftUpworkProfile(pos: string, url: string) : {Failed: boolean, String: string} {
     const NAME = (document.querySelectorAll(".d-inline")[0] as HTMLElement).innerText.trim();
     const LOCATION = (document.querySelectorAll(".d-inline-block")[3] as HTMLElement).innerText;
     const RATE = (document.querySelectorAll(".d-inline")[1] as HTMLElement).innerText.trim();
@@ -61,5 +61,5 @@ function SiftUpworkProfile(pos: string, url: string) : string {
 
     const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status=0.New&skills='+encodeURIComponent(SKILLS)
     +'&eng='+ENGLISH+'&rate='+RATE+'&loc='+LOCATION+'&url='+LINK+'&more=';
-    return PARAM_STRING;
+    return {Failed: false, String: PARAM_STRING};
 }
