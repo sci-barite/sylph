@@ -15,18 +15,18 @@ chrome.runtime.onMessage.addListener(Msg => {
             case "apollo": SiftedParams = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
             default: alert(Msg['🌍'].substring(12,18)+": This portion of the URL is not recognized!"); return;
         }
-        if (SiftedParams.startsWith('❌')) { chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': 'Not a profile!', '🗃️': Msg['🗃️']}); return; }
-        // This might be unnecessary: both tooltip and service worker log this.
-        if (Msg['💌']) console.log('🧜‍♂️ Lancer has a record of this at '+(parseInt(Msg['💌']) + 2)+'!');
-        const LancerURI = LancerWebApp + SiftedParams + '&ex='+ Msg['💌'];
+        if (SiftedParams.startsWith('❌')) { 
+            chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '❌': 'Not a profile!', '🗃️': Msg['🗃️']}); 
+            return; 
+        }
+        const LancerURI = LancerWebApp + SiftedParams + '&ex='+ (Msg['💌'] || '');  // We now send a 0 if unknown, and reconvert to '' if 0.
         console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
         const Lancer = new XMLHttpRequest();
         Lancer.onreadystatechange = () => {
-            if (Lancer.readyState === XMLHttpRequest.DONE) {
-                console.log(Lancer.status, Lancer.response);
-                if (Lancer.status === 200) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellSuccessful', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
-                else chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
-            }
+            if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
+            console.log(Lancer.status, Lancer.response);
+            if (Lancer.status === 200) chrome.runtime.sendMessage({'🧚‍♀️': 'SpellSuccessful', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
+            else chrome.runtime.sendMessage({'🧚‍♀️': 'SpellFailed', '🧜‍♂️': Lancer.response, '🗃️': Msg['🗃️']});
         }
         Lancer.open('GET', LancerURI, true);
         Lancer.send();
