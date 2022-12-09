@@ -91,6 +91,5 @@ chrome.runtime.onMessage.addListener(Msg => {
                 (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
                 fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
             });
-            break;
     }
 });
