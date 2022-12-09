@@ -46,7 +46,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
     chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
-            SylphAnimation['▶️'](tabID, 150);
+            SylphAnimation['▶️'](tabID, 120);
             const knownID = (LancerCache[tabID]) ? LancerCache[tabID] : '';
             chrome.tabs.sendMessage(tabID, { '🧚‍♀️': 'SiftSpell', '🗃️': tabID, '🌍': bookmark.url, '💌': knownID, '📁': folder[0].title });
             console.log('🧚‍♀️ Bookmark created in "'+folder[0].title+'", Sylph is casting her spell from '+tabID+'...');
@@ -55,7 +55,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 });
 
 // I found myself repeating this pattern, so I made a utility function.
-function Status(success: boolean, tabID: number, message: string, additional?: string) {
+function Shout(success: boolean, tabID: number, message: string, additional?: string) {
     chrome.action.setIcon({tabId: tabID, path: (success ? "images/sylph32.png" : "images/sylph-hurt.png")});
     success ? console.log(message) : console.warn(message);
     chrome.action.setTitle({tabId: tabID, title: message + (additional ? additional : '\n')});
@@ -70,10 +70,10 @@ function checkID(data: string | string[], url: string, tabID: number) {
     SylphAnimation['⏹️'](tabID);
     if (JobIndex != -1) {
         LancerCache[tabID] = JobIndex;    // We record what will become the sheet row number to update. Might use lcoal storage later.
-        Status(false, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
+        Shout(false, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n");
         return;
     }
-    Status(true, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
+    Shout(true, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -81,12 +81,12 @@ chrome.runtime.onMessage.addListener(Msg => {
     switch(Msg['🧚‍♀️']) {
         case 'SpellSuccessful':    // Success!
             SylphAnimation['⏹️'](Msg['🗃️']);
-            Status(true, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
+            Shout(true, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
             break;
         case 'SpellFailed': // This is an error.
             SylphAnimation['⏹️'](Msg['🗃️']);
-            if (Msg['❌']) Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n❌ There's no human in this place!");
-            else Status(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
+            if (Msg['❌']) Shout(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n❌ There's no human in this place!");
+            else Shout(false, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']);
             break;
         case 'LancerSummon':   // This happens when we load a job page: Lancer sends us uniqueIDs, so we know what entry to update.
             chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
