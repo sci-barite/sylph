@@ -42,7 +42,7 @@ chrome.runtime.onInstalled.addListener(()=> {
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    chrome.bookmarks.get((bookmark.parentId!), folder => {  // chrome.bookmarks.get is async: we need to act in its callback.
+    chrome.bookmarks.get((bookmark.parentId!), folder => {
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
             const tabID = tabs[0].id!;
             SylphAnimation['▶️'](tabID, 120);
@@ -64,26 +64,23 @@ function Shout(success: number, tabID: number, message: string, additional?: str
 function checkID(data: string | string[], url: string, tabID: number) {
     if (!Array.isArray(data)) [Stash.Data, Stash.Ready] = [JSON.parse(data), '✅']; // Better coordination with Lancer later?
     const JobID = (url.split("view/")[1].split('/')[0]) ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
-    const [JobIndex, LastJob] = [Stash.Data.indexOf(JobID), Stash.Data[Stash.Data.length - 1]];
-    (JobIndex != -1) ?              
-        Shout(0, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(JobIndex+2), "\nClick on the ⭐ to update it.\n") :
+    const [iN, LastJob] = [Stash.Data.indexOf(JobID), Stash.Data[Stash.Data.length - 1]];
+    (iN != -1) ? Shout(0, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(iN+2), "\nClick on the ⭐ to update it.\n") :
         Shout(1, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
-    Stash[tabID] = (JobIndex != -1) ? JobIndex : 0;
+    Stash[tabID] = (iN != -1) ? iN : 0;
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    if (Msg['🧚‍♀️']) {
-        if (Msg['❌']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
-        else if (Msg['🧚‍♀️'] == 'LancerLost' ) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ Lancer's distant cry was:\n\n"+Msg['🧜‍♂️']);
-        else Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
-        return;
-    }   // Dropped part of the message for the Summon, so we can return after the previous, and don't need to indent again.
+    if      (Msg['🧜‍♂️']) Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
+    else if (Msg['✉️']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He left a message:\n\n"+Msg['✉️']);
+    else if (Msg['❌']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
+    if      (Msg['🧚‍♀️']) return; // An extra check, just so we don't need to indent again.
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
         const tabID = tabs[0].id!;
-        SylphAnimation['▶️'](tabID, 60);
+        SylphAnimation['▶️'](tabID, 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
         (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
-        fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
+            fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
     });
 });
