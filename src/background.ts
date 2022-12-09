@@ -23,8 +23,8 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
     '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji for stopping the animation!
 };
 
-// Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever. Also cleaning some cache/stash.
-chrome.tabs.onRemoved.addListener(tabID => { SylphAnimation['⏹️'](tabID); delete Stash[tabID]});
+// Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
+chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
