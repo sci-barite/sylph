@@ -51,8 +51,8 @@ function SiftUpworkProfile(pos: string, url: string) : {Failed: boolean, String:
     /** Keeping the old code below, so later it can be activated via settings/options.
     if (document.querySelectorAll(".up-card")[3].querySelector("em.break"))
         POSITION = (document.querySelectorAll(".up-card")[3].querySelector("em.break") as HTMLElement).innerText;
-    else POSITION = (document.querySelectorAll("h2.mb-0")[1] as HTMLElement).innerText.trim();
-     */
+    else POSITION = (document.querySelectorAll("h2.mb-0")[1] as HTMLElement).innerText.trim();*/
+    
     const lists = document.querySelectorAll(".list-unstyled");
     const ENGLISH = (lists[1].querySelector("span.d-inline-block") as HTMLElement).innerText
 
