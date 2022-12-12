@@ -21,15 +21,13 @@ function SiftApollo(page: string) : {Failed:boolean, String:string} {
     const LOCATION = document.querySelector(".zp_dfI-D")? (document.querySelector(".zp_dfI-D") as HTMLElement).innerText : 'NA';
     const COMPANY_SIZE = document.querySelector(".zp_2HUTp.zp_28q-l")? 
         (document.querySelector(".zp_2HUTp.zp_28q-l") as HTMLElement).innerText : 'NA';
-    let [JobsCount, MORE] = [0,''];
+    const Jobs : string[] = [];
+    const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
     document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1").forEach((elem) => {
-        if ((elem as HTMLElement).innerText.includes('ngineer') || (elem as HTMLElement).innerText.includes('eveloper') || 
-            (elem as HTMLElement).innerText.includes('esigner') || (elem as HTMLElement).innerText.includes('ester')) {
-            JobsCount++ // Eventually these should go as jobs, need to update Lancer to deal with these.
-            MORE += (elem as HTMLElement).innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---';
-        }
+        if (positions.some(position => (elem as HTMLElement).innerText.includes(position))) Jobs.push((elem as HTMLElement).innerHTML)
     });
-    const DATE = JobsCount.toString(); // Comments
+    const MORE = Jobs.map(elem => elem.split('" target')[0].split('href="')[1].split('?')[0] + '---').toString().replace('-,', '-');
+    const DATE = Jobs.length.toString(); // Comments
     const NAME = document.title.split(" - Apollo")[0];
     const LINK = (document.URL.includes('contacts') ? "apollo/contacts/" : "apollo/people/")+document.URL.substring(document.URL.length -24);
 
