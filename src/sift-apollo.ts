@@ -24,12 +24,12 @@ function SiftApollo(page: string) : {Failed:boolean, String:string} {
     const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
     const Jobs = Array.from(document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1"))
         .filter(elem => positions.some(position => (elem as HTMLElement).innerText.includes(position)));
-    const MORE = Jobs.map(elem => elem.innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---').toString().replace('-,', '-');
-    const DATE = Jobs.length.toString(); // Comments
+    const MORE = Jobs.map(elem => elem.innerHTML.split('" target')[0].split('href="')[1].split('?')[0]);
+    const DATE = Jobs.length; // Comments
     const NAME = document.title.split(" - Apollo")[0];
     const LINK = (document.URL.includes('contacts') ? "apollo/contacts/" : "apollo/people/")+document.URL.substring(document.URL.length -24);
 
-    const PARAM_STRING = 'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
+    const PARAM_STRING : string = 'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+'&more='+MORE;
     return {Failed: false, String: PARAM_STRING};  
 }
