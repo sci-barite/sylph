@@ -22,8 +22,8 @@ function SiftApollo(page: string) : {Failed:boolean, String:string} {
     const COMPANY_SIZE = document.querySelector(".zp_2HUTp.zp_28q-l")? 
         (document.querySelector(".zp_2HUTp.zp_28q-l") as HTMLElement).innerText : 'NA';
     const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
-    const Jobs = Array.from(document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1")).filter(elem =>
-        positions.some(position => (elem as HTMLElement).innerText.includes(position)));
+    const Jobs = Array.from(document.querySelectorAll(".zp-list-view-item.zp_36VLh.zp_1Afi-.zp_2UWj3.zp_ggEA-.zp_15wD1"))
+        .filter(elem => positions.some(position => (elem as HTMLElement).innerText.includes(position)));
     const MORE = Jobs.map(elem => elem.innerHTML.split('" target')[0].split('href="')[1].split('?')[0] + '---').toString().replace('-,', '-');
     const DATE = Jobs.length.toString(); // Comments
     const NAME = document.title.split(" - Apollo")[0];
