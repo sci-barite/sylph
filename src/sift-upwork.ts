@@ -14,22 +14,19 @@ function SiftUpworkProposal(url: string) : {Failed: boolean, String: string} {
     const LINK = url;
     const Skills = (Container?.querySelectorAll(".skills") as NodeList)
     const Sifted: string[] = [];
+    const UselessSkills = ['Skills', 'Development', 'Business'];
     if (Skills[0]) { // It's inconsistent: sometimes it's 0, sometimes 1. Length is key.
-        let SubSkills = (Skills[0] as HTMLElement).innerText.split("\n");
-        if (SubSkills.length > 20 && Container?.querySelectorAll(".skills")[1]) 
-            SubSkills = (Skills[1] as HTMLElement).innerText.split("\n");
-        for (let i=0; i<SubSkills.length; i++) if (!SubSkills[i].includes("Skills")) Sifted.push(' '+SubSkills[i]);
+        const SubSkills = ((Skills[0] as HTMLElement).innerText.split("\n").length > 20 && Container?.querySelectorAll(".skills")[1]) ?
+            (Skills[1] as HTMLElement).innerText.split("\n") : (Skills[0] as HTMLElement).innerText.split("\n")
+        Sifted.concat(SubSkills.filter(skill => !UselessSkills.some(useless => skill.includes(useless))));
     }
     else if (Container?.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1]) {
-        let SubSkills = 
-        (Container.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1] as HTMLElement)
+        const SubSkills = (Container.querySelectorAll("div[data-test='ontology-attribute-group-tree-viewer-wrapper'")[1] as HTMLElement)
             .innerText.split("\n")
-        for (let i=0; i<SubSkills.length; i++) 
-            if (!SubSkills[i].includes("Skills") && !SubSkills[i].includes("Development") && !SubSkills[i].includes("Business"))
-                Sifted.push(' '+SubSkills[i]);
+        Sifted.concat(SubSkills.filter(skill => !UselessSkills.some(useless => skill.includes(useless))));
     }
     else Sifted.push(' ERR: Could not parse any skill!');
-    const SKILLS = Sifted.toString().substring(1);
+    const SKILLS = Sifted.toString().replaceAll(',', ', ');
     
     const POSITION = (Container?.querySelectorAll(".break")[0] as HTMLElement).innerText.trim();
     const ENGLISH = (Container?.querySelectorAll("div[data-test='language'")[0] as HTMLElement).innerText.split(":")[1].trim()
@@ -45,10 +42,10 @@ function SiftUpworkProfile(pos: string, url: string) : {Failed: boolean, String:
     const LOCATION = (document.querySelectorAll(".d-inline-block")[3] as HTMLElement).innerText;
     const RATE = (document.querySelectorAll(".d-inline")[1] as HTMLElement).innerText.trim();
     const LINK = url;
-    const SubSkills = (document.querySelectorAll(".skills")[0] as HTMLElement).innerText.split("\n");
-    const Sifted: string[] = [];
-    for (let i=0; i<SubSkills.length; i++) if (!SubSkills[i].includes("Skills")) Sifted.push(' '+SubSkills[i]);
-    const SKILLS = Sifted.toString().substring(1);
+    const UselessSkills = ['Skills', 'Development', 'Business'];
+    const SubSkills = (document.querySelectorAll(".skills")[0] as HTMLElement).innerText.split("\n")
+        .filter(skill => !UselessSkills.some(useless => skill.includes(useless)));
+    const SKILLS = SubSkills.toString().replaceAll(',', ', ');
 
     const POSITION = pos; 
     /** Keeping the old code below, so later it can be activated via settings/options.
