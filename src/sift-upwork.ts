@@ -45,6 +45,7 @@ function SiftUpworkProfile(pos: string, url: string) : {Failed: boolean, String:
     const UselessSkills = ['Skills', 'Development', 'Business'];
     const SubSkills = (document.querySelectorAll(".skills")[0] as HTMLElement).innerText.split("\n")
         .filter(skill => !UselessSkills.some(useless => skill.includes(useless)));
+    if (!SubSkills.length) SubSkills.push(' ERR: Could not parse any skill!');
     const SKILLS = SubSkills.toString().replaceAll(',', ', ');
 
     const POSITION = pos; 
@@ -52,7 +53,7 @@ function SiftUpworkProfile(pos: string, url: string) : {Failed: boolean, String:
     if (document.querySelectorAll(".up-card")[3].querySelector("em.break"))
         POSITION = (document.querySelectorAll(".up-card")[3].querySelector("em.break") as HTMLElement).innerText;
     else POSITION = (document.querySelectorAll("h2.mb-0")[1] as HTMLElement).innerText.trim();*/
-    
+
     const lists = document.querySelectorAll(".list-unstyled");
     const ENGLISH = (lists[1].querySelector("span.d-inline-block") as HTMLElement).innerText
 
