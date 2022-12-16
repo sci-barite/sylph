@@ -60,10 +60,10 @@ function Shout(success: number, tabID: number, message: string, additional?: str
 function checkID(data: string | string[], url: string, tabID: number) {
     if (!Array.isArray(data)) [Stash.Data, Stash.Ready] = [JSON.parse(data), '✅']; // Better coordination with Lancer later?
     const JobID = (url.split("view/")[1].split('/')[0]) ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
-    const [iN, LastJob] = [Stash.Data.indexOf(JobID), Stash.Data[Stash.Data.length - 1]];
-    (iN != -1) ? Shout(0, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(iN+2), "\nClick on the ⭐ to update it.\n") :
+    const [LastJob, Row] = [Stash.Data[Stash.Data.length - 1], Stash.Data.indexOf(JobID) + 2]; // Rows are counted from 1 and we skip the 1st.
+    (Row > 1) ? Shout(0, tabID, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+Row, "\nClick on the ⭐ to update it.\n") :
         Shout(1, tabID, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
-    Stash[tabID] = (iN != -1) ? iN : 0;
+    Stash[tabID] = (Row > 1) ? Row : 0; // This is so that it counts as falsey when received, makes things easier.
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
