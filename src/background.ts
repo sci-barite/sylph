@@ -40,7 +40,7 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
-    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions, LandMatches);
+    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
