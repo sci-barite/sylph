@@ -1,4 +1,5 @@
 const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []}; // Simpler than Session Storage...
+
 const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
     '.linkedin.com' : ['/in', '/jobs/view'], 
     '.upwork.com'   : ['/ab/applicants','/freelancers'], 
@@ -6,6 +7,9 @@ const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity
     '.apollo.io'    : ['/']
 };
 const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Whoa!
+
+
+const LandMatches: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
@@ -36,7 +40,7 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
-    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
+    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions, LandMatches);
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.

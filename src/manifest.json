@@ -19,17 +19,17 @@
             "run_at": "document_idle",
             "matches": [
                 "https://*.linkedin.com/in*", 
-                "https://*.linkedin.com/jobs*", 
-                "https://*.djinni.co/home/inbox*", 
+                "https://*.linkedin.com/jobs/view/*", 
+                "https://djinni.co/home/inbox/*", 
                 "https://*.upwork.com/ab/applicants/*", 
                 "https://*.upwork.com/freelancers/*",
-                "https://app.apollo.io/*"
+                "https://*.apollo.io/*"
             ]
         },
         {
             "js": ["sift-linked.js"],
             "run_at": "document_idle",
-            "matches": ["https://*.linkedin.com/in*", "https://*.linkedin.com/jobs*"]
+            "matches": ["https://*.linkedin.com/in*", "https://*.linkedin.com/jobs/view*"]
         },
         {
             "js": ["sift-upwork.js"],
