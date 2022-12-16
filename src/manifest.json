@@ -18,7 +18,7 @@
             "js": ["content.js", "lancer.js"],
             "run_at": "document_idle",
             "matches": [
-                "https://*.linkedin.com/in*", 
+                "https://*.linkedin.com/in/*", 
                 "https://*.linkedin.com/jobs/view/*", 
                 "https://djinni.co/home/inbox/*", 
                 "https://*.upwork.com/ab/applicants/*", 
@@ -29,7 +29,7 @@
         {
             "js": ["sift-linked.js"],
             "run_at": "document_idle",
-            "matches": ["https://*.linkedin.com/in*", "https://*.linkedin.com/jobs/view*"]
+            "matches": ["https://*.linkedin.com/in/*", "https://*.linkedin.com/jobs/view/*"]
         },
         {
             "js": ["sift-upwork.js"],
