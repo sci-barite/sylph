@@ -1,4 +1,5 @@
-const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []}; // Simpler than Session Storage...
+// Simpler than Session Storage...
+const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []};
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
