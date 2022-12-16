@@ -27,7 +27,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
         conditions: MagicalLands.map(land => new chrome.declarativeContent.PageStateMatcher(
-            {pageUrl: { hostSuffix: land.substring(0,land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) }}
+            {pageUrl: { hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) }}
         )),
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
