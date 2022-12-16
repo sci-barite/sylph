@@ -16,7 +16,7 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
         };
         Animate(tabID, speed);
     },
-    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji for stopping the animation!
+    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
