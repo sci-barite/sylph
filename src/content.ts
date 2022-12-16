@@ -1,4 +1,4 @@
-// This is to check for existing entries of the job. The work is done by the service worker, not slow down the page itself.
+// This is to check for existing entries of the job. The work is done by the service worker, not to slow down the page itself.
 window.onload = () => {
     if (document.URL.includes("in.com/jobs/view")) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});
 }
