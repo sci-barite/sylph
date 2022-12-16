@@ -1,7 +1,7 @@
 {
     "name": "Sylph",
     "version": "1.6.4",
-    "description": "Sylph sifts data from famous websites, and sends it to a web app for processing.",
+    "description": "Sylph sifts data from famous websites, and sends it to a GAS web app for insertion into Google Sheets.",
     "manifest_version": 3,
     "background": {
         "service_worker": "background.js"
