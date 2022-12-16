@@ -1,15 +1,7 @@
 const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []}; // Simpler than Session Storage...
 
-const LandMap: {[key: string]: string[]} = {   // We are "into the whole brevity thing". Used by both PageStateMatchers and bookmark listener.
-    '.linkedin.com' : ['/in', '/jobs/view'], 
-    '.upwork.com'   : ['/ab/applicants','/freelancers'], 
-    'djinni.co'     : ['/home/inbox'], 
-    '.apollo.io'    : ['/']
-};
-const MagicalLands : string[] = Object.values(LandMap).flatMap((lands, i) => lands.map(prefix => Object.keys(LandMap)[i]+prefix)); // Whoa!
-
-
-const LandMatches: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
+// The array below rebuilds the matches in the manifest in a way that can be used by a simple includes string method.
+const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
