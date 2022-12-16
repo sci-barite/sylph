@@ -1,6 +1,6 @@
 const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []}; // Simpler than Session Storage...
 
-// The array below rebuilds the matches in the manifest in a way that can be used by a simple includes string method.
+// The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
@@ -68,8 +68,8 @@ function checkID(data: string | string[], url: string, tabID: number) {
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    if      (Msg['🧜‍♂️']) Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['🧜‍♂️']+"\n");
-    else if (Msg['❓']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He left a clue:\n\n"+Msg['❓']);
+    if      (Msg['✔️']) Shout(1, Msg['🗃️'], "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+"\n");
+    else if (Msg['❓']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n"+Msg['❓']);
     else if (Msg['❌']) Shout(0, Msg['🗃️'], "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
     if      (Msg['🧚‍♀️']) return; // An extra check, just so we don't need to indent again.
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
