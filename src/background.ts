@@ -51,10 +51,10 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    (Msg['✔️']) ? console.log(text) : console.warn(text);
+    Msg['✔️'] ? console.log(text) : console.warn(text);
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
-    setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1200); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: ((Msg['✔️']) ? "images/sylph32.png" : "images/sylph-hurt.png")}), 1200);
+    setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
+    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: (Msg['✔️'] ? "images/sylph32.png" : "images/sylph-hurt.png")}), 1200);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
@@ -71,7 +71,7 @@ function checkID(data: string | string[], url: string, tabID: number) {
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+"\n");
+    if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+'\n');
     else if (Msg['❓']) Shout(Msg, "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n"+Msg['❓']);
     else if (Msg['❌']) Shout(Msg, "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
     if      (Msg['🧚‍♀️']) return; // An extra check, just so we don't need to indent again.
