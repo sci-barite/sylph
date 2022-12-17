@@ -74,7 +74,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+'\n');
     else if (Msg['❓']) Shout(Msg, "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n"+Msg['❓']);
     else if (Msg['❌']) Shout(Msg, "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
-    if      (Msg['🧚‍♀️']) return; // An extra check, just so we don't need to indent again.
+    if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
         const tabID = tabs[0].id!;
         SylphAnimation['▶️'](tabID, 60); // Double time animation, to represent a quick lookup.
