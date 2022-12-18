@@ -52,7 +52,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ? console.log(text) : console.warn(text);
-    chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? '\n'+additional+'\n' : '\n')});
+    chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: (Msg['✔️'] ? "images/sylph32.png" : "images/sylph-hurt.png")}), 1200);
 }
@@ -64,14 +64,14 @@ function checkID(data: string | string[], url: string, tabID: number) {
     const [LastJob, Index, Msg] = [Stash.Data[Stash.Data.length - 1], Stash.Data.indexOf(JobID), {'✔️': false, '🗃️': tabID}];
     if (Index != -1) {
         [Stash[tabID], Msg['✔️']] = [Index, true];
-        Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(Index + 2), 'Click on the ⭐ to update it.');
+        Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
     }
-    else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, 'Click on the ⭐ to add this!');
+    else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']);
+    if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+'\n');
     else if (Msg['❓']) Shout(Msg, "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n"+Msg['❓']);
     else if (Msg['❌']) Shout(Msg, "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
