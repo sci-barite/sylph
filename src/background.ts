@@ -1,13 +1,13 @@
 // Simpler than Session Storage...
-const Stash : {Ready: string, Data: string[], [key: number]: number } = {Ready: '🚫', Data: []};
+const Stash: {'✅': boolean, '🗄️': string[], [key: number]: number } = {'✅': false, '🗄️': []};
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
-const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
-    Tabs : {},
-    '▶️' : function(tabID: number, speed: number) {                    // Play emoji to play the animation!
+const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
+    Tabs: {},
+    '▶️': function(tabID: number, speed: number) {                    // Play emoji to play the animation!
         this.Tabs[tabID] = 1;
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to have the right scope for "this".
             if (!this.Tabs[tabID]) return;                              // Avoiding a level of indentation with a negative condition.
@@ -17,7 +17,7 @@ const SylphAnimation : {Tabs: {[key: number]: number}, '▶️': (tabID: number,
         };
         Animate(tabID, speed);
     },
-    '⏹️' : function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
+    '⏹️': function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
 };
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
@@ -26,7 +26,7 @@ chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
-    const AwakeSylph : {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
+    const AwakeSylph: {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
         conditions: MagicalLands.map(land => new chrome.declarativeContent.PageStateMatcher(
             {pageUrl: { hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) }}
         )),
@@ -59,9 +59,9 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], url: string, tabID: number) {
-    if (!Array.isArray(data)) [Stash.Data, Stash.Ready] = [JSON.parse(data), '✅']; // Better coordination with Lancer later?
-    const JobID = (url.split("view/")[1].split('/')[0]) ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
-    const [LastJob, Index, Msg] = [Stash.Data[Stash.Data.length - 1], Stash.Data.indexOf(JobID), {'✔️': false, '🗃️': tabID}];
+    if (!Array.isArray(data)) [Stash['🗄️'], Stash['✅']] = [JSON.parse(data), true]; // Better coordination with Lancer later?
+    const JobID = url.split("view/")[1].split('/')[0] ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
+    const [LastJob, Index, Msg] = [Stash['🗄️'][Stash['🗄️'].length - 1], Stash['🗄️'].indexOf(JobID), {'✔️': false, '🗃️': tabID}];
     if (Index != -1) {
         [Stash[tabID], Msg['✔️']] = [Index, true];
         Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
@@ -79,7 +79,7 @@ chrome.runtime.onMessage.addListener(Msg => {
         const tabID = tabs[0].id!;
         SylphAnimation['▶️'](tabID, 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-        (Stash.Ready == '✅') ? checkID(Stash.Data, Msg['🌍'], tabID) :
+        Stash['✅'] ? checkID(Stash['🗄️'], Msg['🌍'], tabID) :
             fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
     });
 });
