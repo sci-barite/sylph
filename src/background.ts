@@ -58,12 +58,12 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
-function checkID(data: string | string[], url: string, tabID: number) {
+function checkID(data: string | string[], Msg: {[key: string]: any}) {
     if (!Array.isArray(data)) [Stash['🗄️'], Stash['✅']] = [JSON.parse(data), true]; // Better coordination with Lancer later?
-    const JobID = url.split("view/")[1].split('/')[0] ? url.split("view/")[1].split('/')[0] : url.split("view/")[1];
-    const [LastJob, Index, Msg] = [Stash['🗄️'][Stash['🗄️'].length - 1], Stash['🗄️'].indexOf(JobID), {'✔️': false, '🗃️': tabID}];
+    const JobID = Msg['🌍'].split("view/")[1].split('/')[0] ? Msg['🌍'].split("view/")[1].split('/')[0] : Msg['🌍'].split("view/")[1];
+    const [LastJob, Index] = [Stash['🗄️'][Stash['🗄️'].length - 1], Stash['🗄️'].indexOf(JobID)];
     if (Index != -1) {
-        [Stash[tabID], Msg['✔️']] = [Index, true];
+        [Stash[Msg['🗃️']], Msg['✔️']] = [Index, true];
         Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
     }
     else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
@@ -76,10 +76,10 @@ chrome.runtime.onMessage.addListener(Msg => {
     else if (Msg['❌']) Shout(Msg, "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
-        const tabID = tabs[0].id!;
-        SylphAnimation['▶️'](tabID, 60); // Double time animation, to represent a quick lookup.
+        Msg['🗃️'] = tabs[0].id!;
+        SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-        Stash['✅'] ? checkID(Stash['🗄️'], Msg['🌍'], tabID) :
-            fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg['🌍'], tabID); });
+        Stash['✅'] ? checkID(Stash['🗄️'], Msg) :
+            fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg); });
     });
 });
