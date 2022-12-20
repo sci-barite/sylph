@@ -1,3 +1,4 @@
+const [SylphOk, SylphNotOk] = ['images/sylph32.png', 'images/sylph-hurt.png'];
 // Simpler than Session Storage...
 const Stash: {'✅': boolean, '🗄️': string[], [key: number]: number } = {'✅': false, '🗄️': []};
 
@@ -54,7 +55,7 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ? console.log(text) : console.warn(text);
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: (Msg['✔️'] ? "images/sylph32.png" : "images/sylph-hurt.png")}), 1200);
+    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: (Msg['✔️'] ? (Msg['🧜‍♂️'] ? SylphNotOk : SylphOk) : SylphNotOk)}), 1200);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
