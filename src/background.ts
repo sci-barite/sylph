@@ -53,7 +53,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);
+    Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);   // Asked Chat-GPT about using XOR: would have never thought!
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: Icon[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
