@@ -1,6 +1,6 @@
 const [SylphOk, SylphNotOk] = ['images/sylph32.png', 'images/sylph-hurt.png'];
 // Simpler than Session Storage...
-const Stash: {'✅': boolean, '🗄️': string[], [key: number]: number } = {'✅': false, '🗄️': []};
+const Stash: {'🗄️Jobs': string[], '🗄️Cands': string[], [key: number]: number } = {'🗄️Jobs': [], '🗄️Cands': []};
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
@@ -52,22 +52,24 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    Msg['✔️'] ? console.log(text) : console.warn(text);
+    Msg['✔️'] ? (Msg['🧜‍♂️'] ? console.warn(text) : console.log(text)) : console.warn(text);
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: (Msg['✔️'] ? (Msg['🧜‍♂️'] ? SylphNotOk : SylphOk) : SylphNotOk)}), 1200);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
-function checkID(data: string | string[], Msg: {[key: string]: any}) {
-    if (!Array.isArray(data)) [Stash['🗄️'], Stash['✅']] = [JSON.parse(data), true]; // Better coordination with Lancer later?
-    const JobID = Msg['🌍'].split("view/")[1].split('/')[0] ? Msg['🌍'].split("view/")[1].split('/')[0] : Msg['🌍'].split("view/")[1];
-    const [LastJob, Index] = [Stash['🗄️'][Stash['🗄️'].length - 1], Stash['🗄️'].indexOf(JobID)];
+function checkID(data: string | string[], Msg: {[key: string]: any}, db: string) {
+    if (!Array.isArray(data)) (db == 'Jobs') ? Stash['🗄️Jobs'] = JSON.parse(data) : Stash['🗄️Cands'] = JSON.parse(data);
+    const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) : 
+        (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
+    const [LastID, Index] = (db == 'Jobs') ? [Stash['🗄️Jobs'][Stash['🗄️Jobs'].length - 1], Stash['🗄️Jobs'].indexOf(ID)] : 
+        [Stash['🗄️Cands'][Stash['🗄️Cands'].length - 1], Stash['🗄️Cands'].indexOf(ID)];
     if (Index != -1) {
         [Stash[Msg['🗃️']], Msg['✔️']] = [Index, true];
-        Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+JobID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
+        Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
     }
-    else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastJob, "\nClick on the ⭐ to add this!\n");
+    else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -80,7 +82,10 @@ chrome.runtime.onMessage.addListener(Msg => {
         Msg['🗃️'] = tabs[0].id!;
         SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-        Stash['✅'] ? checkID(Stash['🗄️'], Msg) :
-            fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg); });
+        Msg['🌍'].includes('jobs/') ? 
+            ((Stash['🗄️Jobs'].length > 0) ? checkID(Stash['🗄️Jobs'], Msg, 'Jobs') :
+            fetch(Msg['🧜‍♂️']+'url=GetUniqueJobs').then((response) => response.text()).then((data) => { checkID(data, Msg, 'Jobs'); })) :
+            ((Stash['🗄️Cands'].length > 0) ? checkID(Stash['🗄️Cands'], Msg, 'Cands') : 
+            fetch(Msg['🧜‍♂️']+'url=GetUniqueCands').then((response) => response.text()).then((data) => { checkID(data, Msg, 'Cands'); }));
     });
 });

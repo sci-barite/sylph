@@ -1,6 +1,7 @@
+const knownLands: string[] = ['in.com/jobs/view', 'in.com/in/'];
 // This is to check for existing entries. The work is done by the service worker, not to slow down the page.
 window.onload = () => {
-    if (document.URL.includes("in.com/jobs/view")) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});
+    if (knownLands.some(site => document.URL.includes(site))) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});
 }
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
