@@ -65,14 +65,9 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
     const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) : 
         (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
-    if (Index != -1) {
-        [Known[Msg['🗃️']], Msg['✔️']] = [Index, true];
-        Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
-    }
-    else {
-        delete Known[Msg['🗃️']];
+    [Known[Msg['🗃️']], Msg['✔️']] = Index != -1 ? [Index, true] : [0, false]
+    Msg['✔️'] ? Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n") :
         Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
-    }
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
