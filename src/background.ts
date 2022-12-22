@@ -54,7 +54,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);   // Asked Chat-GPT about using XOR: would have never thought!
-    chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional ? additional : '\n')});
+    chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: Icon[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
 }
@@ -66,7 +66,7 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
         (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
     if (Index != -1) {
-        [Known[Msg['🗃️']], Msg['✔️']] = [Index as number, true];
+        [Known[Msg['🗃️']], Msg['✔️']] = [Index, true];
         Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
     }
     else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
