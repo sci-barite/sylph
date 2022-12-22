@@ -69,7 +69,10 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
         [Known[Msg['🗃️']], Msg['✔️']] = [Index, true];
         Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n");
     }
-    else Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
+    else {
+        delete Known[Msg['🗃️']];
+        Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
+    }
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
