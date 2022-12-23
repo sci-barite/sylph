@@ -13,7 +13,6 @@ const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png', ...Array.from({l
 const Icons: ImageData[] = []   // Would have preferred to use map directly, but it would require the usage of modules and more.
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
 
-
 // Simpler than Session Storage...
 const Stash: {[key: string]: string[]} = {};
 const Known: {[key: number]: number} = {};
