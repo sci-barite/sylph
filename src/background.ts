@@ -9,7 +9,7 @@ const preloadImageData = async (icon: string) => {
     return ctx!.getImageData(0, 0, width, height);
 }
 // First an array of names, then one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order
-const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png'].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => 'sylph-casts'+n+'.png'));
+const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png', ...Array.from({length: 10}, (_, n) => `sylph-casts${n}.png`)];
 const Icons: ImageData[] = []   // Would have preferred to use map directly, but it would require the usage of modules and more.
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
 
