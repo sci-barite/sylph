@@ -13,6 +13,7 @@ const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png', ...Array.from({l
 const Icons: ImageData[] = []   // Would have preferred to use map directly, but it would require the usage of modules and more.
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
 
+
 // Simpler than Session Storage...
 const Stash: {[key: string]: string[]} = {};
 const Known: {[key: number]: number} = {};
@@ -56,7 +57,6 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
-    console.log('🧚‍♀️ Sylph is getting ready to fly...', Icons)
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
 });
 
@@ -108,4 +108,4 @@ chrome.runtime.onMessage.addListener(Msg => {
         (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg) :
             fetch(Msg['🧜‍♂️']+param).then((response) => response.text()).then((data) => { checkID(data, Msg); });
     });
-});
+}); 
