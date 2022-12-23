@@ -1,7 +1,21 @@
-const Icon = ['images/sylph32.png', 'images/sylph-hurt.png'];
+// This is a big change: loads all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
+const Icons: {[key: string]: ImageData} = {'sylph32.png': new ImageData(1,1), 'sylph-hurt.png': new ImageData(1,1)}
+for (let i = 1; i < 11; i++) Icons['sylph-casts'+i+'.png'] = new ImageData(1,1);
+Object.keys(Icons).forEach(icon => {    // Object instead of array because fetching being async means an array would not be ordered!
+    fetch('images/'+icon).then((response) => response.blob()).then((blob) => { 
+        createImageBitmap(blob).then((img) => {
+            const [width, height] = [img.width, img.height];
+            const ctx = new OffscreenCanvas(width, height).getContext('2d');
+            ctx!.drawImage(img, 0, 0, width, height);
+            Icons[icon] = ctx!.getImageData(0, 0, width, height);
+        })
+    });
+});
+const Frames = Object.keys(Icons).slice(1); // Names ready instead of having to build them. Index 0 is never read, by design. See below.
+
 // Simpler than Session Storage...
 const Stash: {[key: string]: string[]} = {};
-const Known: {[key: number]: number} = {}; 
+const Known: {[key: number]: number} = {};
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
@@ -9,11 +23,11 @@ const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Tabs: {},
-    '▶️': function(tabID: number, speed: number) {                    // Play emoji to play the animation!
-        this.Tabs[tabID] = 1;
+    '▶️': function(tabID: number, speed: number) {                     // Play emoji to play the animation!
+        this.Tabs[tabID] = 1;                                           // To have the icons all together, the animation 
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to have the right scope for "this".
             if (!this.Tabs[tabID]) return;                              // Avoiding a level of indentation with a negative condition.
-            chrome.action.setIcon({tabId: tabID, path: 'images/sylph-casts'+this.Tabs[tabID]+'.png'});
+            chrome.action.setIcon({tabId: tabID, imageData: Icons[Frames[this.Tabs[tabID]]]}); // Should be faster than string-building.
             this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;        // We avoid a zero to keep a truthy value for the if!
             setTimeout(() => Animate(tabID, speed), speed);             // Sylph spell-casting animation for the win!!
         };
@@ -36,6 +50,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
+    console.log('🧚‍♀️ Sylph will warn with "'+Object.keys(Icons)[1]+'" and fly with "'+Frames[1]+'" through "'+Frames[10]+'"');
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
@@ -56,7 +71,7 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);   // Asked Chat-GPT about using XOR: would have never thought!
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], path: Icon[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
+    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Object.values(Icons)[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
