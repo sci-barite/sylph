@@ -1,17 +1,17 @@
-// This is a big change: loads all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
-const Icons: {[key: string]: ImageData} = {'sylph32.png': new ImageData(1,1), 'sylph-hurt.png': new ImageData(1,1)}
-for (let i = 1; i < 11; i++) Icons['sylph-casts'+i+'.png'] = new ImageData(1,1);
-Object.keys(Icons).forEach(icon => {    // Object instead of array because fetching being async means an array would not be ordered!
-    fetch('images/'+icon).then((response) => response.blob()).then((blob) => { 
-        createImageBitmap(blob).then((img) => {
-            const [width, height] = [img.width, img.height];
-            const ctx = new OffscreenCanvas(width, height).getContext('2d');
-            ctx!.drawImage(img, 0, 0, width, height);
-            Icons[icon] = ctx!.getImageData(0, 0, width, height);
-        })
-    });
-});
-const Frames = Object.keys(Icons).slice(1); // Names ready instead of having to build them. Index 0 is never read, by design. See below.
+// This is a big change: loading all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
+const preloadImageData = async (icon: string) => {
+    const response = await fetch(`images/${icon}`);
+    const blob = await response.blob();
+    const img = await createImageBitmap(blob);
+    const [width, height] = [img.width, img.height];
+    const ctx = new OffscreenCanvas(width, height).getContext('2d');
+    ctx!.drawImage(img, 0, 0, width, height);
+    return ctx!.getImageData(0, 0, width, height);
+}
+// First an array of names, then one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order
+const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png'].concat([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => 'sylph-casts'+n+'.png'));
+const Icons: ImageData[] = []   // Would have preferred to use map directly, but it would require the usage of modules and more.
+IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
 
 // Simpler than Session Storage...
 const Stash: {[key: string]: string[]} = {};
@@ -24,11 +24,11 @@ const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Tabs: {},
     '▶️': function(tabID: number, speed: number) {                     // Play emoji to play the animation!
-        this.Tabs[tabID] = 1;                                           // To have the icons all together, the animation 
+        this.Tabs[tabID] = 2;                                           // To have the icons all together, the animation 
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to have the right scope for "this".
             if (!this.Tabs[tabID]) return;                              // Avoiding a level of indentation with a negative condition.
-            chrome.action.setIcon({tabId: tabID, imageData: Icons[Frames[this.Tabs[tabID]]]}); // Should be faster than string-building.
-            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 11 || 1;        // We avoid a zero to keep a truthy value for the if!
+            chrome.action.setIcon({tabId: tabID, imageData: Icons[this.Tabs[tabID]]}); // Should be faster than string-building.
+            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 12 || 2;        // To keep only one array of icons, we keep the frames at the end.
             setTimeout(() => Animate(tabID, speed), speed);             // Sylph spell-casting animation for the win!!
         };
         Animate(tabID, speed);
@@ -38,6 +38,13 @@ const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, 
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
 chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
+
+// It could be more precise, maybe fire the search event again, but I prefer that to require a manual reload, and the UI to be just reset.
+chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
+    if (!changeInfo.url) return;
+    chrome.action.setBadgeText({text: '', tabId: tabID});
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]});
+})
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -49,8 +56,8 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [ new chrome.declarativeContent.ShowAction() ]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
+    console.log('🧚‍♀️ Sylph is getting ready to fly...', Icons)
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
-    console.log('🧚‍♀️ Sylph will warn with "'+Object.keys(Icons)[1]+'" and fly with "'+Frames[1]+'" through "'+Frames[10]+'"');
 });
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
@@ -71,7 +78,9 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);   // Asked Chat-GPT about using XOR: would have never thought!
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Object.values(Icons)[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
+    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
+    Msg['✔️'] ^ Msg['🧜‍♂️'] ? chrome.action.setBadgeText({text: (Known[Msg['🗃️']]+2).toString(), tabId: Msg['🗃️']}) : 
+        chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']});
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
