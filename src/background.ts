@@ -15,6 +15,7 @@ const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {}
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
+const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
@@ -46,12 +47,10 @@ chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
 chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
     const AwakeSylph: {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
-        conditions: MagicalLands.map(land => new chrome.declarativeContent.PageStateMatcher(
-            {pageUrl: { hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/')) }}
-        )),
-        actions: [ new chrome.declarativeContent.ShowAction() ]
+        conditions: LandMap.map(hostAndPrefix => new chrome.declarativeContent.PageStateMatcher({pageUrl: hostAndPrefix})),
+        actions: [new chrome.declarativeContent.ShowAction()]
     };
-    chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> { chrome.declarativeContent.onPageChanged.addRules([AwakeSylph]); });
+    chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
 });
 
