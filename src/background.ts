@@ -1,14 +1,14 @@
 // This is a big change: loading all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
 const preloadImageData = async (icon: string) => {
-    const response = await fetch(`images/${icon}`), blob = await response.blob(), img = await createImageBitmap(blob);
+    const response = await fetch(`images/sylph${icon}`), blob = await response.blob(), img = await createImageBitmap(blob);
     const [width, height] = [img.width, img.height], ctx = new OffscreenCanvas(width, height).getContext('2d');
     ctx!.drawImage(img, 0, 0, width, height);
     return ctx!.getImageData(0, 0, width, height);
 }
+
 // First an array of names, then one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
-const IconNames: string[] = ['sylph32.png', 'sylph-hurt64.png', ...Array.from({length: 10}, (_map, n) => `sylph-casts${n}.png`)];
-const Icons: ImageData[] = []   // Would have preferred to use map directly, but it requires the usage of modules, manifest change. Later...
-IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
+const IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_map, n) => `-casts${n}.png`)], Icons: ImageData[] = [];
+IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Better than map in this case.
 
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
@@ -25,23 +25,13 @@ const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, 
         const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to have the right scope for "this".
             if (!this.Tabs[tabID]) return;                              // Avoiding a level of indentation with a negative condition.
             chrome.action.setIcon({tabId: tabID, imageData: Icons[this.Tabs[tabID]]}); // Should be faster than string-building.
-            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 12 || 2;        // To keep only one array of icons, we keep the frames at the end.
+            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 12 || 2;        // To have only one array of icons, we keep frames from index 2 to 11.
             setTimeout(() => Animate(tabID, speed), speed);             // Sylph spell-casting animation for the win!!
         };
         Animate(tabID, speed);
     },
-    '⏹️': function (tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
+    '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
 };
-
-// Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
-chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
-
-// It could be more precise, maybe fire the search event again, but I prefer that to require a manual reload, and the UI to be just reset.
-chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
-    if (!changeInfo.url) return;
-    chrome.action.setBadgeText({text: '', tabId: tabID});
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]});
-})
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
@@ -53,6 +43,16 @@ chrome.runtime.onInstalled.addListener(()=> {
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
     console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
 });
+
+// Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
+chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
+
+// It could be more precise, maybe fire the search event again, but I prefer that to require a manual reload, and the UI to be just reset.
+chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
+    if (!changeInfo.url) return;
+    chrome.action.setBadgeText({text: '', tabId: tabID});
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]});
+})
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
