@@ -13,7 +13,7 @@ IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadI
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
 
-// The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
+// The arrays below rebuild the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 
@@ -70,7 +70,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ?     // Chat-GPT suggested XOR for this case; I would have never thought it myself!
-        (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']]? (Known[Msg['🗃️']]+2)+'': 'ERR!'), tabId: Msg['🗃️']})) 
+        (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']] ? (Known[Msg['🗃️']]+2)+'' : 'ERR!'), tabId: Msg['🗃️']})) 
         : (console.log(text, Msg), chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}));
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
@@ -96,10 +96,10 @@ chrome.runtime.onMessage.addListener(Msg => {
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
         [Msg['🗃️'], Msg['🗄️']] = [tabs[0].id!, Msg['🌍'].split('.com/')[1].split('/')[0]];
-        const param = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
+        const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
         SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
         (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg)
-            : fetch(Msg['🧜‍♂️']+param).then((response) => response.text()).then((data) => { checkID(data, Msg); });
+            : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
     });
 }); 
