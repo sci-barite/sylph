@@ -1,10 +1,7 @@
 // This is a big change: loading all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
 const preloadImageData = async (icon: string) => {
-    const response = await fetch(`images/${icon}`);
-    const blob = await response.blob();
-    const img = await createImageBitmap(blob);
-    const [width, height] = [img.width, img.height];
-    const ctx = new OffscreenCanvas(width, height).getContext('2d');
+    const response = await fetch(`images/${icon}`), blob = await response.blob(), img = await createImageBitmap(blob);
+    const [width, height] = [img.width, img.height], ctx = new OffscreenCanvas(width, height).getContext('2d');
     ctx!.drawImage(img, 0, 0, width, height);
     return ctx!.getImageData(0, 0, width, height);
 }
@@ -14,8 +11,7 @@ const Icons: ImageData[] = []   // Would have preferred to use map directly, but
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});
 
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
-const Stash: {[key: string]: string[]} = {};
-const Known: {[key: number]: number} = {};
+const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
 
 // The array below rebuilds the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
@@ -74,8 +70,9 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    Msg['✔️'] ^ Msg['🧜‍♂️'] ? (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']]+2).toString(), tabId: Msg['🗃️']})) 
-        : (console.log(text, Msg), chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}));   // Chat-GPT suggested XOR: nice!
+    Msg['✔️'] ^ Msg['🧜‍♂️'] ?     // Chat-GPT suggested XOR for this case; I would have never thought it myself!
+        (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']]? (Known[Msg['🗃️']]+2)+'': 'ERR!'), tabId: Msg['🗃️']})) 
+        : (console.log(text, Msg), chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}));
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200); // Crazy use of XOR here.
@@ -87,7 +84,7 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
     const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) 
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
-    [Known[Msg['🗃️']], Msg['✔️']] = Index != -1 ? [Index, true] : [0, false]
+    [Known[Msg['🗃️']], Msg['✔️']] = (Index != -1) ? [Index, true] : [0, false]    // That zero will be changed to an empty string later.
     Msg['✔️'] ? Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n")
         : Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
 }
