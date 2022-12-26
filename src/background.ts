@@ -74,23 +74,22 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    Msg['✔️'] ^ Msg['🧜‍♂️'] ? console.warn(text, Msg) : console.log(text, Msg);   // Asked Chat-GPT about using XOR: would have never thought!
+    Msg['✔️'] ^ Msg['🧜‍♂️'] ? (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']]+2).toString(), tabId: Msg['🗃️']})) 
+        : (console.log(text, Msg), chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}));   // Chat-GPT suggested XOR: nice!
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
-    Msg['✔️'] ^ Msg['🧜‍♂️'] ? chrome.action.setBadgeText({text: (Known[Msg['🗃️']]+2).toString(), tabId: Msg['🗃️']}) : 
-        chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']});
+    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200); // Crazy use of XOR here.
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], Msg: {[key: string]: any}) {
     if (!Array.isArray(data)) Stash['🗄️'+Msg['🗄️']] = JSON.parse(data);
-    const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) : 
-        (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
+    const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) 
+        : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
     [Known[Msg['🗃️']], Msg['✔️']] = Index != -1 ? [Index, true] : [0, false]
-    Msg['✔️'] ? Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n") :
-        Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
+    Msg['✔️'] ? Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n")
+        : Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
@@ -104,7 +103,7 @@ chrome.runtime.onMessage.addListener(Msg => {
         const param = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
         SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
         console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...');
-        (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg) :
-            fetch(Msg['🧜‍♂️']+param).then((response) => response.text()).then((data) => { checkID(data, Msg); });
+        (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg)
+            : fetch(Msg['🧜‍♂️']+param).then((response) => response.text()).then((data) => { checkID(data, Msg); });
     });
 }); 
