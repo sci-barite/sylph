@@ -79,10 +79,11 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ?     // Chat-GPT suggested XOR for this case; I would have never thought it myself!
         (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']] ? (Known[Msg['🗃️']]+2)+'' : 'ERR!'), tabId: Msg['🗃️']})) 
-        : (console.log(text, Msg), chrome.action.setBadgeText({text: (Msg['✔️'] ? Msg['✔️'].split(':')[0].slice(-4) : ''), tabId: Msg['🗃️']}));
+        : (console.log(text, Msg), chrome.action.setBadgeText({text: (Msg['🔢'] || ''), tabId: Msg['🗃️']}));
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200); // Crazy use of XOR here.
+    if (Msg['🔢']) setTimeout(() => chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}), 3000);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.

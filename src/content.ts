@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     Lancer.onreadystatechange = () => {
         if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
         console.log(Lancer.status, Lancer.response);
-        const Row = Lancer.response.split(':')[0].slice(-4);
+        const Row = Lancer.response.split(':')[0].replace('"Row ', '');
         if (Lancer.status == 200) chrome.runtime.sendMessage({'🧚‍♀️': true, '✔️': Lancer.response, '🔢': Row, '🗃️': Msg['🗃️']});
         else chrome.runtime.sendMessage({'🧚‍♀️': true, '❓': Lancer.response, '🗃️': Msg['🗃️']});
     }
