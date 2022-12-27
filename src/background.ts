@@ -55,7 +55,7 @@ function Silence(tabID: number) {
     chrome.action.setTitle({tabId: tabID, title: ''});
 }
 
-// It could be more precise, maybe fire the search event again, but I prefer that to require a manual reload, and the UI to be just reset.
+// Now it checks when URL changes without an actual page reload, which happens a lot on LinkedIn. Either resets the UI or makes a new search.
 chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
     if (!changeInfo.url) return;
     if (!IndexedLands.some(indexed => changeInfo.url!.includes(indexed))) Silence(tabID);
