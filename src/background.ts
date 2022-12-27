@@ -16,6 +16,7 @@ const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {}
 // The arrays below rebuild the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
+const IndexedLands: string[] = MagicalLands.slice(0,2); // Selecting here the ones we have indexes for. Might combine with Stash/Known above.
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
@@ -47,11 +48,18 @@ chrome.runtime.onInstalled.addListener(()=> {
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
 chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 
+// A shortcut to reset a tab's icon and text to default.
+function Silence(tabID: number) {
+    chrome.action.setBadgeText({text: '', tabId: tabID});
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]});
+    chrome.action.setTitle({tabId: tabID, title: ''});
+}
+
 // It could be more precise, maybe fire the search event again, but I prefer that to require a manual reload, and the UI to be just reset.
 chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
     if (!changeInfo.url) return;
-    chrome.action.setBadgeText({text: '', tabId: tabID});
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]});
+    if (!IndexedLands.some(indexed => changeInfo.url!.includes(indexed))) Silence(tabID);
+    else chrome.tabs.sendMessage(tabID, {'✨': true, '🗃️': tabID});
 })
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
@@ -71,7 +79,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     Msg['✔️'] ^ Msg['🧜‍♂️'] ?     // Chat-GPT suggested XOR for this case; I would have never thought it myself!
         (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']] ? (Known[Msg['🗃️']]+2)+'' : 'ERR!'), tabId: Msg['🗃️']})) 
-        : (console.log(text, Msg), chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}));
+        : (console.log(text, Msg), chrome.action.setBadgeText({text: (Msg['✔️'] ? Msg['✔️'].split(':')[0].slice(-4) : ''), tabId: Msg['🗃️']}));
     chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200); // Crazy use of XOR here.
@@ -80,7 +88,7 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], Msg: {[key: string]: any}) {
     if (!Array.isArray(data)) Stash['🗄️'+Msg['🗄️']] = JSON.parse(data);
-    const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) 
+    const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) // Extracting the unique ID.
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
     [Known[Msg['🗃️']], Msg['✔️']] = (Index != -1) ? [Index, true] : [0, false]    // That zero will be changed to an empty string later.
