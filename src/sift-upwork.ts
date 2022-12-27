@@ -1,7 +1,7 @@
 // Longer than it should be, because there are two different kinds of pages I want to be able to sift through.
-function SiftUpwork(pos: string, url : string) : {Failed: boolean, String: string} {
-    if (url.includes("proposal")) return SiftUpworkProposal(url);
-    else return SiftUpworkProfile(pos, url);
+function upworkSift(Msg: {[key: string]: any}) : {Failed: boolean, String: string} {
+    if (Msg['🌍'].includes("proposal")) return SiftUpworkProposal(Msg['🌍']);
+    else return SiftUpworkProfile(Msg['📁'], Msg['🌍']);
 }
 
 // The proposal version ists inside an overlay container.

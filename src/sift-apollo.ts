@@ -1,5 +1,5 @@
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
-function SiftApollo(page: string) : {Failed:boolean, String:string} {
+function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
     if (!document.querySelector('#location_detail_card')) return {Failed: true, String: '❌ She sees no human here!'};
     
     if (document.querySelector(".zp_1J5B6.zp_3L0DM")!.children.length == 5)

@@ -1,3 +1,4 @@
+interface Window {[key:string]: any}    // Needed to find functions by name on the window object.
 // This is to check for existing entries. The work is done by the service worker, not to slow down the page.
 window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL}); }
 
@@ -6,13 +7,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL, '🗃️': Msg['🗃️']});   // A bit redundant...
     if (!Msg['🧚‍♀️']) return;
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
-    let Sift = {Failed: true, String: "❌ She can't use her magic in here!"};
-    switch (Msg['🌍'].substring(12,18)) {
-        case "linked": Sift = SiftLinked(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or job.
-        case "upwork": Sift = SiftUpwork(Msg['📁'], Msg['🌍']); break;  // The function checks if it's a profile or proposal.
-        case "ni.co/": Sift = SiftDjinni(Msg['📁']); break;             // This one uses the folder only on one condition.
-        case "apollo": Sift = SiftApollo(Msg['🌍']); break;             // This needs the URL just to build a better link.
-    }
+    const Sift = (Msg['🗺️']) ? window[Msg['🗺️']+'Sift'](Msg) : {Failed: true, String: "❌ Sylph got lost!"};    // Bye bye switch!
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
     if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({'🧚‍♀️': true, '❌': Sift.String, '🗃️': Msg['🗃️']}); 
     if (Sift.Failed) return;    // This allows us to give the error message but continue, in a hypthetical case that we still don't have.
@@ -22,8 +17,8 @@ chrome.runtime.onMessage.addListener(Msg => {
     Lancer.onreadystatechange = () => {
         if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
         console.log(Lancer.status, Lancer.response);
-        const Row = Lancer.response.split(':')[0].replace('"Row ', '');
-        if (Lancer.status == 200) chrome.runtime.sendMessage({'🧚‍♀️': true, '✔️': Lancer.response, '🔢': Row, '🗃️': Msg['🗃️']});
+        const Row = Lancer.response.split(':')[0].slice(-4);
+        if (Lancer.status == 200) chrome.runtime.sendMessage({'🧚‍♀️': true, '✔️': Lancer.response, '📝': Row, '🗃️': Msg['🗃️']});
         else chrome.runtime.sendMessage({'🧚‍♀️': true, '❓': Lancer.response, '🗃️': Msg['🗃️']});
     }
     Lancer.open('GET', LancerURI, true);

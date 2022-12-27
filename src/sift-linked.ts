@@ -1,7 +1,7 @@
 // It got much, much easier than the first version, but still a bit tricky sometimes. It also manages both jobs and people, so it's long.
-function SiftLinked(position : string, page: string) : {Failed: boolean, String: string} {
-    if (page.includes("/jobs/")) return SiftLinkedJob();
-    else return SiftLinkedPerson(position);
+function linkedinSift(Msg: {[key: string]: any}) : {Failed: boolean, String: string} {
+    if (Msg['🌍'].includes("/jobs/")) return SiftLinkedJob();
+    else return SiftLinkedPerson(Msg['📁']);
 }
 
 function SiftLinkedJob() : {Failed: boolean, String: string} {
