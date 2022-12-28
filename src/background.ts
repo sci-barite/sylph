@@ -8,7 +8,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 
 // Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
 const getTabID = async () : Promise<number> => { return (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id! }
-const getFolder = async (parentID: string) : Promise<string> => { return (await chrome.bookmarks.get((parentID)))[0].title }
+const getFolder = async (bmParentID: string) : Promise<string> => { return (await chrome.bookmarks.get((bmParentID)))[0].title }
 
 // Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
 const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
@@ -63,12 +63,9 @@ function Silence(tabID: number) {
 
 // Now it checks when URL changes without an actual page reload, which happens a lot on LinkedIn. Either resets the UI or makes a new search.
 chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
-    if (!changeInfo.url) return;
+    if (!changeInfo.url) return;    // There can be changes due to pressing of buttons and stuff. We don't need those, so we exit early.
     if (!IndexedLands.some(indexed => changeInfo.url!.includes(indexed))) Silence(tabID);   // If page is not a type we got a DB for, Silence.
-    else {
-        SylphAnimation['⏹️'](tabID);     // Not strictly necessary, but good if we navigate out of a page before finishing the previous action.
-        chrome.tabs.sendMessage(tabID, {'✨': true, '🗃️': tabID});  // Messaging content script just to get back a URL from the secret file...
-    }
+    else chrome.tabs.sendMessage(tabID, {'✨': true, '🗃️': tabID}); // Messaging content script just to get back a URL from the secret file...
 })
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
@@ -108,7 +105,7 @@ chrome.runtime.onMessage.addListener(async Msg => {
     if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
-    if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
+    if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation... Can live with that!
     [Msg['🗃️'], Msg['🗄️']] = [await getTabID(), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
     SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
