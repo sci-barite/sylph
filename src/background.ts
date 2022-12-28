@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
-const getTabID = async () : Promise<number> => { return (await chrome.tabs.query({ active: true, currentWindow: true }))[0].id! }
+const getTabID = async (URL: string) : Promise<number> => { return (await chrome.tabs.query({ url: URL }))[0].id! }
 const getFolder = async (bmParentID: string) : Promise<string> => { return (await chrome.bookmarks.get((bmParentID)))[0].title }
 
 // Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
@@ -73,7 +73,7 @@ chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    const tabID = await getTabID(), folder = await getFolder(bm.parentId!), host = HostMap.find((host: string) => bm.url!.includes(host));
+    const tabID = await getTabID(bm.url!), folder = await getFolder(bm.parentId!), host = HostMap.find((host: string) => bm.url!.includes(host));
     Silence(tabID); // Precaution, so we don't get double time animations in case one was still going on, or old messages sticking.
     SylphAnimation['▶️'](tabID, 120);
     chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder});
@@ -108,7 +108,7 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation... Can live with that!
-    [Msg['🗃️'], Msg['🗄️']] = [await getTabID(), Msg['🌍'].split('.com/')[1].split('/')[0]];
+    [Msg['🗃️'], Msg['🗄️']] = [await getTabID(Msg['🌍']), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
     SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
