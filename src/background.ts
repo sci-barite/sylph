@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) => {
 }
 
 // Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
-const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_map, n) => `-casts${n}.png`)];
+const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
@@ -43,7 +43,7 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [new chrome.declarativeContent.ShowAction()]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
-    console.log('🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!', AwakeSylph.conditions);
+    console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!`, AwakeSylph.conditions);
 });
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
@@ -68,7 +68,7 @@ chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
 })
 
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
-chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
+chrome.bookmarks.onCreated.addListener((_id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
     chrome.bookmarks.get((bookmark.parentId!), parent => {
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
@@ -76,7 +76,7 @@ chrome.bookmarks.onCreated.addListener((id, bookmark)=> {   // Bookmarking works
             Silence(tabID); // Precaution, so we don't get double time animations in case one was still going on, or old messages sticking.
             SylphAnimation['▶️'](tabID, 120);
             chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bookmark.url, '💌': Known[tabID], '📁': folder});
-            console.log('🧚‍♀️ Bookmark created in "'+folder+'", Sylph is casting her spell from '+tabID+'...');
+            console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`);
         });
     });
 });
@@ -99,15 +99,15 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
     [Known[Msg['🗃️']], Msg['✔️']] = (Index != -1) ? [Index, true] : [0, false]    // That zero will be changed to an empty string later.
-    Msg['✔️'] ? Shout(Msg, "🧜‍♂️ Lancer knows this place! He wrote it as "+ID+" in row "+(Index + 2), "\nClick on the ⭐ to update it.\n")
-        : Shout(Msg, "🧜‍♂️ Lancer doesn't know this place. The last he wrote was "+LastID, "\nClick on the ⭐ to add this!\n");
+    Msg['✔️'] ? Shout(Msg, `🧜‍♂️ Lancer knows this place! He wrote it as ${ID} in row ${Index + 2}`, '\nClick on the ⭐ to update it.\n')
+        : Shout(Msg, `🧜‍♂️ Lancer doesn't know this place. The last he wrote was ${LastID}`, '\nClick on the ⭐ to add this!\n');
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
 chrome.runtime.onMessage.addListener(Msg => {
-    if      (Msg['✔️']) Shout(Msg, "🧚‍♀️ Sylph has casted her spell successfully!", "\n🧜‍♂️ Lancer's response was:\n\n"+Msg['✔️']+'\n');
-    else if (Msg['❓']) Shout(Msg, "🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n"+Msg['❓']);
-    else if (Msg['❌']) Shout(Msg, "🧚‍♀️ Sylph has miscasted!\n\n"+Msg['❌']);
+    if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+    else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
+    else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
         [Msg['🗃️'], Msg['🗄️']] = [tabs[0].id!, Msg['🌍'].split('.com/')[1].split('/')[0]];
