@@ -14,7 +14,7 @@ const SylphBadge = (tabID: number, color: chrome.action.ColorArray, text: string
     chrome.action.setBadgeText({text: text, tabId: tabID});
 }
 
-// Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
+// Keeping an array of icon names, and one of ImageData. Even if async, assigning each to its own index in the array ensures the wanted order.
 const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 const Colors: chrome.action.ColorArray[] = [[230, 80, 90, 230], [80, 230, 90, 230], [80, 90, 230, 230]];    // Failure, success, default.
