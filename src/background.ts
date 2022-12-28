@@ -87,21 +87,21 @@ chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking work
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    const How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this case; I would have never thought it myself!
-    How ? (console.warn(text, Msg), SylphBadge(Msg['🗃️'], Colors[How], (Known[Msg['🗃️']] ? `${Known[Msg['🗃️']]+2}` : 'ERR!'))) 
-        : (console.log(text, Msg), SylphBadge(Msg['🗃️'], Colors[How], (Msg['📝'] || '')));  // Crazy use of XOR instead of index was my idea!
-    chrome.action.setTitle({tabId: Msg['🗃️'], title: `${text}${(additional || '\n')}`});
-    setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[How]}), 1200);   // Same crazy use of XOR instead of index.
-    if (Msg['📝']) setTimeout(() => Silence(Msg['🗃️']), 3600);  // A delayed reset of the icon so the badge doesn't hide it too long.
+    const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this; I would have never thought it myself!
+    How ? (console.warn(text, Msg), SylphBadge(tabID, Colors[How], (Known[tabID] ? `${Known[tabID]+2}` : 'ERR!'))) 
+        : (console.log(text, Msg), SylphBadge(tabID, Colors[How], (Msg['📝'] || '')));  // Crazy use of XOR instead of index was my idea!
+    chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
+    setTimeout(() => SylphAnimation['⏹️'](tabID), 1080);     // Delayed to make it visible when Stash values are retrieved too quickly.
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1200);   // Same crazy use of XOR instead of index.
+    if (Msg['📝']) setTimeout(() => Silence(tabID), 3600);  // A delayed reset of the icon so the badge doesn't hide it too long.
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
 function checkID(data: string | string[], Msg: {[key: string]: any}) {
-    if (!Array.isArray(data)) Stash['🗄️'+Msg['🗄️']] = JSON.parse(data);
+    if (!Array.isArray(data)) Stash[`🗄️${Msg['🏷️']}`] = JSON.parse(data);
     const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) // Extracting the unique ID.
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
-    const [LastID, Index] = [Stash['🗄️'+Msg['🗄️']][Stash['🗄️'+Msg['🗄️']].length - 1], Stash['🗄️'+Msg['🗄️']].indexOf(ID)];
+    const db = `🗄️${Msg['🏷️']}`, LastID = Stash[db][Stash[db].length - 1], Index= Stash[db].indexOf(ID);
     [Known[Msg['🗃️']], Msg['✔️']] = (Index != -1) ? [Index, true] : [0, false]    // That zero will be changed to an empty string later.
     Msg['✔️'] ? Shout(Msg, `🧜‍♂️ Lancer knows this place! He wrote it as ${ID} in row ${Index + 2}`, '\nClick on the ⭐ to update it.\n')
         : Shout(Msg, `🧜‍♂️ Lancer doesn't know this place. The last he wrote was ${LastID}`, '\nClick on the ⭐ to add this!\n');
@@ -113,10 +113,10 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation... Can live with that!
-    [Msg['🗃️'], Msg['🗄️']] = [await getTabID(Msg['🌍']), Msg['🌍'].split('.com/')[1].split('/')[0]];
-    const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
+    [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🌍']), Msg['🌍'].split('.com/')[1].split('/')[0]];
+    const get = `url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
     SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
-    (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg)
+    (Stash[db]) ? checkID(Stash[db], Msg)
         : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
 }); 
