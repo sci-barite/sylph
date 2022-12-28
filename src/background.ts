@@ -1,9 +1,14 @@
 // This is a big change: loading all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
-const preloadImageData = async (icon: string) => {
+const preloadImageData = async (icon: string) : Promise<ImageData> => {
     const response = await fetch(`images/sylph${icon}`), blob = await response.blob(), img = await createImageBitmap(blob);
     const [width, height] = [img.width, img.height], ctx = new OffscreenCanvas(width, height).getContext('2d');
     ctx!.drawImage(img, 0, 0, width, height);
     return ctx!.getImageData(0, 0, width, height);
+}
+
+const getTabID = async () : Promise<number> => {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tabs[0].id!
 }
 
 // Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
@@ -70,14 +75,12 @@ chrome.tabs.onUpdated.addListener((tabID, changeInfo) => {
 // This is where the work happens: when a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener((_id, bookmark)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bookmark.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    chrome.bookmarks.get((bookmark.parentId!), parent => {
-        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-            const tabID = tabs[0].id!, folder = parent[0].title, host = HostMap.find((host: string) => bookmark.url!.includes(host))!;
-            Silence(tabID); // Precaution, so we don't get double time animations in case one was still going on, or old messages sticking.
-            SylphAnimation['▶️'](tabID, 120);
-            chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bookmark.url, '💌': Known[tabID], '📁': folder});
-            console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`);
-        });
+    chrome.bookmarks.get(bookmark.parentId!, async parent => {
+        const tabID = await getTabID(), folder = parent[0].title, host = HostMap.find((host: string) => bookmark.url!.includes(host))!;
+        Silence(tabID); // Precaution, so we don't get double time animations in case one was still going on, or old messages sticking.
+        SylphAnimation['▶️'](tabID, 120);
+        chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bookmark.url, '💌': Known[tabID], '📁': folder});
+        console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`);
     });
 });
 
@@ -104,17 +107,15 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
 }
 
 // This reacts to the content script's actions; themselves triggered either by this background script's messages, or by the onLoad event.
-chrome.runtime.onMessage.addListener(Msg => {
+chrome.runtime.onMessage.addListener(async Msg => {
     if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
     if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation...
-    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {  // This time we need to find the tab: content scripts can't.
-        [Msg['🗃️'], Msg['🗄️']] = [tabs[0].id!, Msg['🌍'].split('.com/')[1].split('/')[0]];
-        const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
-        SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
-        console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
-        (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg)
-            : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
-    });
+    [Msg['🗃️'], Msg['🗄️']] = [await getTabID(), Msg['🌍'].split('.com/')[1].split('/')[0]];
+    const get = 'url=GetUnique'+(Msg['🗄️'] == 'jobs' ? 'Jobs' : 'Cands');
+    SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
+    console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
+    (Stash['🗄️'+Msg['🗄️']]) ? checkID(Stash['🗄️'+Msg['🗄️']], Msg)
+        : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
 }); 
