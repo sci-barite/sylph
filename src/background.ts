@@ -23,20 +23,22 @@ const IndexedLands: string[] = MagicalLands.slice(0,2); // Selecting here the on
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', ''));
 
+// Trying to externalize the animate function, to reduce indentation in SylphAnimation
+function Animate(Tabs: {[key: number]: number}, tabID: number, speed: number) {
+    if (!Tabs[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch.
+    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                              // In the unified Icons array, the animation is from index 2 to 11.
+    setTimeout(() => Animate(Tabs, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
+};
+
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Tabs: {},
-    '▶️': function(tabID: number, speed: number) {                     // Play emoji to play the animation!
-        this.Tabs[tabID] = 2;                                           // To have the icons all together, the animation 
-        const Animate = (tabID: number, speed: number) => {             // Arrow declaration was needed to have the right scope for "this".
-            if (!this.Tabs[tabID]) return;                              // Avoiding a level of indentation with a negative condition.
-            chrome.action.setIcon({tabId: tabID, imageData: Icons[this.Tabs[tabID]]}); // Much faster than string-building a path to fetch.
-            this.Tabs[tabID] = (this.Tabs[tabID] + 1) % 12 || 2;        // To have only one array of icons, we keep frames from index 2 to 11.
-            setTimeout(() => Animate(tabID, speed), speed);             // Sylph spell-casting animation for the win!!
-        };
-        Animate(tabID, speed);
+    '▶️': function(tabID: number, speed: number) {             // Play emoji to play the animation!
+        this.Tabs[tabID] = 2;                                   // This associated the desired tab to the first frame of the animation.
+        Animate(this.Tabs, tabID, speed);                       // Externalized this above.
     },
-    '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }        // Stop emoji to stop the animation!
+    '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }  // Stop emoji to stop the animation!
 };
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
