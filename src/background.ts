@@ -50,6 +50,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
     console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!`, AwakeSylph.conditions);
+    chrome.action.setBadgeBackgroundColor({color: [80, 230, 90, 230]});
 });
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
