@@ -1,3 +1,4 @@
+const SylphBadge = chrome.action.setBadgeText, Sylph = chrome.action, SylphSummon = chrome.declarativeContent;
 // This is a big change: loading all the icons in memory from the start, using OffscreenCanvas to avoid slowdowns. It should be faster.
 const preloadImageData = async (icon: string) : Promise<ImageData> => {
     const response = await fetch(`images/sylph${icon}`), blob = await response.blob(), img = await createImageBitmap(blob);
@@ -13,22 +14,22 @@ const getFolder = async (bmParentID: string) : Promise<string> => { return (awai
 // Keeping an array of icon names, and one of ImageData. Even if async, attributing each to its own index in the array ensures the wanted order.
 const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
+const Colors: chrome.action.ColorArray[] = [[230, 80, 90, 230], [80, 230, 90, 230], [80, 90, 230, 230]];    // Failure, success, default.
 
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
 
 // The arrays below rebuild the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
-const MagicalLands: string[] = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
-const IndexedLands: string[] = MagicalLands.slice(0,2); // Selecting here the ones we have indexes for. Might combine with Stash/Known above.
+const MagicalLands = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
-const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', ''));
+const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);
 
 // Trying to externalize the animate function, to reduce indentation in SylphAnimation
 function Animate(Tabs: {[key: number]: number}, tabID: number, speed: number) {
-    if (!Tabs[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch.
-    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                              // In the unified Icons array, the animation is from index 2 to 11.
-    setTimeout(() => Animate(Tabs, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
+    if (!Tabs[tabID]) return;                                       // Avoiding a level of indentation with a negative condition.
+    Sylph.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch.
+    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                      // In the unified Icons array, the animation is from index 2 to 11.
+    setTimeout(() => Animate(Tabs, tabID, speed), speed);           // Sylph spell-casting animation for the win!!
 };
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
@@ -43,14 +44,14 @@ const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, 
 
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
-    chrome.action.disable();
+    Sylph.disable();
     const AwakeSylph: {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
-        conditions: LandMap.map(hostAndPrefix => new chrome.declarativeContent.PageStateMatcher({pageUrl: hostAndPrefix})),
-        actions: [new chrome.declarativeContent.ShowAction()]
+        conditions: LandMap.map(hostAndPrefix => new SylphSummon.PageStateMatcher({pageUrl: hostAndPrefix})),
+        actions: [new SylphSummon.ShowAction()]
     };
-    chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
+    SylphSummon.onPageChanged.removeRules(undefined, ()=> {SylphSummon.onPageChanged.addRules([AwakeSylph])});
     console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!`, AwakeSylph.conditions);
-    chrome.action.setBadgeBackgroundColor({color: [80, 230, 90, 230]});
+    Sylph.setBadgeBackgroundColor({color: Colors[2]});
 });
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
@@ -59,9 +60,10 @@ chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 // A shortcut to reset a tab's icon and text to default.
 function Silence(tabID: number) {
     SylphAnimation['⏹️'](tabID)  // This is only in case the previous action didn't finish, or there's been an unexpected error.
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
-    chrome.action.setBadgeText({tabId: tabID, text: ''});
-    chrome.action.setTitle({tabId: tabID, title: ''});
+    Sylph.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
+    Sylph.setBadgeBackgroundColor({color: Colors[2]});
+    Sylph.setTitle({tabId: tabID, title: ''});
+    SylphBadge({tabId: tabID, text: ''});
 }
 
 // Now it checks when URL changes without an actual page reload, which happens a lot on LinkedIn. Either resets the UI or makes a new search.
@@ -83,13 +85,14 @@ chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking work
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
+    Sylph.setBadgeBackgroundColor({tabId: Msg['🗃️'], color: Colors[Msg['✔️'] ^ Msg['🧜‍♂️']]});     // Crazy uses of XOR here.
     Msg['✔️'] ^ Msg['🧜‍♂️'] ?     // Chat-GPT suggested XOR for this case; I would have never thought it myself!
-        (console.warn(text, Msg), chrome.action.setBadgeText({text: (Known[Msg['🗃️']] ? (Known[Msg['🗃️']]+2)+'' : 'ERR!'), tabId: Msg['🗃️']})) 
-        : (console.log(text, Msg), chrome.action.setBadgeText({text: (Msg['📝'] || ''), tabId: Msg['🗃️']}));    // The +'' is a type shortcut.
-    chrome.action.setTitle({tabId: Msg['🗃️'], title: text + (additional || '\n')});
+        (console.warn(text, Msg), SylphBadge({text: (Known[Msg['🗃️']] ? `${Known[Msg['🗃️']]+2}` : 'ERR!'), tabId: Msg['🗃️']})) 
+        : (console.log(text, Msg), SylphBadge({text: (Msg['📝'] || ''), tabId: Msg['🗃️']}));
+    Sylph.setTitle({tabId: Msg['🗃️'], title: `${text}${(additional || '\n')}`});
     setTimeout(() => SylphAnimation['⏹️'](Msg['🗃️']), 1080); //  Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200); // Crazy use of XOR here.
-    if (Msg['📝']) setTimeout(() => chrome.action.setBadgeText({text: '', tabId: Msg['🗃️']}), 3000); // So the badge doesn't cover the icon.
+    setTimeout(() => Sylph.setIcon({tabId: Msg['🗃️'], imageData: Icons[Msg['✔️'] ^ Msg['🧜‍♂️']]}), 1200);
+    if (Msg['📝']) setTimeout(() => Silence(Msg['🗃️']), 3000);
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
