@@ -4,7 +4,7 @@ window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebAp
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Msg => {
-    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL, '🗃️': Msg['🗃️']});   // A bit redundant...
+    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});   // A bit redundant...
     if (!Msg['🧚‍♀️']) return;
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
     const Sift = (Msg['🗺️']) ? window[`${Msg['🗺️']}Sift`](Msg) : {Failed: true, String: "❌ Sylph got lost!"}; // Bye bye switch and let!
