@@ -6,18 +6,19 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
     return ctx!.getImageData(0, 0, width, height);
 }
 
+// Keeping an array of icon names, and one of ImageData. Even if async, assigning each to its own index in the array ensures the wanted order.
+const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
+IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
+const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
+
 // Another conceptually big change, allowing to save on indentation and complexity, thanks to promises. Also, a utility alias for the badge.
 const getTabID = async (URL: string) : Promise<number> => { return (await chrome.tabs.query({ url: URL }))[0].id! }
 const getFolder = async (bmParentID: string) : Promise<string> => { return (await chrome.bookmarks.get((bmParentID)))[0].title }
+
 const SylphBadge = (tabID: number, color: chrome.action.ColorArray, text: string) => {
     chrome.action.setBadgeBackgroundColor({color: color, tabId: tabID}); 
     chrome.action.setBadgeText({text: text, tabId: tabID});
 }
-
-// Keeping an array of icon names, and one of ImageData. Even if async, assigning each to its own index in the array ensures the wanted order.
-const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
-IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
-const Colors: chrome.action.ColorArray[] = [[230, 80, 90, 230], [80, 230, 90, 230], [80, 90, 230, 230]];    // Failure, success, default.
 
 // Simpler than Session Storage... Might also start loading data here from the beginning instead of waiting for the first request.
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
@@ -25,15 +26,7 @@ const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {}
 // The arrays below rebuild the matches in the manifest in a way that can be used by both the bookmark listener and the PageStateMatcher!
 const MagicalLands = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
-const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);
-
-// Trying to externalize the animate function, to reduce indentation in SylphAnimation
-function Animate(Tabs: {[key: number]: number}, tabID: number, speed: number) {
-    if (!Tabs[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch.
-    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                              // In the unified Icons array, the animation is at index 2 to 11.
-    setTimeout(() => Animate(Tabs, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
-};
+const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
 
 // A new way of doing the animation, slightly more verbose, but providing clear methods to start and stop. Not sure how much better this is.
 const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
@@ -46,6 +39,14 @@ const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, 
     '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }  // Stop emoji to stop the animation!
 };
 
+// Trying to externalize the animate function, to reduce indentation in SylphAnimation
+function Animate(Tabs: {[key: number]: number}, tabID: number, speed: number) {
+    if (!Tabs[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch.
+    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                              // In the unified Icons array, the animation is at index 2 to 11.
+    setTimeout(() => Animate(Tabs, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
+};
+
 // This is not very useful, because it doesn't allow for changes in the title, only in the icon and only through canvas.
 chrome.runtime.onInstalled.addListener(()=> {
     chrome.action.disable();
@@ -55,7 +56,7 @@ chrome.runtime.onInstalled.addListener(()=> {
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
     console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!`, AwakeSylph.conditions);
-    chrome.action.setBadgeBackgroundColor({color: Colors[2]});
+    chrome.action.setBadgeBackgroundColor({color: Colors['👌']});  // Setting the default, although it's rarely used.
 });
 
 // Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever.
@@ -66,7 +67,7 @@ function Silence(tabID: number, text?: string) {
     SylphAnimation['⏹️'](tabID)  // This is only in case the previous action didn't finish, or there's been an unexpected error.
     chrome.action.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
     chrome.action.setTitle({tabId: tabID, title: text || ''});
-    SylphBadge(tabID, Colors[2], '');
+    SylphBadge(tabID, Colors['👌'], '');
 }
 
 // Now it checks when URL changes without an actual page reload, which happens a lot on LinkedIn. Either resets the UI or makes a new search.
@@ -81,19 +82,20 @@ chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking work
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
     const tabID = await getTabID(bm.url!), folder = await getFolder(bm.parentId!), host = HostMap.find((url: string) => bm.url!.includes(url));
     SylphAnimation['▶️'](tabID, 120);
-    chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder});
-    console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`);
+    (Known[tabID] < 0) ? (SylphBadge(tabID, Colors['👎'], `${Math.abs(Known[tabID])}`), setTimeout(() => Silence(tabID), 3600))
+        : (chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder}),
+           console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`));
 });
 
 // I found myself repeating this pattern, so I made a utility function.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
-    const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this; I would have never thought it myself!
-    How ? (console.warn(text, Msg), SylphBadge(tabID, Colors[How], (Known[tabID] ? `${Known[tabID]+2}` : 'ERR!'))) 
-        : (console.log(text, Msg), SylphBadge(tabID, Colors[How], (Msg['📝'] || '')));  // Crazy use of XOR instead of index was my idea!
+    const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this, then I got crazy with it!
+    How ? (console.warn(text, Msg), SylphBadge(tabID, Colors[Msg['✔️'] ? '👌' : '👎'], (Msg['✔️'] ? `${Known[tabID]+2}` : 'ERR!'))) 
+        : (console.log(text, Msg), SylphBadge(tabID, Colors['👍'], (Msg['📝'] || 'NEW!')), setTimeout(() => Silence(tabID), 3600)); 
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
     setTimeout(() => SylphAnimation['⏹️'](tabID), 1080);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1200);   // Same crazy use of XOR instead of index.
-    if (Msg['📝']) setTimeout(() => Silence(tabID), 3600);  // A delayed reset of the icon so the badge doesn't hide it too long.
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1200);   // Another crazy use of XOR: replacing an index!
+    if (Msg['📝']) Known[Msg['🗃️']] = -parseInt(Msg['📝']); // Distinguishing to avoid multiple uses for nothing.
 }
 
 // This used to be inside the listener below, but caused too much indentation to be comfortable.
