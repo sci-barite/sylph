@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
-const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
+const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
 
@@ -28,7 +28,7 @@ const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, 
     Tabs: {},
     '▶️': function(tabID: number, speed: number) {             // Play emoji to play the animation!
         Silence(tabID, "🧚‍♀️ Sylph is casting her spell...");    // Stops previous animations and displays a simple message in tooltip.
-        this.Tabs[tabID] = 2;                                   // This associated the desired tab to the first frame of the animation.
+        this.Tabs[tabID] = 2;                                   // This associates the desired tab to the first frame of the animation.
         Animate(this.Tabs, tabID, speed);                       // Externalized this above.
     },
     '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }  // Stop emoji to stop the animation!
@@ -79,14 +79,14 @@ function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArra
     chrome.action.setBadgeText({text: text, tabId: tabID});
 }
 
-// SHOUT: I found myself repeating this pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
+// SHOUT: I found myself repeating a similar pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this, then I got crazy with it!
     How ? (console.warn(text, Msg), SylphBadge(tabID, (Msg['✔️'] ? `${Known[tabID]+2}` : 'ERR!'), Colors[Msg['✔️'] ? '👌' : '👎'])) 
         : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Colors['👍']), setTimeout(() => Silence(tabID), 3600)); 
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
     setTimeout(() => SylphAnimation['⏹️'](tabID), 1080);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1200);   // Another crazy use of XOR: replacing an index!
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1170);   // Another crazy use of XOR: replacing an index!
     if (Msg['📝']) Known[Msg['🗃️']] = -parseInt(Msg['📝']); // Distinguishing to avoid multiple calls on pages that were added but not indexed.
 }
 
@@ -94,7 +94,7 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
 function Silence(tabID: number, text?: string) {
     SylphAnimation['⏹️'](tabID)  // This is only in case the previous action didn't finish, or there's been an unexpected error.
     chrome.action.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
-    chrome.action.setTitle({tabId: tabID, title: text || ''});
+    chrome.action.setTitle({tabId: tabID, title: text || ''});  // Adapted this to be able to display a message, optionally.
     SylphBadge(tabID, '');
 }
 
@@ -119,6 +119,5 @@ chrome.runtime.onMessage.addListener(async Msg => {
     const get = `url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
     SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
-    (Stash[db]) ? checkID(Stash[db], Msg)
-        : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
+    (Stash[db]) ? checkID(Stash[db], Msg) : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
 }); 
