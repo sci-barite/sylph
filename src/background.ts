@@ -8,6 +8,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
 const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
+const FirstAnimFrame = IconNames.findIndex(icon => icon.includes('casts')), LastAnimFrame = IconNames.length;   // To avoid "magic numbers".
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
 
@@ -24,22 +25,22 @@ const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.in
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
 
 // SYLPHANIMATION: An object providing methods to start and stop the icon animation. Handles different animations for different tabs.
-const SylphAnimation: {Tabs: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
-    Tabs: {},
-    '▶️': function(tabID: number, speed: number) {             // Play emoji to play the animation!
-        Silence(tabID, "🧚‍♀️ Sylph is casting her spell...");    // Stops previous animations and displays a simple message in tooltip.
-        this.Tabs[tabID] = 2;                                   // This associates the desired tab to the first frame of the animation.
-        Animate(this.Tabs, tabID, speed);                       // Externalized this above.
+const SylphAnimation: {Frames: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
+    Frames: {},                                                   // Used to be "Tabs", but tabIDs are used as keys, values are frame numbers.
+    '▶️': function(tabID: number, speed: number) {               // Play emoji to play the animation!
+        Silence(tabID, "🧚‍♀️ Sylph is casting her spell...");      // Stops previous animations and displays a simple message in tooltip.
+        this.Frames[tabID] = FirstAnimFrame;                      // This associates the tab to the index of the first icon with "casts" in name.
+        Animate(this.Frames, tabID, speed);                       // Externalized this above.
     },
-    '⏹️': function(tabID: number) { delete this.Tabs[tabID]; }  // Stop emoji to stop the animation!
+    '⏹️': function(tabID: number) { delete this.Frames[tabID]; } // Stop emoji to stop the animation!
 };
 
 // ANIMATE: The animation function, previously contained in SylphAnimation, now separate just to reduce indentation.
-function Animate(Tabs: {[key: number]: number}, tabID: number, speed: number) {
-    if (!Tabs[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[Tabs[tabID]]});   // Much faster than string-building a path to fetch; fluid animation!
-    Tabs[tabID] = (Tabs[tabID] + 1) % 12 || 2;                              // In the unified Icons array, the animation is at index 2 to 11.
-    setTimeout(() => Animate(Tabs, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
+function Animate(Frames: {[key: number]: number}, tabID: number, speed: number) {
+    if (!Frames[tabID]) return;                                               // Avoiding a level of indentation with a negative condition.
+    chrome.action.setIcon({tabId: tabID, imageData: Icons[Frames[tabID]]});   // Much faster than string-building and fetching; fluid animation!
+    Frames[tabID] = (Frames[tabID] + 1) % LastAnimFrame || FirstAnimFrame;    // If reaching the end frame, go back to first frame.
+    setTimeout(() => Animate(Frames, tabID, speed), speed);                   // Sylph spell-casting animation for the win!!
 };
 
 // INSTALL LISTENER: This handles the "rules" for icon deactivation and activation depending on website. Might include more in the future.
