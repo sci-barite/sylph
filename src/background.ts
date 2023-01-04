@@ -11,14 +11,18 @@ const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', .
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
-const getTabID = async (URL: string) : Promise<number> => { return (await chrome.tabs.query({ url: URL }))[0].id! }
+const getTabID = async (URL: string) : Promise<number> => { 
+    return (await chrome.tabs.query({ url: URL }))[0] ? (await chrome.tabs.query({ url: URL }))[0].id! 
+    : (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0].id!   // Needed only for Apollo: can't find by URL for some reason.
+}
 const getFolder = async (bmParentID: string) : Promise<string> => { return (await chrome.bookmarks.get((bmParentID)))[0].title }
 
 // UTILITY CONSTS: Storing website matches from the manifest to maintain them from there, plus cache containers and utility things.
 const MagicalLands = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
-const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
+const Color: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
+const Time: {[key: string]: number} = {'3️⃣': 3600, '2️⃣': 1200, '1️⃣': 1000, '🥇': 50, '🥈': 100}    // Not sure if intuitive...
 const FirstAnimFrame = IconNames.findIndex(icon => icon.includes('casts')), LastAnimFrame = IconNames.length;   // To avoid "magic numbers".
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};   // Temporary cache, easier than session storage or similar.
 
@@ -59,15 +63,15 @@ chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 chrome.tabs.onUpdated.addListener((tabID, change) => {
     if (!change.url) return;    // There can be changes due to pressing of buttons and stuff. We don't need those, so we exit early.
     if (!IndexedLands.some(indexed => change.url!.includes(indexed))) { Silence(tabID); delete Known[tabID]; } // Resets and rechecks if needed.
-    else { delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, 1200)};
+    else { delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, Time['2️⃣'])};
 })
 
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
     const tabID = await getTabID(bm.url!), folder = await getFolder(bm.parentId!), host = HostMap.find((url: string) => bm.url!.includes(url));
-    SylphAnimation['▶️'](tabID, 90);
-    (Known[tabID] < 0) ? (SylphBadge(tabID, `${Math.abs(Known[tabID])}`, Colors['👎']), setTimeout(() => Silence(tabID), 3600))
+    SylphAnimation['▶️'](tabID, Time['🥈']);
+    (Known[tabID] < 0) ? (SylphBadge(tabID, `${Math.abs(Known[tabID])}`, Color['👎']), setTimeout(() => Silence(tabID), Time['3️⃣']))
         : (chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder}),
            console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`));
 });
@@ -81,11 +85,11 @@ function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArra
 // SHOUT: I found myself repeating a similar pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR for this, then I got crazy with it!
-    How ? (console.warn(text, Msg), SylphBadge(tabID, (Msg['✔️'] ? `${Known[tabID]+2}` : 'ERR!'), Colors[Msg['✔️'] ? '👌' : '👎'])) 
-        : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Colors['👍']), setTimeout(() => Silence(tabID), 3600)); 
+    How ? (console.warn(text, Msg), SylphBadge(tabID, (Msg['✔️'] ? `${Known[tabID]+2}` : 'ERR!'), Color[Msg['✔️'] ? '👌' : '👎'])) 
+        : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']), setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); 
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
-    setTimeout(() => SylphAnimation['⏹️'](tabID), 1080);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), 1170);   // Another crazy use of XOR: replacing an index!
+    setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), Time['1️⃣']+Time['🥈']);   // Crazy: XOR result as index!
     if (Msg['📝']) Known[Msg['🗃️']] = -parseInt(Msg['📝']); // Distinguishing to avoid multiple calls on pages that were added but not indexed.
 }
 
@@ -113,10 +117,10 @@ chrome.runtime.onMessage.addListener(async Msg => {
     if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
-    if      (Msg['🧚‍♀️']) return; // It's an extra check, but it saves us from an extra indentation... Can live with that!
+    if      (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
     [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🌍']), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = `url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
-    SylphAnimation['▶️'](Msg['🗃️'], 60); // Double time animation, to represent a quick lookup.
+    SylphAnimation['▶️'](Msg['🗃️'], Time['🥇']); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
     (Stash[db]) ? checkID(Stash[db], Msg) : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
 }); 

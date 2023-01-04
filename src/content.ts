@@ -4,8 +4,8 @@ window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebAp
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Msg => {
-    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});   // A bit redundant...
-    if (!Msg['🧚‍♀️']) return;
+    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});    // Same as above for pages that don't really load.
+    if (!Msg['🧚‍♀️']) return;     // Could be put together with the above, since all other messages will have the "fairy" property.
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
     const Sift = (Msg['🗺️']) ? window[`${Msg['🗺️']}Sift`](Msg) : {Failed: true, String: "❌ Sylph got lost!"}; // Bye bye switch and let!
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     if (Sift.Failed) return;    // This allows us to give the error message but continue, in a hypthetical case that we still don't have.
     const LancerURI = `${LancerWebApp}${Sift.String}&ex=${(Msg['💌'] || '')}`;  // It's sent in every case, so we must convert undefined.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
-    const Lancer = new XMLHttpRequest();
+    const Lancer = new XMLHttpRequest();    // All this could in theory be delegated to the service worker, and done with fetch.
     Lancer.onreadystatechange = () => {
         if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
         console.log(Lancer.status, Lancer.response);
