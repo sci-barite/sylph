@@ -8,21 +8,19 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
 const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
-const FirstAnimFrame = IconNames.findIndex(icon => icon.includes('casts')), LastAnimFrame = IconNames.length;   // To avoid "magic numbers".
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
-const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
 const getTabID = async (URL: string) : Promise<number> => { return (await chrome.tabs.query({ url: URL }))[0].id! }
 const getFolder = async (bmParentID: string) : Promise<string> => { return (await chrome.bookmarks.get((bmParentID)))[0].title }
 
-// CACHE OBJECTS: Simpler than Session Storage. Might also start loading data here from the beginning instead of waiting for the first request.
-const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};
-
-// URL ARRAYS: They rebuild the matches in the manifest in a way that can be used by Bookmark Listener, Declarative Content, and OnUpdated.
+// UTILITY CONSTS: Storing website matches from the manifest to maintain them from there, plus cache containers and utility things.
 const MagicalLands = chrome.runtime.getManifest().content_scripts![0].matches!.map(site => site.split('//')[1].replaceAll('*', ''));
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
+const Colors: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
+const FirstAnimFrame = IconNames.findIndex(icon => icon.includes('casts')), LastAnimFrame = IconNames.length;   // To avoid "magic numbers".
+const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};   // Temporary cache, easier than session storage or similar.
 
 // SYLPHANIMATION: An object providing methods to start and stop the icon animation. Handles different animations for different tabs.
 const SylphAnimation: {Frames: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
