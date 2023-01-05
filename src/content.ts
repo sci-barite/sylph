@@ -1,10 +1,10 @@
 interface Window {[key:string]: any}    // Needed to find functions by name on the window object.
 // This is to check for existing entries. The work is done by the service worker, not to slow down the page.
-window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL}); }
+window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL, '🔤': document.title}); }
 
 // All the work is done by this listener, and the functions it calls (from scripts that are injected selectively depending on the website.)
 chrome.runtime.onMessage.addListener(Msg => {
-    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL});    // Same as above for pages that don't really load.
+    if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL, '🔤': document.title}); // When onload is not triggered.
     if (!Msg['🧚‍♀️']) return;     // Could be put together with the above, since all other messages will have the "fairy" property.
     console.log('🧚‍♀️ Sylph Sifts!', Msg);
     const Sift = (Msg['🗺️']) ? window[`${Msg['🗺️']}Sift`](Msg) : {Failed: true, String: "❌ Sylph got lost!"}; // Bye bye switch and let!
