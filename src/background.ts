@@ -86,12 +86,12 @@ function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArra
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     const tabID = Msg['🗃️'], How = Msg['✔️'] ^ Msg['🧜‍♂️'], Err = Msg['✔️'] === undefined; // Chat-GPT suggested XOR, then I got crazy with it!
     Err ? (console.error(text, Msg), SylphBadge(tabID, 'ERR!', Color['👎']))
-        : (How ? (console.warn(text, Msg), SylphBadge(tabID, `${Known[tabID]+2}`, Color['👌'])) 
-            : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']))); 
+        : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Known[tabID]+2}`, Color['👌'])) 
+            : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍'])); 
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
     setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[How]}), Time['1️⃣']+Time['🥈']);   // Crazy: XOR result as index!
-    !Err && !How ? (Known[Msg['🗃️']] = -parseInt(Msg['📝']), setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])) : true; // See bookmarks.
+    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How]}), Time['1️⃣']+Time['🥈']);   // XOR result as index!
+    !Err && !How ? (Known[tabID] = -parseInt(Msg['📝']) || 0, setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])) : true; // See bookmarks.
 }
 
 // SILENCE: The contrary of the above, it cleans up any changes to icon, badge, animation, text etc. when it needs to be reset for any reason.
