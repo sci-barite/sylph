@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
-const Icons: ImageData[] = [], IconNames: string[] = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
+const Icons: ImageData[] = [], IconNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
@@ -48,7 +48,7 @@ chrome.runtime.onInstalled.addListener(()=> {
         actions: [new chrome.declarativeContent.ShowAction()]
     };
     chrome.declarativeContent.onPageChanged.removeRules(undefined, ()=> {chrome.declarativeContent.onPageChanged.addRules([AwakeSylph])});
-    console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!`, AwakeSylph.conditions);
+    console.log(`🧚‍♀️ Sylph can visit the following lands today... Awaiting orders!\n`, AwakeSylph.conditions);
 });
 
 // TAB REMOVED LISTENER: Needed for SylphAnimation, or it will keep trying to animate the icons of closed tabs forever, logging error each try.
@@ -64,11 +64,11 @@ chrome.tabs.onUpdated.addListener((tabID, change) => {
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    const tabID = await getTabID(bm.title!), folder = await getFolder(bm.parentId!), host = HostMap.find((url: string) => bm.url!.includes(url));
+    const tabID = await getTabID(bm.title!), folder = await getFolder(bm.parentId!), host = HostMap.find(url => bm.url!.includes(url)), Msg = {};
     SylphAnimation['▶️'](tabID, Time['🥈']);
     (Known[tabID] < 0) ? (SylphBadge(tabID, `${Math.abs(Known[tabID])}`, Color['👎']), setTimeout(() => Silence(tabID), Time['3️⃣']))
-        : (chrome.tabs.sendMessage(tabID, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder}),
-           console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell from ${tabID}...`));
+        : (Object.assign(Msg, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder}),
+           chrome.tabs.sendMessage(tabID, Msg), console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell...\n`, Coldsnap(Msg)));
 });
 
 // SYLPHBADGE: Utility function to save repetition and characters, since all the time we specify a badge text, we also want to set a color.
@@ -77,14 +77,17 @@ function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArra
     chrome.action.setBadgeText({text: text, tabId: tabID});
 }
 
+// COLDSNAP: Simple utility function to show a snapshot of an object at a given point in time, useful for logging.
+function Coldsnap(any: any) { return JSON.parse(JSON.stringify(any)) };
+
 // SHOUT: I found myself repeating a similar pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
 function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     const tabID = Msg['🗃️'], Err = Msg['✔️'] === undefined, How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR, then I got crazy with it!
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
-    Err ? (console.error(text, Msg), SylphBadge(tabID, 'ERR!', Color['👎']))
-        : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Known[tabID]+2}`, Color['👌'])) 
-            : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']), Known[tabID] = -parseInt(Msg['📝']) || 0,
-               setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); // The positive badge disappears to make the "ready" icon more visible.
+    Err ? (console.error(text, Coldsnap(Msg)), SylphBadge(tabID, 'ERR!', Color['👎']))
+        : How ? (console.warn(text, Coldsnap(Msg)), SylphBadge(tabID, `${Known[tabID]+2}`, Color['👌'])) 
+              : (console.log(text, Coldsnap(Msg)), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']),
+                 Known[tabID] = -parseInt(Msg['📝']) || 0, setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); // Hides the badge after 3s.
     setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
     setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How]}), Time['1️⃣']+Time['🥈']);   // XOR result as index!
 }
@@ -104,19 +107,19 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const db = `🗄️${Msg['🏷️']}`, LastID = Stash[db][Stash[db].length - 1], Index= Stash[db].indexOf(ID);
     [Known[Msg['🗃️']], Msg['✔️']] = (Index != -1) ? [Index, true] : [0, false]    // That zero will be changed to an empty string later.
-    Msg['✔️'] ? Shout(Msg, `🧜‍♂️ Lancer knows this place! He wrote it as ${ID} in row ${Index + 2}`, '\nClick on the ⭐ to update it.\n')
-        : Shout(Msg, `🧜‍♂️ Lancer doesn't know this place. The last he wrote was ${LastID}`, '\nClick on the ⭐ to add this!\n');
+    Msg['✔️'] ? Shout(Msg, `🧜‍♂️ Lancer knows this place! He wrote it as ${ID} in row ${Index + 2}\n`, '\nClick on the ⭐ to update it.\n')
+        : Shout(Msg, `🧜‍♂️ Lancer doesn't know this place. The last he wrote was ${LastID}\n`, '\nClick on the ⭐ to add this!\n');
 }
 
 // MESSAGE LISTENER: Reacts to the content script's actions; themselves replies to either this service worker's messages, or the onLoad event.
 chrome.runtime.onMessage.addListener(async Msg => {
-    if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
-    else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}`);
-    else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}`);
+    if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+    else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
+    else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     if      (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
     [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🔤']), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = `url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
     SylphAnimation['▶️'](Msg['🗃️'], Time['🥇']); // Double time animation, to represent a quick lookup.
-    console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...', Msg, get);
+    console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...\n', Coldsnap(Msg));
     (Stash[db]) ? checkID(Stash[db], Msg) : fetch(Msg['🧜‍♂️']+get).then((response) => response.text()).then((data) => {checkID(data, Msg)});
 }); 

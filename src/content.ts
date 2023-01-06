@@ -6,10 +6,10 @@ window.onload = () => { chrome.runtime.sendMessage({'🧜‍♂️': LancerWebAp
 chrome.runtime.onMessage.addListener(Msg => {
     if (Msg['✨']) chrome.runtime.sendMessage({'🧜‍♂️': LancerWebApp, '🌍': document.URL, '🔤': document.title}); // When onload is not triggered.
     if (!Msg['🧚‍♀️']) return;     // Could be put together with the above, since all other messages will have the "fairy" property.
-    console.log('🧚‍♀️ Sylph Sifts!', Msg);
+    console.log('🧚‍♀️ Sylph Sifts!', JSON.parse(JSON.stringify(Msg)));
     const Sift = (Msg['🗺️']) ? window[`${Msg['🗺️']}Sift`](Msg) : {Failed: true, String: "❌ Sylph got lost!"}; // Bye bye switch and let!
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
-    if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({'🧚‍♀️': true, '❌': Sift.String, '🗃️': Msg['🗃️']}); 
+    if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({...Msg, '❌': Sift.String}); 
     if (Sift.Failed) return;    // This allows us to give the error message but continue, in a hypthetical case that we still don't have.
     const LancerURI = `${LancerWebApp}${Sift.String}&ex=${(Msg['💌'] || '')}`;  // It's sent in every case, so we must convert undefined.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
@@ -18,8 +18,8 @@ chrome.runtime.onMessage.addListener(Msg => {
         if (Lancer.readyState !== XMLHttpRequest.DONE) return;  // Negative check to save on indentation.
         console.log(Lancer.status, Lancer.response);
         const Row = Lancer.response.split(':')[0].slice(-4);
-        if (Lancer.status == 200) chrome.runtime.sendMessage({'🧚‍♀️': true, '✔️': Lancer.response, '📝': Row, '🗃️': Msg['🗃️']});
-        else chrome.runtime.sendMessage({'🧚‍♀️': true, '❓': Lancer.response, '🗃️': Msg['🗃️']});
+        if (Lancer.status == 200) chrome.runtime.sendMessage({...Msg, '✔️': Lancer.response, '📝': Row});
+        else chrome.runtime.sendMessage({...Msg, '❓': Lancer.response});
     }
     Lancer.open('GET', LancerURI, true);
     Lancer.send();
