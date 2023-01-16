@@ -11,7 +11,7 @@ const Icons: ImageData[] = [], IconNames = ['32.png', '-hurt64.png', ...Array.fr
 IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
-const getTabID: (title: string) => Promise<number> = async title => (await chrome.tabs.query({ title: title }))[0].id!;
+const getTabID: (title: string) => Promise<number> =  async title => (await chrome.tabs.query({ title: title }))[0].id!;
 const getFolder: (bmParentID: string) => Promise<string> = async bmParentID => (await chrome.bookmarks.get((bmParentID)))[0].title;
 
 // UTILITY CONSTS: Storing website matches from the manifest to maintain them from there, plus cache containers and utility things.
