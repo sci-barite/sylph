@@ -5,12 +5,16 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     const Signals : NodeListOf<HTMLElement> = document.querySelectorAll(".zp_KqZzF");
     Signals.forEach(elem => { if (elem.innerText.includes('Job')) elem!.click()}); // Click to display jobs!
     
-    const links = document.querySelector(".zp_I1ps2")!.childNodes;
-    const COMPANY_LINK = (links[0] as HTMLElement).attributes[1].value;
-    const COMPANY = links[1] ? (links[1] as HTMLElement).attributes[1].value : COMPANY_LINK;
-    const PERSON_LINK = (document.querySelector(".zp__iJHP")!.childNodes[2] as HTMLElement).attributes[1].value!
-    const PERSON = document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-") ? 
-        (document.querySelector("a.zp-link.zp_3_fnL.zp_W8nfn.zp_3IiJ-") as HTMLElement).innerText :  // Credit used override: Email
+    const compLinks = document.querySelector(".zp_I1ps2");
+    if (!compLinks) return {Failed: true, String: '❌ She sees no account associated to this human!'};
+    const COMPANY_LINK = (compLinks.childNodes[0] as HTMLElement).attributes[1].value;
+    const COMPANY = compLinks.childNodes[1] ? (compLinks.childNodes[1] as HTMLElement).attributes[1].value : COMPANY_LINK;
+    const linkedIn = Array.from(document.querySelectorAll("a.zp-link.zp_OotKe")).filter(ahref => {
+        if (ahref.attributes[1]) return ahref.attributes[1].value.includes("linkedin")
+    });
+    const PERSON_LINK = (linkedIn[0] as HTMLElement).attributes[1].value;
+    const PERSON = document.querySelector("a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf") ? 
+        (document.querySelector("a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf") as HTMLElement).innerText :  // Credit used override: Email
         (document.querySelector(".zp_lMvaV.zp_JKOw3") as HTMLElement).innerText.trim();  // Fallback (new contact): Company name
     const APPLICANTS = document.querySelector("a.zp-link.zp_3_fnL.zp_1AaQP") ? 
         (document.querySelector("a.zp-link.zp_3_fnL.zp_1AaQP") as HTMLElement).innerText : // Credit used override: Phone
