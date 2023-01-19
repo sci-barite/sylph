@@ -1,6 +1,10 @@
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
 function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
-    if (!document.querySelector('#location_detail_card')) return {Failed: true, String: '❌ She sees no human here!'};
+    if (!document.querySelector('#location_detail_card')) {
+        if (!document.querySelectorAll("tr.zp_cWbgJ").length)
+            return {Failed: true, String: '❌ She sees no human here!'};
+        else return apolloListSift()
+    }
     
     const Signals : NodeListOf<HTMLElement> = document.querySelectorAll(".zp_KqZzF");
     Signals.forEach(elem => { if (elem.innerText.includes('Job')) elem!.click()}); // Click to display jobs!
@@ -33,4 +37,22 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     const PARAM_STRING : string = 'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
             '&app='+APPLICANTS+'&personlink='+PERSON_LINK+'&comp='+COMPANY+'&complink='+COMPANY_LINK+'&compsize='+COMPANY_SIZE+'&more='+MORE;
     return {Failed: false, String: PARAM_STRING};  
+}
+
+function apolloListSift() : {Failed:boolean, String:string} {
+    const List: {[key: string]: string[][]}[] = [{Header: []}];
+
+    document.querySelector("thead")?.childNodes.forEach(tr => tr.childNodes
+        .forEach(th => List[0].Header.push([(th as HTMLElement).innerText])));
+    document.querySelectorAll("tr.zp_cWbgJ")
+    .forEach((tr, row) => { row = row+1; List.push({['Row'+row]: []}); tr.childNodes
+        .forEach((td, col) => {const elem = td as HTMLElement; List[row]['Row'+row].push([elem.innerText]); td.childNodes
+            .forEach(child => {
+                const hrefs = (child as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
+                hrefs.forEach(href => List[row]['Row'+row][col].push(href.toString()));
+            });
+        });
+    });
+
+    return {Failed: true, String: JSON.stringify(List)}
 }
