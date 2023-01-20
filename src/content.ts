@@ -12,7 +12,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({...Msg, '❌': Sift.String});
     if (Sift.String.includes("Header")) chrome.runtime.sendMessage({...Msg, '✔️': 'L', '🧜‍♂️': LancerURL, '📝': 'LIST', '📃': Sift.String});
     if (Sift.Failed) return;    // This allows us to give the error message but continue, in a hypthetical case that we still don't have.
-    const LancerURI = `${LancerURL}${Sift.String}&ex=${(Msg['💌'] || '')}`;  // It's sent in every case, so we must convert undefined.
+    const LancerURI = `${LancerURL}?${Sift.String}&ex=${(Msg['💌'] || '')}`;  // It's sent in every case, so we must convert undefined.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
     const Lancer = new XMLHttpRequest();    // All this could in theory be delegated to the service worker, and done with fetch.
     Lancer.onreadystatechange = () => {

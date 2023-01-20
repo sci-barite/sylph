@@ -110,15 +110,13 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
 
 // MESSAGE LISTENER: Reacts to the content script's actions; themselves replies to either this service worker's messages, or the onLoad event.
 chrome.runtime.onMessage.addListener(async Msg => {
-    if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+    if      (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(() => Shout(Msg, `🧚‍♀️ Sylph lists!\n`));
+    else if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
-    else if (Msg['📃']) {fetch(Msg['🧜‍♂️'].replace('?', ''), {method: 'POST', headers: {'Content-Type': 'application/json'},body: 'ApolloList:'+JSON.stringify(Msg['📃'])})
-        .then(resp => resp.text()).then(data => {Shout(Msg, `🧚‍♀️ Sylph has a list!\n`); console.log('Response: '+data)});
-    }
     if      (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
     [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🔤']), Msg['🌍'].split('.com/')[1].split('/')[0]];
-    const get = `url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
+    const get = `?url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
     SylphAnimation['▶️'](Msg['🗃️'], Time['🥇']); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...\n', Msg);
     (Stash[db]) ? checkID(Stash[db], Msg) : fetch(Msg['🧜‍♂️']+get).then(response => response.text()).then(data => {checkID(data, Msg)});
