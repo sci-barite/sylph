@@ -40,10 +40,10 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 }
 
 function apolloListSift() : {Failed:boolean, String:string} {
-    const List: {[key: string]: string[][]}[] = [{Header: []}];
+    //const List: {[key: string]: string[][]}[] = [{Header: []}];
 
-    document.querySelector("thead")?.childNodes.forEach(tr => tr.childNodes
-        .forEach(th => List[0].Header.push([(th as HTMLElement).innerText])));
+    //List[0].Header = Array.from(document.querySelectorAll("th"))?.map(th => [(th as HTMLElement).innerText]);
+    /**
     document.querySelectorAll("tr.zp_cWbgJ")
     .forEach((tr, row) => { row = row+1; List.push({['Row'+row]: []}); tr.childNodes
         .forEach((td, col) => {const elem = td as HTMLElement; List[row]['Row'+row].push([elem.innerText]); td.childNodes
@@ -52,7 +52,28 @@ function apolloListSift() : {Failed:boolean, String:string} {
                 hrefs.forEach(href => List[row]['Row'+row][col].push(href.toString()));
             });
         });
-    });
+    }); */
 
-    return {Failed: true, String: JSON.stringify(List)}
+    const test : {[key: string]: string}[] = [];
+    const Header = Array.from(document.querySelectorAll("th"))?.map(th => (th as HTMLElement).innerText);
+    const Columns = Header.map(column => column.includes(' ') ? column.split(' ')[1] : column);
+
+    document.querySelectorAll("tr.zp_cWbgJ").forEach((tr, Row) => {
+        test.push({});
+        tr.childNodes.forEach((td, col) => {
+            const elem = td as HTMLElement; test[Row][Columns[col]] = elem.innerText; 
+            td.childNodes.forEach(child => {
+                const hrefs = (child as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
+                hrefs.forEach(href => {
+                    if (href.includes('linkedin')) test[Row][Columns[col]+'_linkedin'] = href.toString();
+                    else if (href.includes('#')) test[Row][Columns[col]+'_apollo'] = href.toString();
+                    else if (!href.includes('facebook') && !href.includes('twitter')) test[Row][Columns[col]+'_web'] = href.toString();
+                });
+            });
+        });
+    });
+    console.log(Columns);
+    //if (test.length > 1) return {Failed: true, String: '❌ Just testing: '+JSON.stringify(test)};
+
+    return {Failed: true, String: JSON.stringify(test)}
 }
