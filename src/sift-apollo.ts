@@ -51,11 +51,10 @@ function apolloListSift() : {Failed:boolean, String:string} {
             Table[Row][Columns[col]] = (td as HTMLElement).innerText;
             if (Columns[col] != 'Name' && Columns[col] != 'Company') return;    // No point in checking anything other than these two.
             const hrefs = (td as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
-            const links = hrefs.length > 2 ? hrefs.filter(url => !url.includes('facebook') && !url.includes('twitter')) : hrefs; // Chaff...
-            links.forEach(link => {
+            hrefs.forEach(link => {
                 if (link.includes('#')) Table[Row][Columns[col]+'_apollo'] = link;
                 else if (link.includes('linkedin')) Table[Row][Columns[col]+'_linkedin'] = link;
-                else Table[Row][Columns[col]+'_web'] = link;
+                else if (!link.includes('facebook') && !link.includes('twitter')) Table[Row][Columns[col]+'_web'] = link;
             });
         });
     });
