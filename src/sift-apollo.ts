@@ -48,9 +48,9 @@ function apolloListSift() : {Failed:boolean, String:string} {
     document.querySelectorAll("tr.zp_cWbgJ").forEach((tr, Row) => {
         Table.push({}); // An empty row is pushed first, to have an index to refer to, via Row.
         tr.childNodes.forEach((td, col) => {
-            Table[Row][Columns[col]] = (td as HTMLElement).innerText; 
+            Table[Row][Columns[col]] = (td as HTMLElement).innerText;
+            if (Columns[col] != 'Name' && Columns[col] != 'Company') return;
             const hrefs = (td as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
-            if (hrefs.length == 0) return;  // No need to process anything else if there's no links.
             const links = hrefs.length > 2 ? hrefs.filter(url => !url.includes('facebook') && !url.includes('twitter')) : hrefs; // Chaff...
             links.forEach(link => {
                 if (link.includes('#')) Table[Row][Columns[col]+'_apollo'] = link;
