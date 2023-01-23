@@ -1,7 +1,7 @@
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
 function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
     if (!document.querySelector('#location_detail_card')) {
-        if (!document.querySelectorAll("tr.zp_cWbgJ").length)
+        if (!document.querySelectorAll("tr.zp_cWbgJ").length)   // Shows there is a table of (hopefully) contacts.
             return {Failed: true, String: '❌ She sees no human here!'};
         else return apolloListSift()
     }
@@ -40,40 +40,25 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 }
 
 function apolloListSift() : {Failed:boolean, String:string} {
-    //const List: {[key: string]: string[][]}[] = [{Header: []}];
-
-    //List[0].Header = Array.from(document.querySelectorAll("th"))?.map(th => [(th as HTMLElement).innerText]);
-    /**
-    document.querySelectorAll("tr.zp_cWbgJ")
-    .forEach((tr, row) => { row = row+1; List.push({['Row'+row]: []}); tr.childNodes
-        .forEach((td, col) => {const elem = td as HTMLElement; List[row]['Row'+row].push([elem.innerText]); td.childNodes
-            .forEach(child => {
-                const hrefs = (child as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
-                hrefs.forEach(href => List[row]['Row'+row][col].push(href.toString()));
-            });
-        });
-    }); */
-
-    const test : {[key: string]: string}[] = [];
+    const Table : {[key: string]: string}[] = [];
     const Header = Array.from(document.querySelectorAll("th"))?.map(th => (th as HTMLElement).innerText);
+    if (!Header.includes('Title')) return {Failed: true, String: '❌ She sees no humans in this list!'};
     const Columns = Header.map(column => column.includes(' ') ? column.split(' ')[1] : column);
-
+    
     document.querySelectorAll("tr.zp_cWbgJ").forEach((tr, Row) => {
-        test.push({});
+        Table.push({}); // An empty row is pushed first, to have an index to refer to, via Row.
         tr.childNodes.forEach((td, col) => {
-            const elem = td as HTMLElement; test[Row][Columns[col]] = elem.innerText; 
-            td.childNodes.forEach(child => {
-                const hrefs = (child as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
-                hrefs.forEach(href => {
-                    if (href.includes('linkedin')) test[Row][Columns[col]+'_linkedin'] = href.toString();
-                    else if (href.includes('#')) test[Row][Columns[col]+'_apollo'] = href.toString();
-                    else if (!href.includes('facebook') && !href.includes('twitter')) test[Row][Columns[col]+'_web'] = href.toString();
-                });
+            Table[Row][Columns[col]] = (td as HTMLElement).innerText; 
+            const hrefs = (td as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
+            if (hrefs.length == 0) return;  // No need to process anything else if there's no links.
+            const links = hrefs.length > 2 ? hrefs.filter(url => !url.includes('facebook') && !url.includes('twitter')) : hrefs; // Chaff...
+            links.forEach(link => {
+                if (link.includes('#')) Table[Row][Columns[col]+'_apollo'] = link;
+                else if (link.includes('linkedin')) Table[Row][Columns[col]+'_linkedin'] = link;
+                else Table[Row][Columns[col]+'_web'] = link;
             });
         });
     });
-    console.log(Columns);
-    //if (test.length > 1) return {Failed: true, String: '❌ Just testing: '+JSON.stringify(test)};
 
-    return {Failed: true, String: JSON.stringify(test)}
+    return {Failed: true, String: JSON.stringify(Table)}
 }
