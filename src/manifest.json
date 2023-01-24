@@ -21,6 +21,7 @@
                 "https://*.linkedin.com/in/*", 
                 "https://*.linkedin.com/jobs/view/*", 
                 "https://djinni.co/home/inbox/*", 
+                "https://djinni.co/q/*",
                 "https://*.upwork.com/ab/applicants/*", 
                 "https://*.upwork.com/freelancers/*",
                 "https://*.apollo.io/*"
@@ -39,7 +40,7 @@
         {
             "js": ["sift-djinni.js"],
             "run_at": "document_idle",
-            "matches": ["https://djinni.co/home/inbox/*"]
+            "matches": ["https://djinni.co/home/inbox/*", "https://djinni.co/q/*"]
         },
         {
             "js": ["sift-apollo.js"],
