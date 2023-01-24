@@ -29,7 +29,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
     const Jobs = Array.from(document.querySelectorAll(".zp-link.zp_OotKe"))
         .filter(elem => positions.some(position => (elem as HTMLElement).innerText.includes(position)));
-    const MORE = Jobs.map(elem => elem.innerHTML.split('" target')[0].split('href="')[1].split('?')[0]);
+    const MORE = Jobs.map(elem => elem.attributes[1].value);;
     const DATE = Jobs.length; // Comments
     const NAME = document.title.split(" - Apollo")[0];
     const LINK = (document.URL.includes('contacts') ? "apollo/contacts/" : "apollo/people/")+document.URL.substring(document.URL.length -24);
