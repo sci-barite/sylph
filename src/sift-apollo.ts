@@ -5,11 +5,11 @@ type ApolloContact = {
 
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
 function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
-    const apolloContactSetup = {    // Conditions, error messages, alternative parsing, and data to format the URL
+    const apolloContactSetup = {    // Conditions, error messages, alternative parsing function. These might become modular one day.
         condition1: '#location_detail_card', condition1a: 'tr.zp_cWbgJ', condition2: '.zp_I1ps2',
         error1: '❌ She sees no human here!', error2: "❌ This human's account has been exiled!", alternativeSift: 'apolloListSift'
     }
-    const apolloClasses = { 
+    const apolloClasses = { // All these plus the conditions above will be converted into NodeListOf<HTMLElement> for convenience.
         signalsPanelEntries: '.zp_KqZzF', company_links: '.zp_I1ps2', allLinks: 'a.zp-link.zp_OotKe',
         email: "a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf", company: '.zp_lMvaV.zp_JKOw3', phone: 'a.zp-link.zp_3_fnL.zp_1AaQP',
         title: '.zp_LkFHT', location: '.zp_hYCdb.zp_CZF_z', employees: '.zp_nowuD.zp_a_Jcv', name: '.zp__iJHP'
@@ -26,7 +26,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     }
     if (!elements.condition2[0]) return {Failed: true, String: apolloContactSetup.error2};   // Means there is no company info associated.
 
-    Array.from(elements.signalsPanelEntries).forEach(signal => { if (signal.innerText.includes('Job')) signal!.click()});   // Displays jobs
+    Array.from(elements.signalsPanelEntries).forEach(signal => { if (signal.innerText.includes('Job')) signal!.click()});   // Displays jobs.
     
     const company_link = elements.company_links[0].childNodes[0] as HTMLElement;
     const allLinks : HTMLElement[] = Array.from(document.querySelectorAll(apolloClasses.allLinks));
