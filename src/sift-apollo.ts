@@ -75,6 +75,5 @@ function apolloListSift(rowIdent: string) : {Failed:boolean, String:string} {
             });
         });
     });
-
     return {Failed: true, String: JSON.stringify(Table)}
 }
