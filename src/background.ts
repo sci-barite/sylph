@@ -82,7 +82,7 @@ function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
     const tabID = Msg['🗃️'], Err = Msg['✔️'] === undefined, How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR, then I got crazy with it!
     chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
     Err ? (console.error(text, Msg), SylphBadge(tabID, 'ERR!', Color['👎']))
-        : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Known[tabID]+2}`, Color['👌'])) 
+        : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Msg['📝'] || Known[tabID]+2}`, Color['👌'])) 
               : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']),
                  Known[tabID] = -parseInt(Msg['📝']) || 0, setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); // Hides the badge after 3s.
     setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
@@ -111,9 +111,9 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
 // MESSAGE LISTENER: Reacts to the content script's actions; themselves replies to either this service worker's messages, or the onLoad event.
 chrome.runtime.onMessage.addListener(async Msg => {
     if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
-        const Row = data.split(':')[0].slice(-4)
-        data.includes('🧜‍♂️') ? (Msg['✔️'] = data, Msg['📝'] = Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row) : Msg['❌'] = data;
-         if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+        const Row = data.split(':')[0].slice(-4), RowN = (data.includes('0 new') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
+        data.includes('🧜‍♂️') ? (Msg['✔️'] = (RowN ? false : true), Msg['📝'] = RowN || 'None') : Msg['❌'] = data;
+         if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
          else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
     else if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
@@ -124,4 +124,4 @@ chrome.runtime.onMessage.addListener(async Msg => {
     SylphAnimation['▶️'](Msg['🗃️'], Time['🥇']); // Double time animation, to represent a quick lookup.
     console.log('🧚‍♀️ Sylph is summoning 🧜‍♂️ Lancer...\n', Msg);
     (Stash[db]) ? checkID(Stash[db], Msg) : fetch(Msg['🧜‍♂️']+get).then(response => response.text()).then(data => {checkID(data, Msg)});
-}); 
+});
