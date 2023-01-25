@@ -11,7 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/chrome": "0.0.197",
-    "@types/google-apps-script": "^1.0.55",
+    "@types/google-apps-script": "^1.0.57",
     "@types/offscreencanvas": "^2019.7.0",
     "types": "^0.1.1"
   },
