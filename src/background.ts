@@ -110,7 +110,11 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
 
 // MESSAGE LISTENER: Reacts to the content script's actions; themselves replies to either this service worker's messages, or the onLoad event.
 chrome.runtime.onMessage.addListener(async Msg => {
-    if      (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(() => Shout(Msg, `🧚‍♀️ Sylph lists!\n`));
+    if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
+        const Row = data.split(':')[0].slice(-4)
+        data.includes('🧜‍♂️') ? (Msg['✔️'] = data, Msg['📝'] = Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row) : Msg['❌'] = data;
+         if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+         else Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully, but Lancer did't!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
     else if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
