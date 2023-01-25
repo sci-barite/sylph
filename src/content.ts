@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(Msg => {
     const Sift = (Msg['🗺️']) ? window[`${Msg['🗺️']}Sift`](Msg) : {Failed: true, String: "❌ Sylph got lost!"}; // Bye bye switch and let!
     // This way we catch two types of errors: return values from the functions, or unrecognized websites (seems impossible, but still.)
     if (Sift.String.startsWith('❌')) chrome.runtime.sendMessage({...Msg, '❌': Sift.String});
-    if (Sift.String.includes("Actions")) chrome.runtime.sendMessage({...Msg, '✔️': 'L', '🧜‍♂️': LancerURL, '📝': 'LIST', '📃': Sift.String});
+    if (Sift.String.includes("Title")) chrome.runtime.sendMessage({...Msg, '✔️': 'L', '🧜‍♂️': LancerURL, '📝': 'LIST', '📃': Sift.String});
     if (Sift.Failed) return;    // This allows us to give the error message but continue, in a hypthetical case that we still don't have.
     const LancerURI = `${LancerURL}?${Sift.String}&ex=${(Msg['💌'] || '')}`;  // It's sent in every case, so we must convert undefined.
     console.log('🧚‍♀️ -> 🧜‍♂️\n'+LancerURI);
