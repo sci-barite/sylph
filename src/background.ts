@@ -19,21 +19,21 @@ const MagicalLands = chrome.runtime.getManifest().content_scripts![0].matches!.m
 const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.indexOf('/')), pathPrefix: land.substring(land.indexOf('/'))}));
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
 const Color: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
-const Time: {[key: string]: number} = {'3️⃣': 3600, '2️⃣': 1200, '1️⃣': 1000, '🥇': 50, '🥈': 100}    // Not sure if intuitive...
-const FirstFrame = ImgNames.findIndex(img => img.includes('casts')), LastFrame = ImgNames.length, regex = /(?<=<[^>]*>)[^<{}]*(?=<[^>]*>|$)/g;
-const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};   // Temporary cache, easier than session storage or similar.
+const Time: {[key: string]: number} = {'3️⃣': 3600, '2️⃣': 1200, '1️⃣': 1000, '🥇': 50, '🥈': 100};  // Might not be super-intuitive, but nice.
+const FirstFrame = ImgNames.findIndex(img => img.includes('casts')), LastFrame = ImgNames.length, html = /(?<=<[^>]*>)[^<{}]*(?=<[^>]*>|$)/g;
+const Sylph = chrome.action, Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};   // Easier than session storage!
 
 // SYLPHANIMATION: An object providing methods to start and stop the icon animation. Handles different animations for different tabs.
 const SylphAnimation: {Frames: {[key: number]: number}, '▶️': (tabID: number, speed: number) => void, '⏹️': (tabID: number) => void} = {
     Frames: {},                                                   // Used to be "Tabs", but tabIDs are used as keys, values are frame numbers.
     '▶️': function(tabID: number, speed: number) {               // Play emoji to play the animation!
         Silence(tabID, '🧚‍♀️ Sylph is casting her spell...');      // Stops previous animations and displays a simple message in tooltip.
-        this.Frames[tabID] = FirstFrame;                          // This associates the tab to the index of the first icon with "casts" in name.
+        this.Frames[tabID] = FirstFrame;                          // Associates the tab to the index of the first image with "casts" in name.
         const Animate = (tabID: number, speed: number) => {       // Arrow function, so we are scoped to get "this.Frames" from parent object.
-            if (!this.Frames[tabID]) return;                                                // So to stop it just delete that tabID from Frames.
-            chrome.action.setIcon({tabId: tabID, imageData: Icons[this.Frames[tabID]]});    // Much faster than string-building and fetching!
-            this.Frames[tabID] = (this.Frames[tabID] + 1) % LastFrame || FirstFrame;        // Reached the last frame? go back to the first.
-            setTimeout(() => Animate(tabID, speed), speed);                                 // Sylph spell-casting animation for the win!!
+            if (!this.Frames[tabID]) return;                                            // So to stop it just delete that tabID from Frames.
+            Sylph.setIcon({tabId: tabID, imageData: Icons[this.Frames[tabID]]});        // Much faster than string-building and fetching!
+            this.Frames[tabID] = (this.Frames[tabID] + 1) % LastFrame || FirstFrame;    // Reached the last frame? go back to the first.
+            setTimeout(() => Animate(tabID, speed), speed);                             // Sylph spell-casting animation for the win!!
         };
         Animate(tabID, speed);
     },
@@ -42,7 +42,7 @@ const SylphAnimation: {Frames: {[key: number]: number}, '▶️': (tabID: number
 
 // INSTALL LISTENER: This handles the "rules" for icon deactivation and activation depending on website. Might include more in the future.
 chrome.runtime.onInstalled.addListener(()=> {
-    chrome.action.disable();
+    Sylph.disable();
     const AwakeSylph: {conditions: chrome.declarativeContent.PageStateMatcher[], actions: any[]} = {
         conditions: LandMap.map(hostAndPrefix => new chrome.declarativeContent.PageStateMatcher({pageUrl: hostAndPrefix})),
         actions: [new chrome.declarativeContent.ShowAction()]
@@ -73,27 +73,27 @@ chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking work
 
 // SYLPHBADGE: Utility function to save repetition and characters, since all the time we specify a badge text, we also want to set a color.
 function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArray, ) {
-    if (color) chrome.action.setBadgeBackgroundColor({color: color, tabId: tabID}); 
-    chrome.action.setBadgeText({text: text, tabId: tabID});
+    if (color) Sylph.setBadgeBackgroundColor({color: color, tabId: tabID}); 
+    Sylph.setBadgeText({text: text, tabId: tabID});
 }
 
 // SHOUT: I found myself repeating a similar pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
 function Shout(Msg: {[key: string]: any}, text: string, etc?: string) {
     const tabID = Msg['🗃️'], Err = Msg['✔️'] === undefined, How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR, then I got crazy with it!
-    chrome.action.setTitle({tabId: tabID, title: `${text}${(etc?.split(':')[0]!+':\n'+etc?.match(regex)?.filter(x => x)[1] || etc || '')}\n`});
+    Sylph.setTitle({tabId: tabID, title: `${text}${(Msg['❌'] ? etc?.split(':')[0]+':\n'+etc?.match(html)?.filter(x => x)[1] : etc || '')}\n`});
     Err ? (console.error(text, Msg), SylphBadge(tabID, 'ERR!', Color['👎']))
         : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Msg['📝'] || Known[tabID]+2}`, Color['👌'])) 
               : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']),
                  Known[tabID] = -parseInt(Msg['📝']) || 0, setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); // Hides the badge after 3s.
     setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => chrome.action.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How]}), Time['1️⃣']+Time['🥈']);   // XOR result as index!
+    setTimeout(() => Sylph.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How]}), Time['1️⃣']+Time['🥈']);   // XOR result as array index!
 }
 
 // SILENCE: The contrary of the above, it cleans up any changes to icon, badge, animation, text etc. when it needs to be reset for any reason.
 function Silence(tabID: number, text?: string) {
     SylphAnimation['⏹️'](tabID)  // This is only in case the previous action didn't finish, or there's been an unexpected error.
-    chrome.action.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
-    chrome.action.setTitle({tabId: tabID, title: text || ''});  // Adapted this to be able to display a message, optionally.
+    Sylph.setIcon({tabId: tabID, imageData: Icons[0]}); // We keep the default icon at index 0 for several reasons.
+    Sylph.setTitle({tabId: tabID, title: text || ''});  // Adapted this to be able to display a message, optionally.
     SylphBadge(tabID, '');
 }
 
@@ -115,7 +115,7 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
         const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
-        data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data;   // 
+        data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data; // A way to get a '👌' shout. 
          if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
          else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
     if (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
