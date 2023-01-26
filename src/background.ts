@@ -7,8 +7,8 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
-const Icons: ImageData[] = [], IconNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
-IconNames.forEach(async function(iconName, index) {Icons[index] = await preloadImageData(iconName)});   // Going around a Service Worker limit.
+const Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
+ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});   // Going around a Service Worker limit.
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
 const getTabID: (title: string) => Promise<number> =  async title => (await chrome.tabs.query({ title: title }))[0].id!;
@@ -20,7 +20,7 @@ const LandMap = MagicalLands.map(land => ({hostSuffix: land.substring(0, land.in
 const HostMap = LandMap.map(host => host.hostSuffix.slice(0,-3).replaceAll('.', '')), IndexedLands = MagicalLands.slice(0,2);   // Prefs?
 const Color: {[key: string]: chrome.action.ColorArray} = {'👎': [230, 80, 90, 230], '👍': [80, 230, 90, 230], '👌': [80, 230, 230, 230]};
 const Time: {[key: string]: number} = {'3️⃣': 3600, '2️⃣': 1200, '1️⃣': 1000, '🥇': 50, '🥈': 100}    // Not sure if intuitive...
-const FirstFrame = IconNames.findIndex(icon => icon.includes('casts')), LastFrame = IconNames.length;   // To avoid "magic numbers".
+const FirstFrame = ImgNames.findIndex(img => img.includes('casts')), LastFrame = ImgNames.length, regex = /(?<=<[^>]*>)[^<{}]*(?=<[^>]*>|$)/g;
 const Stash: {[key: string]: string[]} = {}, Known: {[key: number]: number} = {};   // Temporary cache, easier than session storage or similar.
 
 // SYLPHANIMATION: An object providing methods to start and stop the icon animation. Handles different animations for different tabs.
@@ -64,11 +64,11 @@ chrome.tabs.onUpdated.addListener((tabID, change) => {
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    const tabID = await getTabID(bm.title!), folder = await getFolder(bm.parentId!), host = HostMap.find(url => bm.url!.includes(url)), Msg = {};
+    const tabID = await getTabID(bm.title!), dir = await getFolder(bm.parentId!), host = HostMap.find(url => bm.url!.includes(url)), Msg = {};
     SylphAnimation['▶️'](tabID, Time['🥈']);
     (Known[tabID] < 0) ? (SylphBadge(tabID, `${Math.abs(Known[tabID])}`, Color['👎']), setTimeout(() => Silence(tabID), Time['3️⃣']))
-        : (Object.assign(Msg, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': folder}),
-           chrome.tabs.sendMessage(tabID, Msg), console.log(`🧚‍♀️ Bookmark created in ${folder}, Sylph is casting her spell...\n`, Msg));
+        : (Object.assign(Msg, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': dir}),
+           chrome.tabs.sendMessage(tabID, Msg), console.log(`🧚‍♀️ Bookmark created in ${dir}, Sylph is casting her spell...\n`, Msg));
 });
 
 // SYLPHBADGE: Utility function to save repetition and characters, since all the time we specify a badge text, we also want to set a color.
@@ -78,9 +78,9 @@ function SylphBadge(tabID: number, text: string, color?: chrome.action.ColorArra
 }
 
 // SHOUT: I found myself repeating a similar pattern, so I made a utility function. Now it's expanded to cover all the "UI" displays.
-function Shout(Msg: {[key: string]: any}, text: string, additional?: string) {
+function Shout(Msg: {[key: string]: any}, text: string, etc?: string) {
     const tabID = Msg['🗃️'], Err = Msg['✔️'] === undefined, How = Msg['✔️'] ^ Msg['🧜‍♂️']; // Chat-GPT suggested XOR, then I got crazy with it!
-    chrome.action.setTitle({tabId: tabID, title: `${text}${(additional || '\n')}`});
+    chrome.action.setTitle({tabId: tabID, title: `${text}${(etc?.split(':')[0]!+':\n'+etc?.match(regex)?.filter(x => x)[1] || etc || '')}\n`});
     Err ? (console.error(text, Msg), SylphBadge(tabID, 'ERR!', Color['👎']))
         : How ? (console.warn(text, Msg), SylphBadge(tabID, `${Msg['📝'] || Known[tabID]+2}`, Color['👌'])) 
               : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']),
@@ -110,15 +110,15 @@ function checkID(data: string | string[], Msg: {[key: string]: any}) {
 
 // MESSAGE LISTENER: Reacts to the content script's actions; themselves replies to either this service worker's messages, or the onLoad event.
 chrome.runtime.onMessage.addListener(async Msg => {
-    if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
+    if      (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
+    else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
+    else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
+    else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
         const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
         data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data;   // 
          if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
          else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
-    else if (Msg['✔️']) Shout(Msg, `🧚‍♀️ Sylph has casted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Msg['✔️']}\n`);
-    else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
-    else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
-    if      (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
+    if (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
     [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🔤']), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = `?url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
     SylphAnimation['▶️'](Msg['🗃️'], Time['🥇']); // Double time animation, to represent a quick lookup.
