@@ -28,7 +28,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 
     Array.from(elements.signalsPanelEntries).forEach(signal => { if (signal.innerText.includes('Job')) signal!.click()});   // Displays jobs.
     
-    const company_link = elements.company_links[0].childNodes[0] as HTMLElement;
+    const company_link = elements.company_links[0].childNodes[0] as HTMLElement;    // Will get LinkedIn in case of no website. Not a bug!
     const allLinks : HTMLElement[] = Array.from(document.querySelectorAll(apolloClasses.allLinks));
     const linkedIn = allLinks.filter(ahref => {if (ahref.attributes[1]) return ahref.attributes[1].value.includes("linkedin")});
     const jobs = allLinks.filter(elem => positions.some(position => elem.innerText.includes(position)));
