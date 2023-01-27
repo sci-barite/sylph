@@ -45,7 +45,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
         Employees: elements.employees[0] ? elements.employees[0].innerText : 'NA',
         Company_web: company_link ? company_link.attributes[1].value : 'NA',
         Company_linkedin: linkedIn[1] ? linkedIn[1].attributes[1].value : 'NA',
-        Phone: elements.phone[0] ? elements.phone[0].innerText : '',
+        Phone: elements.phone[0] ? (elements.phone[0].innerText.startsWith('Request') ? '' : elements.phone[0].innerText) : '',
         Email: elements.email[0] ? elements.email[0].innerText : ''
     }
     return {Failed: true, String: JSON.stringify([Sifted])};  
