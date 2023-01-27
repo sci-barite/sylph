@@ -11,7 +11,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     }
     const apolloClasses = { // All these plus the conditions above will be converted into NodeListOf<HTMLElement> for convenience.
         signalsPanelEntries: '.zp_KqZzF', company_links: '.zp_I1ps2', allLinks: 'a.zp-link.zp_OotKe',
-        email: "a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf", company: '.zp_lMvaV.zp_JKOw3', phone: 'a.zp-link.zp_3_fnL.zp_1AaQP',
+        email: "a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf", company: '.zp_lMvaV.zp_JKOw3', phone: 'a.zp-link.zp_OotKe.zp_lmMY6',
         title: '.zp_LkFHT', location: '.zp_hYCdb.zp_CZF_z', employees: '.zp_nowuD.zp_a_Jcv', name: '.zp__iJHP'
     }
     const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
