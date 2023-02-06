@@ -58,7 +58,7 @@ chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 chrome.tabs.onUpdated.addListener((tabID, change) => {
     if (!change.url) return;    // There can be changes due to pressing of buttons and stuff. We don't need those, so we exit early.
     if (!IndexedLands.some(indexed => change.url!.includes(indexed))) { Silence(tabID); delete Known[tabID]; } // Resets and rechecks if needed.
-    else { delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, Time['2️⃣'])};
+    else { delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, Time['2️⃣'])}
 })
 
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
