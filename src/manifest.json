@@ -20,6 +20,7 @@
             "matches": [
                 "https://*.linkedin.com/in/*", 
                 "https://*.linkedin.com/jobs/view/*", 
+                "https://*.linkedin.com/mynetwork/invitation-manager/sent/*",
                 "https://djinni.co/home/inbox/*", 
                 "https://djinni.co/q/*",
                 "https://*.upwork.com/ab/applicants/*", 
