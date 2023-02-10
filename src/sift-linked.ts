@@ -1,7 +1,14 @@
 // It got much, much easier than the first version, but still a bit tricky sometimes. It also manages both jobs and people, so it's long.
 function linkedinSift(Msg: {[key: string]: any}) : {Failed: boolean, String: string} {
     if (Msg['🌍'].includes("/jobs/")) return SiftLinkedJob();
+    else if (Msg['🌍'].includes('invitation-manager')) return WithdrawInvitations();
     else return SiftLinkedPerson(Msg['📁']);
+}
+
+function WithdrawInvitations() {
+    const Withdrawn : {[key: string]: string}[] = [];
+
+    return {Failed: true, String: JSON.stringify(Withdrawn)};
 }
 
 function SiftLinkedJob() : {Failed: boolean, String: string} {
