@@ -6,7 +6,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
     return ctx!.getImageData(0, 0, width, height);
 }
 
-// ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures a wanted order.
+// ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures the order.
 const Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_element, n) => `-casts${n}.png`)];
 ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});   // Going around a Service Worker limit.
 
@@ -57,8 +57,8 @@ chrome.tabs.onRemoved.addListener(tabID => SylphAnimation['⏹️'](tabID));
 // TAB UPDATE LISTENER: handles when a page changes to another without loading, common on LinkedIn, or to a non-indexed page. Avoids UI errors.
 chrome.tabs.onUpdated.addListener((tabID, change) => {
     if (!change.url) return;    // There can be changes due to pressing of buttons and stuff. We don't need those, so we exit early.
-    if (!IndexedLands.some(indexed => change.url!.includes(indexed))) { Silence(tabID); delete Known[tabID]; } // Resets and rechecks if needed.
-    else { delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, Time['2️⃣'])}
+    if (!IndexedLands.some(indexed => change.url!.includes(indexed))) { Silence(tabID); delete Known[tabID]; } // Resets/rechecks if needed.
+    else {delete Known[tabID]; setTimeout(() => Known[tabID] == undefined ? chrome.tabs.sendMessage(tabID, {'✨': true}) : false, Time['2️⃣'])}
 })
 
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
@@ -115,7 +115,7 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
         const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
-        data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data; // A way to get a '👌' shout. 
+        data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data; // Way to get a '👌' shout. 
          if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
          else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
     if (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
