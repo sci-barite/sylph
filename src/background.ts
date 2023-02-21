@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an arr-NULLOBJECT of ImageData built from paths. Even if async and not array, assigning to specific positions ensures the order.
-const Icons: ImageData[] = Object.create(null), ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
+const Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
 //ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});  // Going around a Service Worker limit.
 (async () => {for await (const [index, name] of ImgNames.entries()) Icons[index] = await preloadImageData(name)})();    // Crazy but safer!
 
