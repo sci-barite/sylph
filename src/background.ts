@@ -6,9 +6,10 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
     return ctx!.getImageData(0, 0, width, height);
 }
 
-// ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures the order.
+// ASYNC ICONS: an arr-NULLOBJECT of ImageData built from paths. Even if async and not array, assigning to specific positions ensures the order.
 const Icons: ImageData[] = Object.create(null), ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
-ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});  // Going around a Service Worker limit.
+//ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});  // Going around a Service Worker limit.
+(async () => {for await (const [index, name] of ImgNames.entries()) Icons[index] = await preloadImageData(name)})();    // Crazy but safer!
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
 const getTabID: (title: string) => Promise<number> =  async title => (await chrome.tabs.query({ title: title }))[0].id!;
