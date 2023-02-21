@@ -7,7 +7,7 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an array of ImageData built with one of paths. Even if async, assigning each to its own index in an array ensures the order.
-const Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_elem, n) => `-casts${n}.png`)];
+const Icons: ImageData[] = Object.create(null), ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
 ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});  // Going around a Service Worker limit.
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
