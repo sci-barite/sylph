@@ -7,9 +7,9 @@ const preloadImageData = async (icon: string) : Promise<ImageData> => {
 }
 
 // ASYNC ICONS: an arr-NULLOBJECT of ImageData built from paths. Even if async and not array, assigning to specific positions ensures the order.
-const Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
+let Icons: ImageData[] = [], ImgNames = ['32.png', '-hurt64.png', ...Array.from({length: 10}, (_i, n) => `-casts${n}.png`)];
 //ImgNames.forEach(async function(imgName, index) {Icons[index] = await preloadImageData(imgName)});  // Going around a Service Worker limit.
-(async () => {for await (const [index, name] of ImgNames.entries()) Icons[index] = await preloadImageData(name)})();    // Crazy but safer!
+(async () => {for await (const name of ImgNames) Icons.push(await preloadImageData(name))})();    // Crazy but safer!
 
 // ASYNC TAB AND BOOKMARK FOLDER GETTERS: Another conceptually big change, allowing to save on indentation and complexity, thanks to promises.
 const getTabID: (title: string) => Promise<number> =  async title => (await chrome.tabs.query({ title: title }))[0].id!;
@@ -65,7 +65,7 @@ chrome.tabs.onUpdated.addListener((tabID, change) => {
 // BOOKMARK LISTENER: the main interaction! When a bookmark is created, we send a message to the content script, which will process the page.
 chrome.bookmarks.onCreated.addListener(async (_id, bm)=> {   // Bookmarking works independently, so we have to check again the website.
     if (!MagicalLands.some(site => bm.url!.includes(site))) return;   // Aborts on negative rather than executing conditionally.
-    const tabID = await getTabID(bm.title!), dir = await getFolder(bm.parentId!), host = HostMap.find(url => bm.url!.includes(url)), Msg = {};
+    const tabID = await getTabID(bm.title!), dir = await getFolder(bm.parentId!), host = HostMap.find(url => bm.url!.includes(url)), Msg = Object.create(null);
     SylphAnimation['▶️'](tabID, Time['🥈']);
     (Known[tabID] < 0) ? (SylphBadge(tabID, `${Math.abs(Known[tabID])}`, Color['👎']), setTimeout(() => Silence(tabID), Time['3️⃣']))
         : (Object.assign(Msg, {'🧚‍♀️': true, '🗃️': tabID, '🗺️': host, '🌍': bm.url, '💌': Known[tabID], '📁': dir}),
@@ -115,7 +115,8 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
-        const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
+        //const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
+        const Upd = (data.includes('No upd') ? 0 : data.split('Row ')[1].split(' ')[0]);
         data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data; // Way to get a '👌' shout. 
          if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
          else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
