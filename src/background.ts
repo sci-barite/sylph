@@ -116,10 +116,12 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
         //const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
-        const Upd = (data.includes('No upd') ? 0 : data.split('Row ')[1].split(' ')[0]);
-        data.includes('🧜‍♂️') ? (Msg['✔️'] = (Upd ? false : true), Msg['📝'] = Upd || 'None') : Msg['❌'] = data; // Way to get a '👌' shout. 
-         if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${data}\n`);
-         else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)});
+        //const Upd = (data.includes('No upd') ? 0 : data.split('Row ')[1].split(' ')[0]);
+        const Resp = JSON.parse(data), { Update: Upd, Updated: UpdR, Row: NewR, Message: Data, Added: Add } = Resp;
+        data.includes('🧜‍♂️') ? (Msg['✔️'] = Add, Msg['📝'] = Upd ? UpdR : Add ? NewR : 'None') : Msg['❌'] = Data;
+         if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Data}\n`);
+         else Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully, but Lancer failed!\n`, `\n🧜‍♂️ His response was:\n\n${Msg['❌']}\n`)
+    });
     if (!Msg['🌍'] || !IndexedLands.some(indexed => Msg['🌍'].includes(indexed))) return;
     [Msg['🗃️'], Msg['🏷️']] = [await getTabID(Msg['🔤']), Msg['🌍'].split('.com/')[1].split('/')[0]];
     const get = `?url=GetUnique${(Msg['🏷️'] === 'jobs' ? 'Jobs' : 'Cands')}`, db = `🗄️${Msg['🏷️']}`; // NOTE: This needs refactoring soon!
