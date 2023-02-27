@@ -14,7 +14,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
         email: "a.zp-link.zp_OotKe.zp_dAPkM.zp_Iu6Pf", company: '.zp_lMvaV.zp_JKOw3', phone: 'a.zp-link.zp_OotKe.zp_lmMY6',
         title: '.zp_LkFHT', location: '.zp_hYCdb.zp_CZF_z', employees: '.zp_nowuD.zp_a_Jcv', name: '.zp__iJHP'
     }
-    const positions = ['ngineer', 'eveloper', 'esigner', 'ester', 'rogrammer'];
+    const positions = ['ngineer', 'eveloper', 'esigner', 'rogrammer'];
     const elements : {[key: string]: NodeListOf<HTMLElement>} = {};
 
     Object.entries(apolloContactSetup).filter(tuple => tuple[0].startsWith('condition')).concat(Object.entries(apolloClasses))

@@ -115,8 +115,6 @@ chrome.runtime.onMessage.addListener(async Msg => {
     else if (Msg['❓']) Shout(Msg, `🧚‍♀️ Sylph has lost Lancer!\n🧜‍♂️ He's left a clue:\n\n${Msg['❓']}\n`);
     else if (Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has miscasted!\n\n${Msg['❌']}\n`);
     else if (Msg['📃']) fetch(Msg['🧜‍♂️'], {method: 'POST', body: 'ApolloList:'+(Msg['📃'])}).then(response => response.text()).then(data => {
-        //const Row = data.split(':')[0].slice(-4), Upd = (data.includes('No upd') ? 0 : Number.isNaN(parseInt(Row)) ? Row.split(' ')[1] : Row);
-        //const Upd = (data.includes('No upd') ? 0 : data.split('Row ')[1].split(' ')[0]);
         const Resp = JSON.parse(data), { Update: Upd, Updated: UpdR, Row: NewR, Message: Data, Added: Add } = Resp;
         data.includes('🧜‍♂️') ? (Msg['✔️'] = Add, Msg['📝'] = Upd ? UpdR : Add ? NewR : 'None') : Msg['❌'] = Data;
          if (!Msg['❌']) Shout(Msg, `🧚‍♀️ Sylph has posted her spell successfully!\n`, `\n🧜‍♂️ Lancer's response was:\n\n${Data}\n`);
