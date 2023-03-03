@@ -99,12 +99,12 @@ function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} 
 function SiftLinkedLead() : {Failed: boolean, String: string} {
     const Exp = document.querySelectorAll("div.pvs-list__outer-container > ul > li:nth-child(1)")[1];
     const Comp = (Exp.querySelector('span.t-14.t-normal')?.querySelector('span.visually-hidden') as HTMLElement).innerText.split(' ·')[0];
-    const ENGLISH = Comp.includes(' mos') ? 
+    const ENGLISH = (Comp.includes(' mos') || Comp.includes(' yrs ') || Comp.includes(' mo') || Comp.includes('Full-time')) ? 
         (Exp.querySelector('.mr1.hoverable-link-text.t-bold')?.querySelector('span.visually-hidden') as HTMLElement).innerText :
         Comp;
     const NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
     const STATUS = (Exp.querySelector('a') as HTMLElement).getAttribute('href');
-    const POSITION = Comp.includes(' mos') ? 
+    const POSITION = (Comp.includes(' mos') || Comp.includes(' yrs ') || Comp.includes(' mo') || Comp.includes('Full-time')) ? 
         (Exp.querySelector('div.pvs-entity.pvs-entity--with-path')?.querySelector('.visually-hidden') as HTMLElement).innerText :
         (Exp.querySelector('span.visually-hidden') as HTMLElement).innerText;
     const LOCATION = (document.querySelector('span.text-body-small.inline.t-black--light.break-words') as HTMLElement).innerText.trim()
