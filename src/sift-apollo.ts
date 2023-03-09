@@ -1,6 +1,6 @@
 type ApolloContact = {
     Name: string, Name_linkedin: string, Name_apollo: string, Title: string, Location: string, Company: string, 
-    Employees: number | string, Company_linkedin: string, Company_web: string, More: string, Phone: string, Email: string, Jobs: number
+    Employees: string, Company_linkedin: string, Company_web: string, More: string, Phone: string, Email: string, Jobs: number | string
 };
 
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
@@ -52,23 +52,26 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 }
 
 function apolloListSift(rowIdent: string) : {Failed:boolean, String:string} {
-    const Sifted : {[key: string]: string}[] = [];
+    const Sifted : ApolloContact[] = [];
     const Header = Array.from(document.querySelectorAll("th"))?.map(th => (th as HTMLElement).innerText);
     if (!Header.includes('Title')) return {Failed: true, String: '❌ She sees no humans in this list!'};
     const Columns = Header.map(column => column.includes(' ') ? column.split(' ')[1] : column);
     
-    document.querySelectorAll(rowIdent).forEach((tr, Row) => {
-        Sifted.push({}); // An empty row is pushed first, to have an index to refer to, via Row.
-        tr.childNodes.forEach((td, col) => {
-            Sifted[Row][Columns[col]] = (td as HTMLElement).innerText;
-            if (Columns[col] != 'Name' && Columns[col] != 'Company') return;    // No point in checking anything other than these two.
-            const hrefs = (td as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
+    document.querySelectorAll(rowIdent).forEach(Row => {
+        const Contact: {[key in keyof ApolloContact]?: string} = {};
+        Row.childNodes.forEach((field, column) => {
+            const colKey = Columns[column] as keyof ApolloContact; // cast Columns[col] to keyof ApolloContact
+            Contact[colKey] = (field as HTMLElement).innerText;
+            if (Columns[column] != 'Name' && Columns[column] != 'Company') return;    // No point in checking anything other than these two.
+            const hrefs = (field as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
             hrefs.forEach(link => {
-                if (link.includes('#')) Sifted[Row][Columns[col]+'_apollo'] = link;
-                else if (link.includes('linkedin')) Sifted[Row][Columns[col]+'_linkedin'] = link;
-                else if (!link.includes('facebook') && !link.includes('twitter')) Sifted[Row][Columns[col]+'_web'] = link;
+                if (link.includes('#')) Contact[colKey+'_apollo' as keyof ApolloContact] = link;
+                else if (link.includes('linkedin')) Contact[colKey+'_linkedin' as keyof ApolloContact] = link;
+                else if (!link.includes('facebook') && !link.includes('twitter')) Contact[colKey+'_web' as keyof ApolloContact] = link;
             });
         });
+        Sifted.push(Contact as ApolloContact);
     });
+    console.table(Sifted);
     return {Failed: true, String: JSON.stringify(Sifted)}
 }
