@@ -62,7 +62,7 @@ function apolloListSift(rowIdent: string) : {Failed:boolean, String:string} {
         Row.childNodes.forEach((field, column) => {
             const colKey = Columns[column] as keyof ApolloContact; // cast Columns[col] to keyof ApolloContact
             Contact[colKey] = (field as HTMLElement).innerText;
-            if (Columns[column] != 'Name' && Columns[column] != 'Company') return;    // No point in checking anything other than these two.
+            if (Columns[column] != 'Name' && Columns[column] != 'Company') return;    // No point in checking links in other than these two.
             const hrefs = (field as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
             hrefs.forEach(link => {
                 if (link.includes('#')) Contact[colKey+'_apollo' as keyof ApolloContact] = link;
