@@ -48,6 +48,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
         Phone: elements.phone[0] ? (elements.phone[0].innerText.startsWith('Request') ? '' : elements.phone[0].innerText) : '',
         Email: elements.email[0] ? elements.email[0].innerText : ''
     }
+    console.table(Sifted);
     return {Failed: true, String: JSON.stringify([Sifted])};  
 }
 

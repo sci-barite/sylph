@@ -87,7 +87,7 @@ function Shout(Msg: {[key: string]: any}, text: string, etc?: string) {
               : (console.log(text, Msg), SylphBadge(tabID, (Msg['📝'] || 'NEW!'), Color['👍']),
                  Known[tabID] = -parseInt(Msg['📝']) || 0, setTimeout(() => SylphBadge(tabID, ''), Time['3️⃣'])); // Hides the badge after 3s.
     setTimeout(() => SylphAnimation['⏹️'](tabID), Time['1️⃣']);     // Delayed to make it visible when Stash values are retrieved too quickly.
-    setTimeout(() => Sylph.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How]}), Time['1️⃣']+Time['🥈']);   // XOR result as array index!
+    setTimeout(() => Sylph.setIcon({tabId: tabID, imageData: Icons[Err ? 1 : How ? 1 : 0]}), Time['1️⃣']+Time['🥈']);   // XOR for array index!
 }
 
 // SILENCE: The contrary of the above, it cleans up any changes to icon, badge, animation, text etc. when it needs to be reset for any reason.
