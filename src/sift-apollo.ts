@@ -1,4 +1,4 @@
-type ApolloContact = {
+type Contact = {
     Name: string, Name_linkedin: string, Name_apollo: string, Title: string, Location: string, Company: string, 
     Employees: string, Company_linkedin: string, Company_web: string, More: string, Phone: string, Email: string, Jobs: number | string
 };
@@ -33,7 +33,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     const linkedIn = allLinks.filter(ahref => {if (ahref.attributes[1]) return ahref.attributes[1].value.includes("linkedin")});
     const jobs = allLinks.filter(elem => positions.some(position => elem.innerText.includes(position)));
 
-    const Sifted : ApolloContact = {
+    const Sifted : Contact = {
         Name: elements.name[0].innerText, 
         Name_apollo: document.URL.includes('?') ? document.URL.split('?')[0] + document.URL.split('=cio')[1] : document.URL, 
         Name_linkedin: linkedIn[0] ? linkedIn[0].attributes[1].value : 'NA',
@@ -53,25 +53,25 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 }
 
 function apolloListSift(rowIdent: string) : {Failed:boolean, String:string} {
-    const Sifted : ApolloContact[] = [];
+    const Sifted : Contact[] = [];
     const Header = Array.from(document.querySelectorAll("th"))?.map(th => (th as HTMLElement).innerText);
     if (!Header.includes('Title')) return {Failed: true, String: '❌ She sees no humans in this list!'};
     const Columns = Header.map(column => column.includes(' ') ? column.split(' ')[1] : column);
     
     document.querySelectorAll(rowIdent).forEach(Row => {
-        const Contact: {[key in keyof ApolloContact]?: string} = {};
+        const contact: {[key in keyof Contact]?: string} = {};
         Row.childNodes.forEach((field, column) => {
-            const colKey = Columns[column] as keyof ApolloContact; // cast Columns[col] to keyof ApolloContact
-            Contact[colKey] = (field as HTMLElement).innerText;
-            if (Columns[column] != 'Name' && Columns[column] != 'Company') return;    // No point in checking links in other than these two.
+            const colKey = Columns[column] as keyof Contact;  // Only way of using a fixed type in a dynamic context like this.
+            contact[colKey] = (field as HTMLElement).innerText;
+            if (Columns[column] != 'Name' && Columns[column] != 'Company') return;    // The only links we need from here.
             const hrefs = (field as HTMLElement).innerHTML.match(/href="(.+?)"/g)?.map(str => str.split("\"")[1]) ?? [];
             hrefs.forEach(link => {
-                if (link.includes('#')) Contact[colKey+'_apollo' as keyof ApolloContact] = link;
-                else if (link.includes('linkedin')) Contact[colKey+'_linkedin' as keyof ApolloContact] = link;
-                else if (!link.includes('facebook') && !link.includes('twitter')) Contact[colKey+'_web' as keyof ApolloContact] = link;
+                if (link.includes('#')) contact[colKey+'_apollo' as keyof Contact] = link;
+                else if (link.includes('linkedin')) contact[colKey+'_linkedin' as keyof Contact] = link;
+                else if (!link.includes('facebook') && !link.includes('twitter')) contact[colKey+'_web' as keyof Contact] = link;
             });
         });
-        Sifted.push(Contact as ApolloContact);
+        Sifted.push(contact as Contact);
     });
     console.table(Sifted);
     return {Failed: true, String: JSON.stringify(Sifted)}
