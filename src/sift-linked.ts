@@ -13,7 +13,9 @@ function WithdrawInvitations() {
 }
 
 function SiftLinkedJob() : {Failed: boolean, String: string} {
-    const LINK = document.URL.split('?')[0];
+    const link = document.URL.includes('?') ? 
+        document.URL.split('?')[0] : document.URL;
+    const LINK = link.charAt(link.length - 1) == '/' ? link.slice(0, -1) : link;
     const NAME = document.title.split(' | ')[0].startsWith("(") ? 
         document.title.split(' | ')[0].substring(4) : document.title.split(' | ')[0];
     const PERSON = document.querySelector('span.jobs-poster__name') ? 
@@ -89,7 +91,7 @@ function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} 
     const STATUS = (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) ? 
         "2.Sent 1st message" : '0.New';
     const POSITION = position;
-    const LINK = document.URL;
+    const LINK = document.URL.charAt(document.URL.length - 1) == '/' ? document.URL.slice(0, -1) : document.URL;
 
     const PARAM_STRING = 'name='+NAME+'&pos='+encodeURIComponent(POSITION)+'&status='+STATUS+'&skills='+encodeURIComponent(SKILLS)
     +'&eng='+ENGLISH+'&rate=NA&loc=NA&url='+LINK+'&more=';
@@ -108,7 +110,7 @@ function SiftLinkedLead() : {Failed: boolean, String: string} {
         (Exp.querySelector('div.pvs-entity.pvs-entity--with-path')?.querySelector('.visually-hidden') as HTMLElement).innerText :
         (Exp.querySelector('span.visually-hidden') as HTMLElement).innerText;
     const LOCATION = (document.querySelector('span.text-body-small.inline.t-black--light.break-words') as HTMLElement).innerText.trim()
-    const LINK = document.URL;
+    const LINK = document.URL.charAt(document.URL.length - 1) == '/' ? document.URL.slice(0, -1) : document.URL;
 
     const PARAM_STRING = 'name='+NAME+'&pos='+POSITION+'&status='+STATUS+'&skills=LEAD'
     +'&eng='+ENGLISH+'&rate=NA&loc='+LOCATION+'&url='+LINK+'&more=';
