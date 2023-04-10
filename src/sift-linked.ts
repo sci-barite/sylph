@@ -65,13 +65,11 @@ function SiftLinkedJob() : {Failed: boolean, String: string} {
 function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} {
     let SKILLS = 'NA';
     let ENGLISH = 'NA';
-    if (document.querySelectorAll("a[data-field='skill_card_skill_topic']").length) {
+    const Skills = document.querySelectorAll("a[data-field='skill_card_skill_topic']")
+    const SkillN = Skills.length
+    if (SkillN) {
         let Sifted: string[] = [];
-        for (let i=0; i<3; i++) {
-            Sifted.push(' '+
-            (document.querySelectorAll("a[data-field='skill_card_skill_topic']")[i] as HTMLElement)
-                .innerText.split("\n")[0]);
-        }
+        for (let i=0; i < SkillN; i++) Sifted.push(' ' + (Skills[i] as HTMLElement).innerText.split("\n")[0]);
         const Hidden = document.querySelectorAll(".visually-hidden");
         let Collated = " · ";
         for (let i=0; i < Hidden.length; i++) {
@@ -88,7 +86,7 @@ function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} 
     }
 
     const NAME = (document.querySelector(".text-heading-xlarge") as HTMLElement).innerText
-    const STATUS = (document.querySelector("button[aria-label='Withdraw invitation sent to "+NAME+"']")) ? 
+    const STATUS = ((document.querySelector(`.pvs-profile-actions`) as HTMLElement).innerText.includes('Pending')) ? 
         "2.Sent 1st message" : '0.New';
     const POSITION = position;
     const LINK = document.URL.charAt(document.URL.length - 1) == '/' ? document.URL.slice(0, -1) : document.URL;
