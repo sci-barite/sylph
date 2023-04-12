@@ -7,7 +7,7 @@ type Contact = {
 function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
     const apolloContactSetup = {    // Conditions, error messages, alternative parsing function. These might become modular one day.
         condition1: '#location_detail_card', condition1a: 'tr.zp_cWbgJ', condition2: '.zp_I1ps2',
-        error1: '❌ She sees no human here!', error2: "❌ This human's account has been exiled!", alternativeSift: 'apolloListSift'
+        error1: '❌ She sees no human here!', error2: "❌ This human's account has been exiled!", alternativeSift: 'apolloListSift' // ()👇
     }
     const apolloClasses = { // All these plus the conditions above will be converted into NodeListOf<HTMLElement> for convenience.
         signalsPanelEntries: '.zp_KqZzF', company_links: '.zp_I1ps2', allLinks: 'a.zp-link.zp_OotKe',
@@ -54,7 +54,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
 
 function apolloListSift(rowIdent: string) : {Failed:boolean, String:string} {
     const Sifted : Contact[] = [];
-    const Header = Array.from(document.querySelectorAll("th"))?.map(th => (th as HTMLElement).innerText);
+    const Header = Array.from(document.querySelectorAll("th")).map(th => (th as HTMLElement).innerText);
     if (!Header.includes('Title')) return {Failed: true, String: '❌ She sees no humans in this list!'};
     const Columns = Header.map(column => column.includes(' ') ? column.split(' ')[1] : column);
     
