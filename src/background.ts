@@ -100,7 +100,7 @@ function Silence(tabID: number, text?: string) {
 
 // CHECKID: This used to be inside the listener below, but got too big to be comfortable. Checks based on cached or fetched values from Sheets.
 function checkID(data: string | string[], Msg: {[key: string]: any}) {
-    if (!Array.isArray(data)) Stash[`🗄️${Msg['🏷️']}`] = JSON.parse(data);
+    if (!Array.isArray(data)) Stash[`🗄️${Msg['🏷️']}`] = data.split(',');
     const ID = Msg['🌍'].includes('jobs/') ? Msg['🌍'].split('/view/')[1].substring(0,10) // Extracting the unique ID.
         : (Msg['🌍'].includes('?') ? Msg['🌍'].split('/in/')[1].split('/?')[0] : Msg['🌍'].split('/in/')[1].replace('/', ''));
     const db = `🗄️${Msg['🏷️']}`, LastID = Stash[db][Stash[db].length - 1], Index= Stash[db].indexOf(ID);
