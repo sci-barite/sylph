@@ -22,9 +22,9 @@ function SiftLinkedJob() : {Failed: boolean, String: string} {
         (document.querySelector('span.jobs-poster__name') as HTMLElement).innerText.trim() : 'NA';
     const PERSON_LINK = document.querySelector('.hirer-card__hirer-information') ?
         ((document.querySelector('.hirer-card__hirer-information')!.children[0] as HTMLElement)!.getAttribute('href') as string) : 'NA';
-    const COMPANY = (document.querySelector('.jobs-unified-top-card__company-name') as HTMLElement)!.innerText;
-    const COMPANY_LINK = document.URL.split('/jobs')[0]+
-        document.querySelector('.jobs-unified-top-card__company-name')!.children[0].getAttribute('href');
+    const compSection = (document.querySelector('.jobs-unified-top-card__primary-description') as HTMLElement)!.children[0] as HTMLElement;
+    const COMPANY = (compSection.children[0] as HTMLElement).innerText
+    const COMPANY_LINK = compSection.children[0].getAttribute('href');
     let COMPANY_SIZE = (document.querySelectorAll('.jobs-unified-top-card__job-insight')[1] as HTMLElement).innerText.split(' · ')[0];
     switch (COMPANY_SIZE.split('-')[0]) {
         case '1': COMPANY_SIZE = '2'; break;
@@ -34,27 +34,26 @@ function SiftLinkedJob() : {Failed: boolean, String: string} {
         case '501': COMPANY_SIZE = '2'; break;
         default: COMPANY_SIZE = '1'; break;
     }
-    const time_frame = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement) ? 
-        (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[1] : null;
-    let DATE = 'Closed';
-    if (time_frame) {
-        let time = parseInt((document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText.split(' ')[0]);
+    const time_frame = (document.querySelector('span.tvm__text.tvm__text--neutral') as HTMLElement) ? 
+        (document.querySelector('span.tvm__text.tvm__text--neutral') as HTMLElement).innerText.split(' ')[3] : null;
+    let DATE = (document.querySelector('span.artdeco-inline-feedback__message') as HTMLElement)?.innerText === 'No longer accepting applications'
+        ? 'Closed'
+        : '';
+    if (time_frame && !DATE) {
+        let time = parseInt((document.querySelector('span.tvm__text.tvm__text--neutral') as HTMLElement).innerText.split(' ')[2]);
         let today = new Date();
         switch (time_frame.substring(0,3)) {
             case 'day': DATE = new Date(today.getTime()-(time*86400000)).toDateString(); break;
             case 'wee': DATE = new Date(today.getTime()-(time*604800000)).toDateString(); break;
-            default: DATE = (document.querySelector('.jobs-unified-top-card__posted-date') as HTMLElement).innerText; break;
+            case 'mon': DATE = new Date(today.getTime()-(time*2419200000)).toDateString(); break;
+            default: DATE = (document.querySelector('span.tvm__text.tvm__text--neutral') as HTMLElement).innerText; break;
         }
     }
-    let location = (document.querySelector('.jobs-unified-top-card__bullet') as HTMLElement).innerText.split(',');
-    const LOCATION = location[location.length - 1].trim();
+    let location = compSection.innerText.split(',');
+    const LOCATION = location[location.length - 1].split('  ')[0];
     let APPLICANTS = 'NA';
-    if (document.querySelector(".jobs-unified-top-card__applicant-count"))
-        APPLICANTS = (document.querySelector(".jobs-unified-top-card__applicant-count") as HTMLElement).innerText.split(' ')[0];
-    else if (document.querySelectorAll(".jobs-unified-top-card__bullet")[1]) {
-        let applicants = (document.querySelectorAll(".jobs-unified-top-card__bullet")[1] as HTMLElement).innerText.split(' ');
-        applicants.forEach((word) => { if (!isNaN(parseInt(word))) APPLICANTS = word });
-    }
+    if (compSection.innerText.includes('applicants'))
+        APPLICANTS = compSection.innerText.split('· ')[2].split('applicants')[0].trim();
     
     const PARAM_STRING = 
         'name='+encodeURIComponent(NAME)+'&url='+LINK+'&loc='+LOCATION+'&date='+DATE+'&person='+PERSON+
