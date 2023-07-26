@@ -3,6 +3,11 @@ type Contact = {
     Employees: string, Company_linkedin: string, Company_web: string, More: string, Phone: string, Email: string, Jobs: number | string
 };
 
+type Company = {
+    Company: string, Company_linkedin: string, Company_apollo: string, Company_facebook: string, Employees: number | string, 
+    Industry: string, Keywords: string, Location: string
+}
+
 // The only tricky thing here is it uses the same parameters for different things. Now that we return the params, we could make this better.
 function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string} {
     const apolloContactSetup = {    // Conditions, error messages, alternative parsing function. These might become modular one day.

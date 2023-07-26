@@ -2,7 +2,7 @@
 function linkedinSift(Msg: {[key: string]: any}) : {Failed: boolean, String: string} {
     if (Msg['🌍'].includes("/jobs/")) return SiftLinkedJob();
     else if (Msg['🌍'].includes('invitation-manager')) return WithdrawInvitations();
-    else if (Msg['📁'] == 'LG') return SiftLinkedLead();
+    else if (Msg['📁'] == 'Lead') return SiftLinkedLead();
     else return SiftLinkedPerson(Msg['📁']);
 }
 
@@ -96,7 +96,7 @@ function SiftLinkedPerson(position: string) : {Failed: boolean, String: string} 
 }
 
 function SiftLinkedLead() : {Failed: boolean, String: string} {
-    const Exp = document.querySelectorAll("div.pvs-list__outer-container > ul > li:nth-child(1)")[1];
+    const Exp = document.querySelectorAll("div.pvs-list__outer-container > ul > li:nth-child(1)")[0];
     const Comp = (Exp.querySelector('span.t-14.t-normal')?.querySelector('span.visually-hidden') as HTMLElement).innerText.split(' ·')[0];
     const ENGLISH = (Comp.includes(' mos') || Comp.includes(' yrs ') || Comp.includes(' mo') || Comp.includes('Full-time')) ? 
         (Exp.querySelector('.mr1.hoverable-link-text.t-bold')?.querySelector('span.visually-hidden') as HTMLElement).innerText :
