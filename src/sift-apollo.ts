@@ -39,7 +39,7 @@ function apolloSift(Msg: {[key: string]: any}) : {Failed:boolean, String:string}
     const jobs = allLinks.filter(elem => positions.some(position => elem.innerText.includes(position)));
 
     const Sifted : Contact = {
-        Name: elements.name[0].innerText, 
+        Name: elements.name[0].innerText.split('\n')[0], 
         Name_apollo: document.URL.includes('?') ? document.URL.split('?')[0] + document.URL.split('=cio')[1] : document.URL, 
         Name_linkedin: linkedIn[0] ? linkedIn[0].attributes[1].value : 'NA',
         Location: elements.location[0] ? elements.location[0].innerText : 'NA', 
